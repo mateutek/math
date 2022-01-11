@@ -62,10 +62,10 @@ export default {
   name: 'App',
   data: () => ({
     links: [
-      // {
-      //   to: '/dzielenie/1',
-      //   title: 'Dzielenie'
-      // },
+      {
+        to: '/dzielenie/1',
+        title: 'Dzielenie'
+      },
       {
         to: '/mnozenie/1',
         title: 'mnożenie'

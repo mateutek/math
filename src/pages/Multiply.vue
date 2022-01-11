@@ -30,9 +30,9 @@
           <v-col>
             <v-row no-gutters justify="space-between">
               <h2>Poziom {{level}}</h2>
-              <h2>Punkty: {{score}}</h2>
+              <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
-            <h2 class="text-center text-h2 justify-center">
+            <h2 class="text-center text-h2 justify-center align-center d-flex">
               <animated-integer v-bind:value="multiplicand"/>
               <v-icon>mdi-close</v-icon>
               <animated-integer v-bind:value="multiplayer"/>
@@ -48,11 +48,11 @@
                 v-on:keyup.enter="checkAnswer"
             ></v-text-field>
             <v-row no-gutters justify="space-between">
-              <v-btn color="primary" v-on:click="checkAnswer">
-                Sprawdź
-              </v-btn>
               <v-btn color="secondary" v-on:click="generateNew">
                 Nowe zadanie
+              </v-btn>
+              <v-btn color="primary" v-on:click="checkAnswer">
+                Sprawdź
               </v-btn>
             </v-row>
           </v-col>
@@ -89,7 +89,8 @@
       multiplicand: 1,
       multiplayer: 1,
       invalidAnswer: false,
-      cardColor: 'white'
+      cardColor: 'white',
+      tasksTotal: 0
     }),
     methods: {
       checkAnswer: function () {
@@ -98,6 +99,7 @@
           this.invalidAnswer = false;
           this.answer = '';
           this.score += 1;
+          this.tasksTotal +=1;
           this.correctAnswer();
         } else {
           this.invalidAnswer = true;
@@ -112,6 +114,7 @@
         this.invalidAnswer = false;
         this.answer = '';
         this.cardColor = 'white';
+        this.tasksTotal +=1;
       },
       correctAnswer: function () {
         this.cardColor = 'green lighten-4';
