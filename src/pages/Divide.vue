@@ -30,13 +30,14 @@
           <v-col>
             <v-row no-gutters justify="space-between">
               <h2>Poziom {{level}}</h2>
+              <wrong-answers :wrong="wrongAnswers"/>
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
             <h2 class="text-center text-h2 justify-center align-center d-flex">
               <animated-integer v-bind:value="dividend"/>
               <v-icon>mdi-division</v-icon>
               <animated-integer v-bind:value="divisor"/>
-              = ?
+              = {{wrongAnswers === 3 ? `${solutionTotal} r ${solutionRest}` : '?'}}
             </h2>
             <v-row gutters>
               <v-col>
@@ -79,11 +80,12 @@
 
 <script>
 import AnimatedInteger from '@/components/animatedInteger';
+import WrongAnswers from '@/components/wrongAnswers';
 import {randomIntFromInterval} from '@/helpers/helpers';
 
 export default {
   name: 'Multiply',
-  components: {AnimatedInteger},
+  components: {WrongAnswers, AnimatedInteger},
   created() {
     this.level = this.$route.params.level;
     this.generateNew();
@@ -107,7 +109,8 @@ export default {
     divisor: 1,
     invalidAnswer: false,
     cardColor: 'white',
-    tasksTotal: 0
+    tasksTotal: -1,
+    wrongAnswers: 0,
   }),
   methods: {
     checkAnswer: function () {
@@ -117,7 +120,6 @@ export default {
         this.answerTotal = '';
         this.answerRest = '';
         this.score += 1;
-        this.answerTotal +=1;
         this.correctAnswer();
       } else {
         this.invalidAnswer = true;
@@ -134,6 +136,7 @@ export default {
       this.answerTotal = '';
       this.cardColor = 'white';
       this.tasksTotal +=1;
+      this.wrongAnswers = 0;
     },
     correctAnswer: function () {
       this.cardColor = 'green lighten-4';
@@ -143,6 +146,7 @@ export default {
     },
     wrongAnswer: function () {
       this.cardColor = 'red lighten-4';
+      this.wrongAnswers += 1;
     },
   }
 }

@@ -3,7 +3,7 @@
     <v-app-bar
         app
         color="white"
-        flat
+        elevate-on-scroll
     >
       <v-container class="py-0 fill-height">
         <router-link to="/">
@@ -19,26 +19,23 @@
 
         </router-link>
 
-        <router-link
-            v-for="link in links"
-            :key="link.to" :to="link.to"
-        >
-          <v-btn text>
-              {{ link.title }}
-          </v-btn>
-        </router-link>
+        <v-btn v-for="link in links"
+               :key="link.to" text active-class="primary"
+               :to="link.to">
+          {{ link.title }}
+        </v-btn>
 
         <v-spacer></v-spacer>
 
-<!--        <v-responsive max-width="260">-->
-<!--          <v-text-field-->
-<!--              dense-->
-<!--              flat-->
-<!--              hide-details-->
-<!--              rounded-->
-<!--              solo-inverted-->
-<!--          ></v-text-field>-->
-<!--        </v-responsive>-->
+        <!--        <v-responsive max-width="260">-->
+        <!--          <v-text-field-->
+        <!--              dense-->
+        <!--              flat-->
+        <!--              hide-details-->
+        <!--              rounded-->
+        <!--              solo-inverted-->
+        <!--          ></v-text-field>-->
+        <!--        </v-responsive>-->
       </v-container>
     </v-app-bar>
 

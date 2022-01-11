@@ -30,13 +30,14 @@
           <v-col>
             <v-row no-gutters justify="space-between">
               <h2>Poziom {{level}}</h2>
+              <wrong-answers :wrong="wrongAnswers"/>
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
             <h2 class="text-center text-h2 justify-center align-center d-flex">
               <animated-integer v-bind:value="multiplicand"/>
               <v-icon>mdi-close</v-icon>
               <animated-integer v-bind:value="multiplayer"/>
-              = ?
+              = {{wrongAnswers === 3 ? solution : '?'}}
             </h2>
             <v-text-field
                 ref="answer"
@@ -51,7 +52,7 @@
               <v-btn color="secondary" v-on:click="generateNew">
                 Nowe zadanie
               </v-btn>
-              <v-btn color="primary" v-on:click="checkAnswer">
+              <v-btn color="primary" v-on:click="checkAnswer" :disabled="wrongAnswers===3">
                 Sprawdź
               </v-btn>
             </v-row>
@@ -64,11 +65,12 @@
 
 <script>
   import AnimatedInteger from '@/components/animatedInteger';
+  import WrongAnswers from '@/components/wrongAnswers';
   import {randomIntFromInterval} from '@/helpers/helpers';
 
   export default {
     name: 'Multiply',
-    components: {AnimatedInteger},
+    components: {WrongAnswers, AnimatedInteger},
     created() {
       this.level = this.$route.params.level;
       this.generateNew();
@@ -90,7 +92,8 @@
       multiplayer: 1,
       invalidAnswer: false,
       cardColor: 'white',
-      tasksTotal: 0
+      tasksTotal: -1,
+      wrongAnswers: 0,
     }),
     methods: {
       checkAnswer: function () {
@@ -99,7 +102,6 @@
           this.invalidAnswer = false;
           this.answer = '';
           this.score += 1;
-          this.tasksTotal +=1;
           this.correctAnswer();
         } else {
           this.invalidAnswer = true;
@@ -115,6 +117,7 @@
         this.answer = '';
         this.cardColor = 'white';
         this.tasksTotal +=1;
+        this.wrongAnswers = 0;
       },
       correctAnswer: function () {
         this.cardColor = 'green lighten-4';
@@ -124,6 +127,7 @@
       },
       wrongAnswer: function () {
         this.cardColor = 'red lighten-4';
+        this.wrongAnswers += 1;
       },
     }
   }
