@@ -29,7 +29,7 @@
         >
           <v-col>
             <v-row no-gutters justify="space-between">
-              <h2>Poziom {{level}}</h2>
+              <h2>Poziom {{level}} (od {{levelMin}} do {{levelMax}})</h2>
               <wrong-answers :wrong="wrongAnswers"/>
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
@@ -97,6 +97,10 @@
       cardColor: 'white',
       tasksTotal: -1,
       wrongAnswers: 0,
+      levelMinScale: [1, 10, 100],
+      levelMaxScale: [10, 100, 1000],
+      levelMin: 0,
+      levelMax: 0,
     }),
     methods: {
       checkAnswer: function () {
@@ -113,11 +117,11 @@
         this.$refs.answer.$refs.input.focus();
       },
       generateNew: function () {
-        const levelMax = [10, 100, 1000];
-        const levelMin = [1, 10, 100];
         const index = this.level - 1;
-        this.addend1 = randomIntFromInterval(levelMin[index], levelMax[index]);
-        this.addend2 = randomIntFromInterval(levelMin[index], levelMax[index]);
+        this.levelMin = this.levelMinScale[index];
+        this.levelMax = this.levelMaxScale[index];
+        this.addend1 = randomIntFromInterval(this.levelMin, this.levelMax);
+        this.addend2 = randomIntFromInterval(this.levelMin, this.levelMax);
         this.solution = this.addend1 + this.addend2;
         this.invalidAnswer = false;
         this.answer = '';
