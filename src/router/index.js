@@ -7,17 +7,27 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    redirect: "/mnozenie/1",
+    redirect: "/dodawanie/1",
     name: "Home",
     component: Home,
   },
   {
-    path: "/dzielenie/:level",
+    path: "/dodawanie/:level?",
+    name: "addition",
+    component: () => import(/* webpackChunkName: "divide" */ "@/pages/Addition.vue"),
+  },
+  {
+    path: "/odejmowanie/:level?",
+    name: "subtraction",
+    component: () => import(/* webpackChunkName: "divide" */ "@/pages/Subtraction.vue"),
+  },
+  {
+    path: "/dzielenie/:level?",
     name: "divide",
     component: () => import(/* webpackChunkName: "divide" */ "@/pages/Divide"),
   },
   {
-    path: "/mnozenie/:level",
+    path: "/mnozenie/:level?",
     name: "multiply",
     component: () =>
       import(/* webpackChunkName: "multiply" */ "@/pages/Multiply"),

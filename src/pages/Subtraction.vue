@@ -69,7 +69,7 @@
   import {randomIntFromInterval} from '@/helpers/helpers';
 
   export default {
-    name: 'Multiply',
+    name: 'Subtraction',
     components: {WrongAnswers, AnimatedInteger},
     created() {
       if(this.$route.params.level === undefined) {

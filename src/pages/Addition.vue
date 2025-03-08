@@ -9,7 +9,7 @@
                   v-for="n in 3"
                   :key="n"
                   link
-                  :to="`/mnozenie/${n}`"
+                  :to="`/dodawanie/${n}`"
               >
                 <v-list-item-content>
                   <v-list-item-title>
@@ -34,9 +34,9 @@
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
             <h2 class="text-center text-h2 justify-center align-center d-flex">
-              <animated-integer v-bind:value="multiplicand"/>
-              <v-icon>mdi-close</v-icon>
-              <animated-integer v-bind:value="multiplayer"/>
+              <animated-integer v-bind:value="addend1"/>
+              <v-icon>mdi-plus</v-icon>
+              <animated-integer v-bind:value="addend2"/>
               = {{wrongAnswers === 3 ? solution : '?'}}
             </h2>
             <v-text-field
@@ -69,7 +69,7 @@
   import {randomIntFromInterval} from '@/helpers/helpers';
 
   export default {
-    name: 'Multiply',
+    name: 'Addition',
     components: {WrongAnswers, AnimatedInteger},
     created() {
       if(this.$route.params.level === undefined) {
@@ -80,10 +80,10 @@
     },
     watch: {
       $route(to) {
-        this.level = to.params.level;
+        this.level = to.params.level || 1;
       },
-      level(newLevel) {
-        console.log(newLevel);
+      level() {
+        this.generateNew();
       }
     },
     data: () => ({
@@ -91,8 +91,8 @@
       score: 0,
       solution: 1,
       answer:'',
-      multiplicand: 1,
-      multiplayer: 1,
+      addend1: 1,
+      addend2: 1,
       invalidAnswer: false,
       cardColor: 'white',
       tasksTotal: -1,
@@ -113,9 +113,12 @@
         this.$refs.answer.$refs.input.focus();
       },
       generateNew: function () {
-        this.multiplicand = randomIntFromInterval(50,500);
-        this.multiplayer = randomIntFromInterval(5,10);
-        this.solution = this.multiplicand * this.multiplayer;
+        const levelMax = [10, 100, 1000];
+        const levelMin = [1, 10, 100];
+        const index = this.level - 1;
+        this.addend1 = randomIntFromInterval(levelMin[index], levelMax[index]);
+        this.addend2 = randomIntFromInterval(levelMin[index], levelMax[index]);
+        this.solution = this.addend1 + this.addend2;
         this.invalidAnswer = false;
         this.answer = '';
         this.cardColor = 'white';

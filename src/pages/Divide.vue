@@ -9,7 +9,7 @@
                   v-for="n in 3"
                   :key="n"
                   link
-                  :to="`/mnozenie/${n}`"
+                  :to="`/dzielenie/${n}`"
               >
                 <v-list-item-content>
                   <v-list-item-title>
@@ -84,9 +84,12 @@ import WrongAnswers from '@/components/wrongAnswers';
 import {randomIntFromInterval} from '@/helpers/helpers';
 
 export default {
-  name: 'Multiply',
+  name: 'Divide',
   components: {WrongAnswers, AnimatedInteger},
   created() {
+    if(this.$route.params.level === undefined) {
+      this.$router.push(`${this.$route.path}/1`);
+    }
     this.level = this.$route.params.level;
     this.generateNew();
   },

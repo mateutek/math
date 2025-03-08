@@ -60,11 +60,19 @@ export default {
   data: () => ({
     links: [
       {
-        to: '/dzielenie/1',
+        to: '/dodawanie',
+        title: 'dodawanie'
+      },
+      // {
+      //   to: '/odejmowanie',
+      //   title: 'odejmowanie'
+      // },
+      {
+        to: '/dzielenie',
         title: 'Dzielenie'
       },
       {
-        to: '/mnozenie/1',
+        to: '/mnozenie',
         title: 'mnożenie'
       }
     ],
