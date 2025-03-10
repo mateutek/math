@@ -9,7 +9,7 @@
                   v-for="n in 3"
                   :key="n"
                   link
-                  :to="`/mnozenie/${n}`"
+                  :to="`/odejmowanie/${n}`"
               >
                 <v-list-item-content>
                   <v-list-item-title>
@@ -29,14 +29,14 @@
         >
           <v-col>
             <v-row no-gutters justify="space-between">
-              <h2>Poziom {{level}}</h2>
+               <h2>Poziom {{level}} (od {{levelMin}} do {{levelMax}})</h2>
               <wrong-answers :wrong="wrongAnswers"/>
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
             <h2 class="text-center text-h2 justify-center align-center d-flex">
-              <animated-integer v-bind:value="multiplicand"/>
-              <v-icon>mdi-close</v-icon>
-              <animated-integer v-bind:value="multiplayer"/>
+              <animated-integer v-bind:value="minuend"/>
+              <v-icon>mdi-minus</v-icon>
+              <animated-integer v-bind:value="subtrahend"/>
               = {{wrongAnswers === 3 ? solution : '?'}}
             </h2>
             <v-text-field
@@ -83,7 +83,7 @@
         this.level = to.params.level;
       },
       level(newLevel) {
-        console.log(newLevel);
+        this.generateNew(newLevel);
       }
     },
     data: () => ({
@@ -91,12 +91,16 @@
       score: 0,
       solution: 1,
       answer:'',
-      multiplicand: 1,
-      multiplayer: 1,
+      minuend: 1,
+      subtrahend: 1,
       invalidAnswer: false,
-      cardColor: 'white',
-      tasksTotal: -1,
+      cardColor: 'black',
+      tasksTotal: 0,
       wrongAnswers: 0,
+      levelMinScale: [1, 10, 100],
+      levelMaxScale: [10, 100, 1000],
+      levelMin: 0,
+      levelMax: 0,
     }),
     methods: {
       checkAnswer: function () {
@@ -112,24 +116,37 @@
         }
         this.$refs.answer.$refs.input.focus();
       },
-      generateNew: function () {
-        this.multiplicand = randomIntFromInterval(50,500);
-        this.multiplayer = randomIntFromInterval(5,10);
-        this.solution = this.multiplicand * this.multiplayer;
+      generateNew: function (newLevel) {
+        if(newLevel !== undefined && typeof newLevel==='string') {
+          this.tasksTotal -=1;
+        }
+        const index = this.level - 1;
+        this.levelMin = this.levelMinScale[index];
+        this.levelMax = this.levelMaxScale[index];
+
+        this.minuend = randomIntFromInterval(this.levelMin, this.levelMax);
+        this.subtrahend = randomIntFromInterval(this.levelMin, this.levelMax);
+
+        if(this.minuend < this.subtrahend) {
+          this.minuend = this.subtrahend + randomIntFromInterval(1, this.levelMax);
+        }
+
+        this.solution = this.minuend - this.subtrahend;
         this.invalidAnswer = false;
         this.answer = '';
-        this.cardColor = 'white';
+        this.cardColor = 'black'
         this.tasksTotal +=1;
         this.wrongAnswers = 0;
+
       },
       correctAnswer: function () {
-        this.cardColor = 'green lighten-4';
+        this.cardColor = 'green darken-4';
         setTimeout(() => {
-          this.cardColor = 'white';
+          this.cardColor = 'black'
         }, 1000);
       },
       wrongAnswer: function () {
-        this.cardColor = 'red lighten-4';
+        this.cardColor = 'red darken-4';
         this.wrongAnswers += 1;
       },
     }

@@ -94,11 +94,11 @@
       addend1: 1,
       addend2: 1,
       invalidAnswer: false,
-      cardColor: 'white',
-      tasksTotal: -1,
+      cardColor: 'black',
+      tasksTotal: 0,
       wrongAnswers: 0,
-      levelMinScale: [1, 10, 100],
-      levelMaxScale: [10, 100, 1000],
+      levelMinScale: [2, 5, 20],
+      levelMaxScale: [10, 100, 200],
       levelMin: 0,
       levelMax: 0,
     }),
@@ -116,7 +116,10 @@
         }
         this.$refs.answer.$refs.input.focus();
       },
-      generateNew: function () {
+      generateNew: function (newLevel) {
+        if(newLevel !== undefined && typeof newLevel==='string') {
+          this.tasksTotal -=1;
+        }
         const index = this.level - 1;
         this.levelMin = this.levelMinScale[index];
         this.levelMax = this.levelMaxScale[index];
@@ -125,18 +128,18 @@
         this.solution = this.addend1 + this.addend2;
         this.invalidAnswer = false;
         this.answer = '';
-        this.cardColor = 'white';
+        this.cardColor = 'black';
         this.tasksTotal +=1;
         this.wrongAnswers = 0;
       },
       correctAnswer: function () {
-        this.cardColor = 'green lighten-4';
+        this.cardColor = 'green darken-4';
         setTimeout(() => {
-          this.cardColor = 'white';
+          this.cardColor = 'black'
         }, 1000);
       },
       wrongAnswer: function () {
-        this.cardColor = 'red lighten-4';
+        this.cardColor = 'red darken-4';
         this.wrongAnswers += 1;
       },
     }

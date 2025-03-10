@@ -2,7 +2,6 @@
   <v-app id="inspire">
     <v-app-bar
         app
-        color="white"
         elevate-on-scroll
     >
       <v-container class="py-0 fill-height">
@@ -39,7 +38,7 @@
       </v-container>
     </v-app-bar>
 
-    <v-main class="grey lighten-3">
+    <v-main class="dark-grey lighten-3">
       <router-view/>
     </v-main>
     <v-footer padless>
@@ -63,17 +62,17 @@ export default {
         to: '/dodawanie',
         title: 'dodawanie'
       },
-      // {
-      //   to: '/odejmowanie',
-      //   title: 'odejmowanie'
-      // },
       {
-        to: '/dzielenie',
-        title: 'Dzielenie'
+        to: '/odejmowanie',
+        title: 'odejmowanie'
       },
       {
         to: '/mnozenie',
         title: 'mnożenie'
+      },
+      {
+        to: '/dzielenie',
+        title: 'Dzielenie'
       }
     ],
   }),

@@ -29,7 +29,7 @@
         >
           <v-col>
             <v-row no-gutters justify="space-between">
-              <h2>Poziom {{level}}</h2>
+               <h2>Poziom {{level}} (od {{levelMin}} do {{levelMax}})</h2>
               <wrong-answers :wrong="wrongAnswers"/>
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
@@ -83,7 +83,7 @@
         this.level = to.params.level;
       },
       level(newLevel) {
-        console.log(newLevel);
+        this.generateNew(newLevel);
       }
     },
     data: () => ({
@@ -94,9 +94,13 @@
       multiplicand: 1,
       multiplayer: 1,
       invalidAnswer: false,
-      cardColor: 'white',
-      tasksTotal: -1,
+      cardColor: 'black',
+      tasksTotal: 0,
       wrongAnswers: 0,
+      levelMinScale: [1, 5, 10],
+      levelMaxScale: [10, 20, 30],
+      levelMin: 0,
+      levelMax: 0,
     }),
     methods: {
       checkAnswer: function () {
@@ -112,24 +116,31 @@
         }
         this.$refs.answer.$refs.input.focus();
       },
-      generateNew: function () {
-        this.multiplicand = randomIntFromInterval(50,500);
-        this.multiplayer = randomIntFromInterval(5,10);
+      generateNew: function (newLevel) {
+        if(newLevel !== undefined && typeof newLevel==='string') {
+          this.tasksTotal -=1;
+        }
+        const index = this.level - 1;
+        this.levelMin = this.levelMinScale[index];
+        this.levelMax = this.levelMaxScale[index];
+
+        this.multiplicand = randomIntFromInterval(this.levelMin, this.levelMax);
+        this.multiplayer = randomIntFromInterval(this.levelMin, this.levelMax);
         this.solution = this.multiplicand * this.multiplayer;
         this.invalidAnswer = false;
         this.answer = '';
-        this.cardColor = 'white';
+        this.cardColor = 'black'
         this.tasksTotal +=1;
         this.wrongAnswers = 0;
       },
       correctAnswer: function () {
-        this.cardColor = 'green lighten-4';
+        this.cardColor = 'green darken-4';
         setTimeout(() => {
-          this.cardColor = 'white';
+          this.cardColor = 'black'
         }, 1000);
       },
       wrongAnswer: function () {
-        this.cardColor = 'red lighten-4';
+        this.cardColor = 'red darken-4';
         this.wrongAnswers += 1;
       },
     }
