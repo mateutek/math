@@ -28,9 +28,10 @@
             :color="cardColor"
         >
           <v-col>
-            <v-row no-gutters justify="space-between">
+            <v-row no-gutters justify="space-between" align="center">
                <h2>Poziom {{level}} (od {{levelMin}} do {{levelMax}})</h2>
               <wrong-answers :wrong="wrongAnswers"/>
+              <timer v-if="settings.timerEnabled" :duration="timerDurations[level-1]" :key="timerKey" @timeout="wrongAnswer"/>
               <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
             </v-row>
             <h2 class="text-center text-h2 justify-center align-center d-flex">
@@ -66,11 +67,13 @@
 <script>
   import AnimatedInteger from '@/components/animatedInteger';
   import WrongAnswers from '@/components/wrongAnswers';
+  import Timer from '@/components/Timer';
   import {randomIntFromInterval} from '@/helpers/helpers';
+  import settings from '@/store/settings';
 
   export default {
     name: 'Subtraction',
-    components: {WrongAnswers, AnimatedInteger},
+    components: {WrongAnswers, AnimatedInteger, Timer},
     created() {
       if(this.$route.params.level === undefined) {
         this.$router.push(`${this.$route.path}/1`);
@@ -87,6 +90,9 @@
       }
     },
     data: () => ({
+      settings,
+      timerDurations: [30, 20, 15],
+      timerKey: 0,
       level: 0,
       score: 0,
       solution: 1,
@@ -137,7 +143,7 @@
         this.cardColor = 'black'
         this.tasksTotal +=1;
         this.wrongAnswers = 0;
-
+        this.timerKey += 1;
       },
       correctAnswer: function () {
         this.cardColor = 'green darken-4';
@@ -148,6 +154,9 @@
       wrongAnswer: function () {
         this.cardColor = 'red darken-4';
         this.wrongAnswers += 1;
+        if (this.wrongAnswers < 3) {
+          this.timerKey += 1;
+        }
       },
     }
   }
