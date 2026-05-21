@@ -70,6 +70,7 @@ export default {
       { to: '/odejmowanie', title: 'odejmowanie' },
       { to: '/mnozenie', title: 'mnożenie' },
       { to: '/dzielenie', title: 'Dzielenie' },
+      { to: '/dzielenie2', title: 'DzielBezReszty' },
     ],
   }),
 };
