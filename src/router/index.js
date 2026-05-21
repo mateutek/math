@@ -27,6 +27,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "divide" */ "@/pages/Divide"),
   },
   {
+    path: "/dzielenie2/:level?",
+    name: "divide2",
+    component: () => import(/* webpackChunkName: "divide2" */ "@/pages/Divide_2"),
+  },
+  {
     path: "/mnozenie/:level?",
     name: "multiply",
     component: () =>
