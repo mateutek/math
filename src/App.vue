@@ -3,19 +3,24 @@ import { computed } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
 import { Infinity as InfinityIcon, Timer } from 'lucide-vue-next'
 import settings from '@/store/settings'
+import { t } from '@/i18n'
 
 const route = useRoute()
 const year = new Date().getFullYear()
 
-// Operation config reused across the app: symbol, css class, accent color,
-// route and Polish label. Op-chips link to `<route>/1`.
+// Operation config reused across the app: symbol, css class, accent color and
+// route. The chip label comes from i18n via the op key. Op-chips link to `<route>/1`.
 const ops = [
-  { key: 'addition', symbol: '+', cls: 'add', color: '#22c55e', route: '/dodawanie', label: 'Dodawanie' },
-  { key: 'subtraction', symbol: '−', cls: 'sub', color: '#f59e0b', route: '/odejmowanie', label: 'Odejmowanie' },
-  { key: 'multiply', symbol: '×', cls: 'mul', color: '#6366f1', route: '/mnozenie', label: 'Mnożenie' },
-  { key: 'divide', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie', label: 'Dzielenie' },
-  { key: 'divide2', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie2', label: 'Bez reszty' },
+  { key: 'addition', symbol: '+', cls: 'add', color: '#22c55e', route: '/dodawanie' },
+  { key: 'subtraction', symbol: '−', cls: 'sub', color: '#f59e0b', route: '/odejmowanie' },
+  { key: 'multiply', symbol: '×', cls: 'mul', color: '#6366f1', route: '/mnozenie' },
+  { key: 'divide', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie' },
+  { key: 'divide2', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie2' },
 ]
+
+function setLang(lang) {
+  settings.lang = lang
+}
 
 // Match the op route at a path boundary so `/dzielenie` does not also
 // activate while on `/dzielenie2`.
@@ -37,8 +42,12 @@ const timerColor = computed(() =>
     <header class="kid-header">
       <div class="kid-header-in">
         <span class="kid-mark"><InfinityIcon :size="22" /></span>
-        <span class="kid-wordmark">Math <span class="en">matematyka</span></span>
+        <span class="kid-wordmark">Math <span class="en">{{ t('subtitle') }}</span></span>
         <div class="kid-right">
+          <div class="kid-lang" role="group" aria-label="Language">
+            <button :class="{ on: settings.lang === 'pl' }" @click="setLang('pl')">PL</button>
+            <button :class="{ on: settings.lang === 'en' }" @click="setLang('en')">EN</button>
+          </div>
           <button
             class="kid-zegar"
             role="switch"
@@ -47,7 +56,7 @@ const timerColor = computed(() =>
           >
             <span class="kid-switch" :aria-checked="settings.timerEnabled"></span>
             <Timer :size="16" :style="{ color: timerColor }" />
-            Zegar
+            {{ t('timer') }}
           </button>
         </div>
       </div>
@@ -64,7 +73,7 @@ const timerColor = computed(() =>
           :class="[o.cls, { active: isActive(o.route) }]"
         >
           <span class="sym">{{ o.symbol }}</span>
-          <span class="lab">{{ o.label }}</span>
+          <span class="lab">{{ t(o.key) }}</span>
         </RouterLink>
       </div>
 

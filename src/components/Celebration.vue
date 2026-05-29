@@ -1,6 +1,7 @@
 <script setup name="celebration">
 import { computed } from 'vue'
 import { PartyPopper } from 'lucide-vue-next'
+import { t } from '@/i18n'
 
 // Confetti burst + "Brawo!" banner shown on a correct answer. Re-keyed by the
 // parent (via the `cheer` counter) so the confetti remounts and re-animates
@@ -22,7 +23,7 @@ const props = defineProps({
   },
   label: {
     type: String,
-    default: 'Brawo!',
+    default: null,
   },
 })
 
@@ -54,6 +55,6 @@ const pieces = computed(() => {
     <i v-for="(p, i) in pieces" :key="i" :style="p" />
   </div>
   <div class="kid-cheer">
-    <PartyPopper :size="18" /> {{ label }}
+    <PartyPopper :size="18" /> {{ label ?? t('bravo') }}
   </div>
 </template>

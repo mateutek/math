@@ -9,6 +9,7 @@ import StarRow from '@/components/StarRow.vue'
 import Celebration from '@/components/Celebration.vue'
 import { randomIntFromInterval } from '@/helpers/helpers'
 import settings from '@/store/settings'
+import { t } from '@/i18n'
 
 const route = useRoute()
 const router = useRouter()
@@ -118,7 +119,7 @@ onMounted(() => {
     <div class="kid-status">
       <div class="kid-score">
         <span class="num">{{ score }} / {{ tasksTotal }}</span>
-        <span class="cap">Punkty</span>
+        <span class="cap">{{ t('points') }}</span>
       </div>
       <div v-if="settings.timerEnabled" class="kid-timer-slot">
         <TimerRing
@@ -139,7 +140,7 @@ onMounted(() => {
         :class="{ active: Number(level) === n }"
         :to="`/dodawanie/${n}`"
       >
-        <span class="pl">Poziom {{ n }}</span>
+        <span class="pl">{{ t('level') }} {{ n }}</span>
         <span class="rg">{{ levelMinScale[n - 1] }}–{{ levelMaxScale[n - 1] }}</span>
       </RouterLink>
     </div>
@@ -162,7 +163,7 @@ onMounted(() => {
 
     <!-- answer field -->
     <div class="kid-field">
-      <label class="kid-field-label">Wynik</label>
+      <label class="kid-field-label">{{ t('answer') }}</label>
       <input
         ref="answerInput"
         v-model="answer"
@@ -179,14 +180,14 @@ onMounted(() => {
     <!-- actions -->
     <div class="kid-actions">
       <button class="kid-btn kid-btn-ghost" @click="generateNew">
-        <RefreshCw :size="18" /> Nowe
+        <RefreshCw :size="18" /> {{ t('newBtn') }}
       </button>
       <button
         class="kid-btn kid-btn-primary"
         :disabled="wrongAnswers === 3"
         @click="checkAnswer"
       >
-        <Check :size="20" /> Sprawdź
+        <Check :size="20" /> {{ t('check') }}
       </button>
     </div>
   </div>
