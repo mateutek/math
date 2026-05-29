@@ -57,13 +57,17 @@
 .kid-ops { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .kid-chip {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-  height: 64px; border-radius: 18px; cursor: pointer;
+  min-height: 64px; padding: 6px 4px; border-radius: 18px; cursor: pointer;
   border: 2px solid var(--k-card-border); background: var(--k-card);
   font-family: var(--font-sans); color: var(--foreground);
   transition: transform .12s ease, box-shadow .12s ease, background .15s ease, border-color .15s ease;
 }
 .kid-chip .sym { font-family: var(--font-mono); font-size: 26px; font-weight: 700; line-height: 1; }
-.kid-chip .lab { font-size: 10.5px; font-weight: 600; opacity: .75; }
+.kid-chip .lab {
+  font-size: 10.5px; font-weight: 600; opacity: .75;
+  width: 100%; text-align: center; line-height: 1.1;
+  overflow-wrap: anywhere; hyphens: auto;
+}
 .kid-chip:hover { transform: translateY(-2px); }
 .kid-chip.active { color: #fff; border-color: transparent; box-shadow: 0 5px 0 rgba(0,0,0,.12); transform: translateY(-1px); }
 .kid-chip.add.active { background: var(--k-op-add); }
