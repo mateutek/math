@@ -44,10 +44,7 @@ function focusAnswer() {
   })
 }
 
-function generateNew(newLevel) {
-  if (newLevel !== undefined && typeof newLevel === 'string') {
-    tasksTotal.value -= 1
-  }
+function generateNew() {
   const index = level.value - 1
   levelMin.value = levelMinScale[index]
   levelMax.value = levelMaxScale[index]
@@ -110,8 +107,8 @@ watch(
   }
 )
 
-watch(level, (newLevel) => {
-  generateNew(newLevel)
+watch(level, () => {
+  generateNew()
 })
 
 onMounted(() => {
@@ -119,7 +116,6 @@ onMounted(() => {
     router.push(`${route.path}/1`)
   }
   level.value = route.params.level
-  generateNew()
   focusAnswer()
 })
 </script>

@@ -103,7 +103,6 @@ onMounted(() => {
     router.push(`${route.path}/1`)
   }
   level.value = parseInt(route.params.level) || 1
-  generateNew()
 })
 </script>
 
