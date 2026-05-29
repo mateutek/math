@@ -1,16 +1,16 @@
-import Vue from 'vue';
+import { reactive, watch } from 'vue'
 
-const stored = localStorage.getItem('timerEnabled');
+const stored = localStorage.getItem('timerEnabled')
 
-const settings = Vue.observable({
+const settings = reactive({
   timerEnabled: stored !== null ? JSON.parse(stored) : false,
-});
+})
 
-export default new Proxy(settings, {
-  set(target, key, value) {
-    target[key] = value;
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
+watch(
+  () => settings.timerEnabled,
+  (value) => {
+    localStorage.setItem('timerEnabled', JSON.stringify(value))
   },
-});
+)
 
+export default settings

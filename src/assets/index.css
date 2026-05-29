@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm, kid-friendly placeholder palette (light) */
+    --background: 40 60% 97%;        /* warm cream */
+    --foreground: 25 45% 22%;        /* soft brown */
+
+    --card: 40 55% 99%;
+    --card-foreground: 25 45% 22%;
+
+    --popover: 40 55% 99%;
+    --popover-foreground: 25 45% 22%;
+
+    --primary: 25 95% 55%;           /* orange */
+    --primary-foreground: 40 60% 98%;
+
+    --secondary: 45 95% 60%;         /* amber / yellow */
+    --secondary-foreground: 25 45% 22%;
+
+    --muted: 38 40% 92%;
+    --muted-foreground: 28 25% 45%;
+
+    --accent: 35 90% 88%;            /* soft peach */
+    --accent-foreground: 25 45% 22%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 40 60% 98%;
+
+    --border: 35 40% 85%;
+    --input: 35 40% 85%;
+    --ring: 25 95% 55%;
+
+    --radius: 1rem;
+  }
+
+  .dark {
+    /* Warm, kid-friendly placeholder palette (dark) */
+    --background: 24 30% 12%;        /* deep warm brown */
+    --foreground: 40 50% 92%;        /* warm cream text */
+
+    --card: 24 28% 16%;
+    --card-foreground: 40 50% 92%;
+
+    --popover: 24 28% 16%;
+    --popover-foreground: 40 50% 92%;
+
+    --primary: 25 90% 58%;           /* orange */
+    --primary-foreground: 24 30% 12%;
+
+    --secondary: 45 85% 55%;         /* amber / yellow */
+    --secondary-foreground: 24 30% 12%;
+
+    --muted: 24 22% 22%;
+    --muted-foreground: 38 25% 70%;
+
+    --accent: 28 35% 28%;
+    --accent-foreground: 40 50% 92%;
+
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 40 50% 92%;
+
+    --border: 24 22% 26%;
+    --input: 24 22% 26%;
+    --ring: 25 90% 58%;
+
+    --radius: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

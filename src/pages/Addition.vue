@@ -1,157 +1,174 @@
-<template>
-  <v-container>
-    <v-row>
-      <v-col lg="2" md="2" sm="12" cols="12" order="2" order-md="1">
-        <v-sheet rounded="lg">
-          <v-list color="transparent">
-            <v-list-item-group>
-              <v-list-item
-                  v-for="n in 3"
-                  :key="n"
-                  link
-                  :to="`/dodawanie/${n}`"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    Poziom: {{ n }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-sheet>
-      </v-col>
+<script setup name="addition">
+import { ref, watch, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { Plus } from 'lucide-vue-next'
+import AnimatedInteger from '@/components/animatedInteger.vue'
+import WrongAnswers from '@/components/wrongAnswers.vue'
+import Timer from '@/components/Timer.vue'
+import { randomIntFromInterval } from '@/helpers/helpers'
+import settings from '@/store/settings'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-      <v-col lg="10" md="10" sm="12" cols="12" order="1" order-md="2">
-        <v-card
-            rounded="lg"
-            :color="cardColor"
-        >
-          <v-col>
-            <v-row no-gutters justify="space-between" align="center">
-              <h2>Poziom {{level}} (od {{levelMin}} do {{levelMax}})</h2>
-              <wrong-answers :wrong="wrongAnswers"/>
-              <timer v-if="settings.timerEnabled" :duration="timerDurations[level-1]" :key="timerKey" @timeout="wrongAnswer"/>
-              <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
-            </v-row>
-            <h2 class="text-center text-h2 justify-center align-center d-flex">
-              <animated-integer v-bind:value="addend1"/>
-              <v-icon>mdi-plus</v-icon>
-              <animated-integer v-bind:value="addend2"/>
-              = {{wrongAnswers === 3 ? solution : '?'}}
-            </h2>
-            <v-text-field
-                ref="answer"
-                type="number"
-                v-model="answer"
-                label="Wynik"
-                required
-                autofocus
-                v-on:keyup.enter="checkAnswer"
-            ></v-text-field>
-            <v-row no-gutters justify="space-between">
-              <v-btn color="secondary" v-on:click="generateNew">
-                Nowe zadanie
-              </v-btn>
-              <v-btn color="primary" v-on:click="checkAnswer" :disabled="wrongAnswers===3">
-                Sprawdź
-              </v-btn>
-            </v-row>
-          </v-col>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
-</template>
+const route = useRoute()
+const router = useRouter()
 
-<script>
-  import AnimatedInteger from '@/components/animatedInteger';
-  import WrongAnswers from '@/components/wrongAnswers';
-  import Timer from '@/components/Timer';
-  import {randomIntFromInterval} from '@/helpers/helpers';
-  import settings from '@/store/settings';
+const timerDurations = [30, 20, 15]
+const levelMinScale = [2, 5, 20]
+const levelMaxScale = [10, 100, 200]
 
-  export default {
-    name: 'Addition',
-    components: {WrongAnswers, AnimatedInteger, Timer},
-    created() {
-      if(this.$route.params.level === undefined) {
-        this.$router.push(`${this.$route.path}/1`);
-      }
-      this.level = this.$route.params.level;
-      this.generateNew();
-    },
-    watch: {
-      $route(to) {
-        this.level = to.params.level || 1;
-      },
-      level() {
-        this.generateNew();
-      }
-    },
-    data: () => ({
-      settings,
-      timerDurations: [30, 20, 15],
-      timerKey: 0,
-      level: 0,
-      score: 0,
-      solution: 1,
-      answer:'',
-      addend1: 1,
-      addend2: 1,
-      invalidAnswer: false,
-      cardColor: 'black',
-      tasksTotal: 0,
-      wrongAnswers: 0,
-      levelMinScale: [2, 5, 20],
-      levelMaxScale: [10, 100, 200],
-      levelMin: 0,
-      levelMax: 0,
-    }),
-    methods: {
-      checkAnswer: function () {
-        if(parseInt(this.answer) === this.solution) {
-          this.generateNew();
-          this.invalidAnswer = false;
-          this.answer = '';
-          this.score += 1;
-          this.correctAnswer();
-        } else {
-          this.invalidAnswer = true;
-          this.wrongAnswer();
-        }
-        this.$refs.answer.$refs.input.focus();
-      },
-      generateNew: function (newLevel) {
-        if(newLevel !== undefined && typeof newLevel==='string') {
-          this.tasksTotal -=1;
-        }
-        const index = this.level - 1;
-        this.levelMin = this.levelMinScale[index];
-        this.levelMax = this.levelMaxScale[index];
-        this.addend1 = randomIntFromInterval(this.levelMin, this.levelMax);
-        this.addend2 = randomIntFromInterval(this.levelMin, this.levelMax);
-        this.solution = this.addend1 + this.addend2;
-        this.invalidAnswer = false;
-        this.answer = '';
-        this.cardColor = 'black';
-        this.tasksTotal +=1;
-        this.wrongAnswers = 0;
-        this.timerKey += 1;
-      },
-      correctAnswer: function () {
-        this.cardColor = 'green darken-4';
-        setTimeout(() => {
-          this.cardColor = 'black'
-        }, 1000);
-      },
-      wrongAnswer: function () {
-        this.cardColor = 'red darken-4';
-        this.wrongAnswers += 1;
-        if (this.wrongAnswers < 3) {
-          this.timerKey += 1;
-        }
-      },
-    }
+const timerKey = ref(0)
+const level = ref(0)
+const score = ref(0)
+const solution = ref(1)
+const answer = ref('')
+const addend1 = ref(1)
+const addend2 = ref(1)
+const cardFlash = ref('')
+const tasksTotal = ref(0)
+const wrongAnswers = ref(0)
+const levelMin = ref(0)
+const levelMax = ref(0)
+
+const answerInput = ref(null)
+
+let flashTimeout = null
+
+function generateNew() {
+  const index = level.value - 1
+  levelMin.value = levelMinScale[index]
+  levelMax.value = levelMaxScale[index]
+  addend1.value = randomIntFromInterval(levelMin.value, levelMax.value)
+  addend2.value = randomIntFromInterval(levelMin.value, levelMax.value)
+  solution.value = addend1.value + addend2.value
+  answer.value = ''
+  cardFlash.value = ''
+  tasksTotal.value += 1
+  wrongAnswers.value = 0
+  timerKey.value += 1
+}
+
+function correctAnswer() {
+  cardFlash.value = 'bg-green-900/40 border-green-700'
+  if (flashTimeout) clearTimeout(flashTimeout)
+  flashTimeout = setTimeout(() => {
+    cardFlash.value = ''
+  }, 1000)
+}
+
+function wrongAnswer() {
+  cardFlash.value = 'bg-red-900/40 border-red-700'
+  wrongAnswers.value += 1
+  if (wrongAnswers.value < 3) {
+    timerKey.value += 1
   }
+}
+
+function focusAnswer() {
+  nextTick(() => {
+    answerInput.value?.$el?.focus?.()
+  })
+}
+
+function checkAnswer() {
+  if (parseInt(answer.value) === solution.value) {
+    generateNew()
+    answer.value = ''
+    score.value += 1
+    correctAnswer()
+  } else {
+    wrongAnswer()
+  }
+  focusAnswer()
+}
+
+watch(
+  () => route.params.level,
+  (newLevel) => {
+    level.value = newLevel || 1
+  }
+)
+
+watch(level, () => {
+  generateNew()
+})
+
+onMounted(() => {
+  if (route.params.level === undefined) {
+    router.push(`${route.path}/1`)
+  }
+  level.value = route.params.level || 1
+  generateNew()
+})
 </script>
+
+<template>
+  <div class="container px-2 py-4 md:px-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+      <!-- Sidebar: level links -->
+      <aside class="order-2 md:order-1 md:col-span-2">
+        <Card>
+          <CardContent class="p-2">
+            <nav class="flex flex-col">
+              <RouterLink
+                v-for="n in 3"
+                :key="n"
+                :to="`/dodawanie/${n}`"
+                class="rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                :class="{ 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground': Number(level) === n }"
+              >
+                Poziom: {{ n }}
+              </RouterLink>
+            </nav>
+          </CardContent>
+        </Card>
+      </aside>
+
+      <!-- Main: task card -->
+      <section class="order-1 md:order-2 md:col-span-10">
+        <Card :class="['transition-colors duration-300', cardFlash]">
+          <CardContent class="p-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <h2 class="text-xl font-semibold">
+                Poziom {{ level }} (od {{ levelMin }} do {{ levelMax }})
+              </h2>
+              <WrongAnswers :wrong="wrongAnswers" />
+              <timer
+                v-if="settings.timerEnabled"
+                :key="timerKey"
+                :duration="timerDurations[level - 1]"
+                @timeout="wrongAnswer"
+              />
+              <h2 class="text-xl font-semibold">Punkty: {{ score }} z {{ tasksTotal }}</h2>
+            </div>
+
+            <div class="my-10 flex items-center justify-center gap-4 text-5xl font-bold md:text-6xl">
+              <animated-integer :value="addend1" />
+              <Plus class="h-10 w-10 md:h-12 md:w-12" />
+              <animated-integer :value="addend2" />
+              <span>= {{ wrongAnswers === 3 ? solution : '?' }}</span>
+            </div>
+
+            <Input
+              ref="answerInput"
+              v-model="answer"
+              type="number"
+              placeholder="Wynik"
+              autofocus
+              class="mb-6"
+              @keyup.enter="checkAnswer"
+            />
+
+            <div class="flex items-center justify-between gap-4">
+              <Button variant="secondary" @click="generateNew">Nowe zadanie</Button>
+              <Button variant="primary" :disabled="wrongAnswers === 3" @click="checkAnswer">
+                Sprawdź
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  </div>
+</template>

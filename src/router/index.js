@@ -1,48 +1,43 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import Home from "../pages/Home.vue";
-
-Vue.use(VueRouter);
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from '@/pages/Home.vue'
 
 const routes = [
   {
-    path: "/",
-    redirect: "/dodawanie/1",
-    name: "Home",
+    path: '/',
+    redirect: '/dodawanie/1',
+    name: 'Home',
     component: Home,
   },
   {
-    path: "/dodawanie/:level?",
-    name: "addition",
-    component: () => import(/* webpackChunkName: "divide" */ "@/pages/Addition.vue"),
+    path: '/dodawanie/:level?',
+    name: 'addition',
+    component: () => import('@/pages/Addition.vue'),
   },
   {
-    path: "/odejmowanie/:level?",
-    name: "subtraction",
-    component: () => import(/* webpackChunkName: "divide" */ "@/pages/Subtraction.vue"),
+    path: '/odejmowanie/:level?',
+    name: 'subtraction',
+    component: () => import('@/pages/Subtraction.vue'),
   },
   {
-    path: "/dzielenie/:level?",
-    name: "divide",
-    component: () => import(/* webpackChunkName: "divide" */ "@/pages/Divide"),
+    path: '/dzielenie/:level?',
+    name: 'divide',
+    component: () => import('@/pages/Divide.vue'),
   },
   {
-    path: "/dzielenie2/:level?",
-    name: "divide2",
-    component: () => import(/* webpackChunkName: "divide2" */ "@/pages/Divide_2"),
+    path: '/dzielenie2/:level?',
+    name: 'divide2',
+    component: () => import('@/pages/Divide_2.vue'),
   },
   {
-    path: "/mnozenie/:level?",
-    name: "multiply",
-    component: () =>
-      import(/* webpackChunkName: "multiply" */ "@/pages/Multiply"),
+    path: '/mnozenie/:level?',
+    name: 'multiply',
+    component: () => import('@/pages/Multiply.vue'),
   },
-];
+]
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-});
+})
 
-export default router;
+export default router

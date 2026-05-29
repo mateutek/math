@@ -1,25 +1,19 @@
-<template>
-<v-row no-gutters justify="center">
-  <v-col sm="1" v-for="n in 3"
-         :key="n" class="align-center justify-center d-flex">
-    <v-icon v-if="n-1<wrong" color="red">mdi-close-circle</v-icon>
-    <v-icon v-else>mdi-circle-outline</v-icon>
-  </v-col>
-</v-row>
-</template>
+<script setup>
+import { XCircle, Circle } from 'lucide-vue-next'
 
-<script>
-export default {
-  name: "wrongAnswers",
-  props: {
-    wrong: Number,
+defineProps({
+  wrong: {
+    type: Number,
+    default: 0,
   },
-  data: () => ({
-
-  })
-}
+})
 </script>
 
-<style scoped>
-
-</style>
+<template>
+  <div class="flex items-center justify-center gap-2">
+    <template v-for="n in 3" :key="n">
+      <XCircle v-if="n - 1 < wrong" class="text-red-500" />
+      <Circle v-else class="text-muted-foreground" />
+    </template>
+  </div>
+</template>

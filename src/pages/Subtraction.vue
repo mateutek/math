@@ -1,163 +1,185 @@
-<template>
-  <v-container>
-    <v-row>
-      <v-col lg="2" md="2" sm="12" cols="12" order="2" order-md="1">
-        <v-sheet rounded="lg">
-          <v-list color="transparent">
-            <v-list-item-group>
-              <v-list-item
-                  v-for="n in 3"
-                  :key="n"
-                  link
-                  :to="`/odejmowanie/${n}`"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    Poziom: {{ n }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-sheet>
-      </v-col>
+<script setup>
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { Minus } from 'lucide-vue-next'
+import AnimatedInteger from '@/components/animatedInteger.vue'
+import WrongAnswers from '@/components/wrongAnswers.vue'
+import Timer from '@/components/Timer.vue'
+import { randomIntFromInterval } from '@/helpers/helpers'
+import settings from '@/store/settings'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-      <v-col lg="10" md="10" sm="12" cols="12" order="1" order-md="2">
-        <v-card
-            rounded="lg"
-            :color="cardColor"
-        >
-          <v-col>
-            <v-row no-gutters justify="space-between" align="center">
-               <h2>Poziom {{level}} (od {{levelMin}} do {{levelMax}})</h2>
-              <wrong-answers :wrong="wrongAnswers"/>
-              <timer v-if="settings.timerEnabled" :duration="timerDurations[level-1]" :key="timerKey" @timeout="wrongAnswer"/>
-              <h2>Punkty: {{score}} z {{tasksTotal}}</h2>
-            </v-row>
-            <h2 class="text-center text-h2 justify-center align-center d-flex">
-              <animated-integer v-bind:value="minuend"/>
-              <v-icon>mdi-minus</v-icon>
-              <animated-integer v-bind:value="subtrahend"/>
-              = {{wrongAnswers === 3 ? solution : '?'}}
-            </h2>
-            <v-text-field
-                ref="answer"
-                type="number"
-                v-model="answer"
-                label="Wynik"
-                required
-                autofocus
-                v-on:keyup.enter="checkAnswer"
-            ></v-text-field>
-            <v-row no-gutters justify="space-between">
-              <v-btn color="secondary" v-on:click="generateNew">
-                Nowe zadanie
-              </v-btn>
-              <v-btn color="primary" v-on:click="checkAnswer" :disabled="wrongAnswers===3">
-                Sprawdź
-              </v-btn>
-            </v-row>
-          </v-col>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
-</template>
+const route = useRoute()
+const router = useRouter()
 
-<script>
-  import AnimatedInteger from '@/components/animatedInteger';
-  import WrongAnswers from '@/components/wrongAnswers';
-  import Timer from '@/components/Timer';
-  import {randomIntFromInterval} from '@/helpers/helpers';
-  import settings from '@/store/settings';
+const timerDurations = [30, 20, 15]
+const levelMinScale = [1, 10, 100]
+const levelMaxScale = [10, 100, 1000]
 
-  export default {
-    name: 'Subtraction',
-    components: {WrongAnswers, AnimatedInteger, Timer},
-    created() {
-      if(this.$route.params.level === undefined) {
-        this.$router.push(`${this.$route.path}/1`);
-      }
-      this.level = this.$route.params.level;
-      this.generateNew();
-    },
-    watch: {
-      $route(to) {
-        this.level = to.params.level;
-      },
-      level(newLevel) {
-        this.generateNew(newLevel);
-      }
-    },
-    data: () => ({
-      settings,
-      timerDurations: [30, 20, 15],
-      timerKey: 0,
-      level: 0,
-      score: 0,
-      solution: 1,
-      answer:'',
-      minuend: 1,
-      subtrahend: 1,
-      invalidAnswer: false,
-      cardColor: 'black',
-      tasksTotal: 0,
-      wrongAnswers: 0,
-      levelMinScale: [1, 10, 100],
-      levelMaxScale: [10, 100, 1000],
-      levelMin: 0,
-      levelMax: 0,
-    }),
-    methods: {
-      checkAnswer: function () {
-        if(parseInt(this.answer) === this.solution) {
-          this.generateNew();
-          this.invalidAnswer = false;
-          this.answer = '';
-          this.score += 1;
-          this.correctAnswer();
-        } else {
-          this.invalidAnswer = true;
-          this.wrongAnswer();
-        }
-        this.$refs.answer.$refs.input.focus();
-      },
-      generateNew: function (newLevel) {
-        if(newLevel !== undefined && typeof newLevel==='string') {
-          this.tasksTotal -=1;
-        }
-        const index = this.level - 1;
-        this.levelMin = this.levelMinScale[index];
-        this.levelMax = this.levelMaxScale[index];
+const timerKey = ref(0)
+const level = ref(0)
+const score = ref(0)
+const solution = ref(1)
+const answer = ref('')
+const minuend = ref(1)
+const subtrahend = ref(1)
+const cardColor = ref('')
+const tasksTotal = ref(0)
+const wrongAnswers = ref(0)
+const levelMin = ref(0)
+const levelMax = ref(0)
 
-        this.minuend = randomIntFromInterval(this.levelMin, this.levelMax);
-        this.subtrahend = randomIntFromInterval(this.levelMin, this.levelMax);
+const answerInput = ref(null)
 
-        if(this.minuend < this.subtrahend) {
-          this.minuend = this.subtrahend + randomIntFromInterval(1, this.levelMax);
-        }
+const cardClass = computed(() => {
+  if (cardColor.value === 'green') return 'bg-green-900/40 transition-colors'
+  if (cardColor.value === 'red') return 'bg-red-900/40 transition-colors'
+  return 'transition-colors'
+})
 
-        this.solution = this.minuend - this.subtrahend;
-        this.invalidAnswer = false;
-        this.answer = '';
-        this.cardColor = 'black'
-        this.tasksTotal +=1;
-        this.wrongAnswers = 0;
-        this.timerKey += 1;
-      },
-      correctAnswer: function () {
-        this.cardColor = 'green darken-4';
-        setTimeout(() => {
-          this.cardColor = 'black'
-        }, 1000);
-      },
-      wrongAnswer: function () {
-        this.cardColor = 'red darken-4';
-        this.wrongAnswers += 1;
-        if (this.wrongAnswers < 3) {
-          this.timerKey += 1;
-        }
-      },
-    }
+function generateNew(newLevel) {
+  if (newLevel !== undefined && typeof newLevel === 'string') {
+    tasksTotal.value -= 1
   }
+  const index = level.value - 1
+  levelMin.value = levelMinScale[index]
+  levelMax.value = levelMaxScale[index]
+
+  minuend.value = randomIntFromInterval(levelMin.value, levelMax.value)
+  subtrahend.value = randomIntFromInterval(levelMin.value, levelMax.value)
+
+  if (minuend.value < subtrahend.value) {
+    minuend.value = subtrahend.value + randomIntFromInterval(1, levelMax.value)
+  }
+
+  solution.value = minuend.value - subtrahend.value
+  answer.value = ''
+  cardColor.value = ''
+  tasksTotal.value += 1
+  wrongAnswers.value = 0
+  timerKey.value += 1
+}
+
+function correctAnswer() {
+  cardColor.value = 'green'
+  setTimeout(() => {
+    cardColor.value = ''
+  }, 1000)
+}
+
+function wrongAnswer() {
+  cardColor.value = 'red'
+  wrongAnswers.value += 1
+  if (wrongAnswers.value < 3) {
+    timerKey.value += 1
+  }
+}
+
+function checkAnswer() {
+  if (parseInt(answer.value) === solution.value) {
+    generateNew()
+    answer.value = ''
+    score.value += 1
+    correctAnswer()
+  } else {
+    wrongAnswer()
+  }
+  nextTick(() => {
+    answerInput.value?.$el?.focus?.()
+  })
+}
+
+watch(
+  () => route.params.level,
+  (newLevel) => {
+    level.value = newLevel
+  }
+)
+
+watch(level, (newLevel) => {
+  generateNew(newLevel)
+})
+
+onMounted(() => {
+  if (route.params.level === undefined) {
+    router.push(`${route.path}/1`)
+  }
+  level.value = route.params.level
+  generateNew()
+})
 </script>
+
+<template>
+  <div class="container px-2 py-4 md:px-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+      <!-- Sidebar: level links -->
+      <div class="order-2 md:order-1 md:col-span-2">
+        <Card>
+          <CardContent class="flex flex-col gap-1 p-2">
+            <Button
+              v-for="n in 3"
+              :key="n"
+              as-child
+              variant="ghost"
+              class="justify-start"
+              :class="String(level) === String(n) ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground' : ''"
+            >
+              <RouterLink :to="`/odejmowanie/${n}`">Poziom: {{ n }}</RouterLink>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Main game card -->
+      <div class="order-1 md:order-2 md:col-span-10">
+        <Card :class="cardClass">
+          <CardContent class="p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h2 class="text-xl font-semibold">
+                Poziom {{ level }} (od {{ levelMin }} do {{ levelMax }})
+              </h2>
+              <WrongAnswers :wrong="wrongAnswers" />
+              <Timer
+                v-if="settings.timerEnabled"
+                :key="timerKey"
+                :duration="timerDurations[level - 1]"
+                @timeout="wrongAnswer"
+              />
+              <h2 class="text-xl font-semibold">
+                Punkty: {{ score }} z {{ tasksTotal }}
+              </h2>
+            </div>
+
+            <h2 class="my-8 flex items-center justify-center gap-3 text-center text-5xl font-bold md:text-6xl">
+              <AnimatedInteger :value="minuend" />
+              <Minus class="h-10 w-10" />
+              <AnimatedInteger :value="subtrahend" />
+              <span>= {{ wrongAnswers === 3 ? solution : '?' }}</span>
+            </h2>
+
+            <Input
+              ref="answerInput"
+              v-model="answer"
+              type="number"
+              placeholder="Wynik"
+              autofocus
+              class="mb-4"
+              @keyup.enter="checkAnswer"
+            />
+
+            <div class="flex items-center justify-between">
+              <Button variant="secondary" @click="generateNew">
+                Nowe zadanie
+              </Button>
+              <Button variant="primary" :disabled="wrongAnswers === 3" @click="checkAnswer">
+                Sprawdź
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </div>
+</template>

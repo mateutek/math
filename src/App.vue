@@ -1,83 +1,104 @@
-<template>
-  <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" app temporary>
-      <v-list class="pa-0">
-        <v-list-item
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
-            link
-            @click="drawer = false"
-        >
-          <v-list-item-title class="text-uppercase">{{ link.title }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+<script setup>
+import { ref } from 'vue'
+import { useRoute, RouterLink, RouterView } from 'vue-router'
+import { Infinity as InfinityIcon, Menu } from 'lucide-vue-next'
+import settings from '@/store/settings'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 
-    <v-app-bar app elevate-on-scroll>
-      <v-container class="py-0 pl-0 pl-md-1 fill-height">
-        <v-app-bar-nav-icon class="d-flex d-md-none" @click="drawer = true"></v-app-bar-nav-icon>
+const route = useRoute()
+const drawer = ref(false)
+const year = new Date().getFullYear()
 
-        <router-link to="/">
-          <v-avatar class="mr-10" color="blue" size="32">
-            <v-icon color="white">mdi-all-inclusive</v-icon>
-          </v-avatar>
-        </router-link>
+const links = [
+  { to: '/dodawanie', title: 'dodawanie' },
+  { to: '/odejmowanie', title: 'odejmowanie' },
+  { to: '/mnozenie', title: 'mnożenie' },
+  { to: '/dzielenie', title: 'Dzielenie' },
+  { to: '/dzielenie2', title: 'DzielBezReszty' },
+]
 
-        <v-btn
-            v-for="link in links"
-            :key="link.to"
-            text
-            active-class="primary"
-            :to="link.to"
-            class="d-none d-md-flex"
-        >
-          {{ link.title }}
-        </v-btn>
-
-        <v-spacer></v-spacer>
-
-        <v-switch
-            v-model="settings.timerEnabled"
-            label="Zegar"
-            hide-details
-            class="mt-0 pt-0"
-        ></v-switch>
-      </v-container>
-    </v-app-bar>
-
-    <v-main class="dark-grey lighten-3">
-      <router-view/>
-    </v-main>
-    <v-footer padless>
-      <v-col class="text-center" cols="12">
-        <div class="text-center">&copy; Mateusz Woźniak - {{ new Date().getFullYear() }}</div>
-      </v-col>
-    </v-footer>
-  </v-app>
-</template>
-
-<script>
-import settings from '@/store/settings';
-
-export default {
-  name: 'App',
-  data: () => ({
-    drawer: false,
-    settings,
-    links: [
-      { to: '/dodawanie', title: 'dodawanie' },
-      { to: '/odejmowanie', title: 'odejmowanie' },
-      { to: '/mnozenie', title: 'mnożenie' },
-      { to: '/dzielenie', title: 'Dzielenie' },
-      { to: '/dzielenie2', title: 'DzielBezReszty' },
-    ],
-  }),
-};
+function isActive(to) {
+  return route.path.startsWith(to)
+}
 </script>
 
-<style>
-a {
-  text-decoration: none;
-}
-</style>
+<template>
+  <div id="inspire" class="flex min-h-screen flex-col bg-muted">
+    <header class="sticky top-0 z-40 border-b bg-background shadow-sm">
+      <div class="container flex h-16 items-center gap-2 px-2 md:px-4">
+        <!-- Mobile hamburger + drawer -->
+        <Sheet v-model:open="drawer">
+          <SheetTrigger as-child>
+            <Button variant="ghost" size="icon" class="md:hidden" aria-label="Menu">
+              <Menu class="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" class="w-64 p-0">
+            <SheetHeader class="p-4">
+              <SheetTitle class="text-left">Menu</SheetTitle>
+            </SheetHeader>
+            <nav class="flex flex-col">
+              <RouterLink
+                v-for="link in links"
+                :key="link.to"
+                :to="link.to"
+                class="px-4 py-3 text-sm uppercase transition-colors hover:bg-accent hover:text-accent-foreground"
+                :class="{ 'bg-primary text-primary-foreground hover:bg-primary': isActive(link.to) }"
+                @click="drawer = false"
+              >
+                {{ link.title }}
+              </RouterLink>
+            </nav>
+          </SheetContent>
+        </Sheet>
+
+        <!-- Brand -->
+        <RouterLink to="/" class="mr-6">
+          <Avatar class="h-8 w-8 bg-blue-600">
+            <AvatarFallback class="bg-blue-600 text-white">
+              <InfinityIcon class="h-5 w-5" />
+            </AvatarFallback>
+          </Avatar>
+        </RouterLink>
+
+        <!-- Desktop nav -->
+        <nav class="hidden items-center gap-1 md:flex">
+          <Button
+            v-for="link in links"
+            :key="link.to"
+            as-child
+            variant="ghost"
+            :class="isActive(link.to) ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground' : ''"
+          >
+            <RouterLink :to="link.to">{{ link.title }}</RouterLink>
+          </Button>
+        </nav>
+
+        <div class="flex-1" />
+
+        <!-- Timer switch -->
+        <div class="flex items-center gap-2">
+          <Switch id="timer" v-model:checked="settings.timerEnabled" />
+          <label for="timer" class="cursor-pointer text-sm">Zegar</label>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <RouterView />
+    </main>
+
+    <footer class="border-t bg-background py-4">
+      <div class="text-center text-sm">&copy; Mateusz Woźniak - {{ year }}</div>
+    </footer>
+  </div>
+</template>
