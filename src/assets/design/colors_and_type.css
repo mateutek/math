@@ -1,0 +1,175 @@
+/* ============================================================================
+   Math — Design System Foundations
+   Arithmetic practice for kids, rebuilt on shadcn/ui visual language.
+
+   Token model follows shadcn/ui (Tailwind v4 / oklch). Slate neutrals,
+   a friendly blue primary (carried over from the original app's blue brand
+   avatar), and explicit semantic success / warning / destructive colors for
+   the correct / timer / wrong feedback states that define the product.
+
+   Fonts: Geist Sans (UI) + Geist Mono (numerals & equations) — shadcn's
+   canonical typefaces. Loaded from Google Fonts; see README font note.
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   1. COLOR TOKENS  (shadcn-style semantic variables)
+   ---------------------------------------------------------------------------- */
+:root {
+  /* Surfaces & text -------------------------------------------------------- */
+  --background:            oklch(1 0 0);                 /* page              */
+  --foreground:            oklch(0.129 0.042 264.695);   /* primary text      */
+  --card:                  oklch(1 0 0);                 /* card surface      */
+  --card-foreground:       oklch(0.129 0.042 264.695);
+  --popover:               oklch(1 0 0);
+  --popover-foreground:    oklch(0.129 0.042 264.695);
+
+  /* Brand / primary — blue (education, carried from original) -------------- */
+  --primary:               oklch(0.546 0.215 262.88);    /* blue-600          */
+  --primary-foreground:    oklch(0.984 0.003 247.858);   /* near-white        */
+
+  /* Secondary / muted / accent (slate tints) ------------------------------- */
+  --secondary:             oklch(0.968 0.007 247.896);
+  --secondary-foreground:  oklch(0.208 0.042 265.755);
+  --muted:                 oklch(0.968 0.007 247.896);
+  --muted-foreground:      oklch(0.554 0.046 257.417);
+  --accent:                oklch(0.968 0.007 247.896);
+  --accent-foreground:     oklch(0.208 0.042 265.755);
+
+  /* Semantic feedback — the heart of the product --------------------------- */
+  --success:               oklch(0.627 0.17 149.2);      /* correct (green)   */
+  --success-foreground:    oklch(0.984 0.003 247.858);
+  --warning:               oklch(0.769 0.165 70.08);     /* timer mid (amber) */
+  --warning-foreground:    oklch(0.129 0.042 264.695);
+  --destructive:           oklch(0.577 0.245 27.325);    /* wrong (red)       */
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+
+  /* Lines & focus ---------------------------------------------------------- */
+  --border:                oklch(0.929 0.013 255.508);
+  --input:                 oklch(0.929 0.013 255.508);
+  --ring:                  oklch(0.546 0.215 262.88);    /* matches primary   */
+
+  /* Radius — shadcn default 0.625rem --------------------------------------- */
+  --radius:                0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Elevation — shadcn's soft, low-spread shadows -------------------------- */
+  --shadow-2xs: 0 1px 2px 0 oklch(0.129 0.042 264.695 / 0.05);
+  --shadow-xs:  0 1px 3px 0 oklch(0.129 0.042 264.695 / 0.08), 0 1px 2px -1px oklch(0.129 0.042 264.695 / 0.08);
+  --shadow-sm:  0 1px 3px 0 oklch(0.129 0.042 264.695 / 0.10), 0 1px 2px -1px oklch(0.129 0.042 264.695 / 0.10);
+  --shadow-md:  0 4px 6px -1px oklch(0.129 0.042 264.695 / 0.10), 0 2px 4px -2px oklch(0.129 0.042 264.695 / 0.10);
+  --shadow-lg:  0 10px 15px -3px oklch(0.129 0.042 264.695 / 0.10), 0 4px 6px -4px oklch(0.129 0.042 264.695 / 0.10);
+  --shadow-xl:  0 20px 25px -5px oklch(0.129 0.042 264.695 / 0.10), 0 8px 10px -6px oklch(0.129 0.042 264.695 / 0.10);
+
+  /* Spacing scale (4px base, Tailwind-aligned) ----------------------------- */
+  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem; --space-4: 1rem;
+  --space-5: 1.25rem;  --space-6: 1.5rem;  --space-8: 2rem;    --space-10: 2.5rem;
+  --space-12: 3rem;    --space-16: 4rem;
+}
+
+/* Dark theme — the original app shipped dark-only; here it's the alt mode. */
+.dark {
+  --background:            oklch(0.129 0.042 264.695);
+  --foreground:            oklch(0.984 0.003 247.858);
+  --card:                  oklch(0.208 0.042 265.755);
+  --card-foreground:       oklch(0.984 0.003 247.858);
+  --popover:               oklch(0.208 0.042 265.755);
+  --popover-foreground:    oklch(0.984 0.003 247.858);
+
+  --primary:               oklch(0.623 0.214 259.815);   /* blue-500, lighter */
+  --primary-foreground:    oklch(0.984 0.003 247.858);
+
+  --secondary:             oklch(0.279 0.041 260.031);
+  --secondary-foreground:  oklch(0.984 0.003 247.858);
+  --muted:                 oklch(0.279 0.041 260.031);
+  --muted-foreground:      oklch(0.704 0.04 256.788);
+  --accent:                oklch(0.279 0.041 260.031);
+  --accent-foreground:     oklch(0.984 0.003 247.858);
+
+  --success:               oklch(0.696 0.17 149.2);
+  --success-foreground:    oklch(0.129 0.042 264.695);
+  --warning:               oklch(0.828 0.165 75.08);
+  --warning-foreground:    oklch(0.129 0.042 264.695);
+  --destructive:           oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+
+  --border:                oklch(1 0 0 / 0.1);
+  --input:                 oklch(1 0 0 / 0.15);
+  --ring:                  oklch(0.623 0.214 259.815);
+}
+
+/* ----------------------------------------------------------------------------
+   2. TYPOGRAPHY TOKENS
+   ---------------------------------------------------------------------------- */
+:root {
+  --font-sans:  "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:  "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (rem) ------------------------------------------------------- */
+  --text-xs:   0.75rem;   /* 12 */
+  --text-sm:   0.875rem;  /* 14 — shadcn body default */
+  --text-base: 1rem;      /* 16 */
+  --text-lg:   1.125rem;  /* 18 */
+  --text-xl:   1.25rem;   /* 20 */
+  --text-2xl:  1.5rem;    /* 24 */
+  --text-3xl:  1.875rem;  /* 30 */
+  --text-4xl:  2.25rem;   /* 36 */
+  --text-5xl:  3rem;      /* 48 */
+  --text-6xl:  3.75rem;   /* 60 */
+  --text-7xl:  4.5rem;    /* 72 — equation display */
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+}
+
+/* ----------------------------------------------------------------------------
+   3. SEMANTIC TYPE CLASSES
+   ---------------------------------------------------------------------------- */
+body, .ds-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--foreground);
+  font-weight: var(--weight-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ds-h1 { font-family: var(--font-sans); font-size: var(--text-4xl); font-weight: var(--weight-bold);     line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
+.ds-h2 { font-family: var(--font-sans); font-size: var(--text-3xl); font-weight: var(--weight-semibold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
+.ds-h3 { font-family: var(--font-sans); font-size: var(--text-2xl); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+.ds-h4 { font-family: var(--font-sans); font-size: var(--text-xl);  font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+.ds-lead   { font-size: var(--text-lg); color: var(--muted-foreground); line-height: var(--leading-normal); }
+.ds-p      { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.ds-small  { font-size: var(--text-xs); color: var(--muted-foreground); }
+.ds-label  { font-size: var(--text-sm); font-weight: var(--weight-medium); line-height: 1; }
+
+/* The equation display — Geist Mono, tabular figures, the product's signature */
+.ds-equation {
+  font-family: var(--font-mono);
+  font-size: var(--text-7xl);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+}
+.ds-numeral { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.ds-code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--muted);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-sm);
+}

@@ -1,15 +1,14 @@
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { Divide as DivideIcon } from 'lucide-vue-next'
+import { RefreshCw, Check } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
-import Timer from '@/components/Timer.vue'
+import StarRow from '@/components/StarRow.vue'
+import Celebration from '@/components/Celebration.vue'
+import TimerRing from '@/components/TimerRing.vue'
 import { randomIntFromInterval } from '@/helpers/helpers'
 import settings from '@/store/settings'
-import { Card, CardHeader, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,14 +31,10 @@ const tasksTotal = ref(0)
 const wrongAnswers = ref(0)
 const levelMin = ref(0)
 const levelMax = ref(0)
+const streak = ref(0)
+const cheer = ref(0)
 
 const answerTotalInput = ref(null)
-
-const cardFlashClass = computed(() => {
-  if (cardColor.value === 'green') return 'bg-green-900/40 border-green-700'
-  if (cardColor.value === 'red') return 'bg-red-900/40 border-red-700'
-  return ''
-})
 
 function focusAnswer() {
   nextTick(() => {
@@ -75,6 +70,8 @@ function generateNew(newLevel) {
 
 function correctAnswer() {
   cardColor.value = 'green'
+  streak.value += 1
+  cheer.value += 1
   setTimeout(() => {
     cardColor.value = 'default'
   }, 1000)
@@ -82,6 +79,7 @@ function correctAnswer() {
 
 function wrongAnswer() {
   cardColor.value = 'red'
+  streak.value = 0
   wrongAnswers.value += 1
   if (wrongAnswers.value < 3) {
     timerKey.value += 1
@@ -126,86 +124,95 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-12">
-      <div class="order-2 md:order-1 md:col-span-2">
-        <Card class="p-2">
-          <nav class="flex flex-col">
-            <RouterLink
-              v-for="n in 3"
-              :key="n"
-              :to="`/dzielenie/${n}`"
-              class="rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              Poziom: {{ n }}
-            </RouterLink>
-          </nav>
-        </Card>
+  <div
+    class="kid-card"
+    :class="{ correct: cardColor === 'green', wrong: cardColor === 'red' }"
+    style="--k-display-op: var(--k-op-div)"
+  >
+    <Celebration v-if="cardColor === 'green'" :key="cheer" :cheer="cheer" />
+
+    <div class="kid-status">
+      <div class="kid-score">
+        <span class="num">{{ score }} / {{ tasksTotal }}</span>
+        <span class="cap">Punkty</span>
       </div>
-
-      <div class="order-1 md:order-2 md:col-span-10">
-        <Card :class="['transition-colors duration-300', cardFlashClass]">
-          <CardHeader>
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <h2 class="text-xl font-semibold">
-                Poziom {{ level }} (od {{ levelMin }} do {{ levelMax }})
-              </h2>
-              <WrongAnswers :wrong="wrongAnswers" />
-              <Timer
-                v-if="settings.timerEnabled"
-                :duration="timerDurations[level - 1]"
-                :key="timerKey"
-                @timeout="wrongAnswer"
-              />
-              <h2 class="text-xl font-semibold">
-                Punkty: {{ score }} z {{ tasksTotal }}
-              </h2>
-            </div>
-          </CardHeader>
-
-          <CardContent class="space-y-6">
-            <div class="flex items-center justify-center gap-3 text-5xl font-bold md:text-6xl">
-              <AnimatedInteger :value="dividend" />
-              <DivideIcon class="size-10 md:size-12" />
-              <AnimatedInteger :value="divisor" />
-              <span>=</span>
-              <span>
-                {{ wrongAnswers === 3 ? `${solutionTotal} r ${solutionRest}` : '?' }}
-              </span>
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div class="space-y-1">
-                <label class="text-sm font-medium text-muted-foreground">Całość</label>
-                <Input
-                  ref="answerTotalInput"
-                  type="number"
-                  v-model="answerTotal"
-                  autofocus
-                  @keyup.enter="checkAnswer"
-                />
-              </div>
-              <div class="space-y-1">
-                <label class="text-sm font-medium text-muted-foreground">Reszta</label>
-                <Input
-                  type="number"
-                  v-model="answerRest"
-                  @keyup.enter="checkAnswer"
-                />
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <Button variant="secondary" @click="generateNew">
-                Nowe zadanie
-              </Button>
-              <Button variant="primary" @click="checkAnswer" :disabled="wrongAnswers === 3">
-                Sprawdź
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div v-if="settings.timerEnabled" class="kid-timer-slot">
+        <TimerRing
+          :key="timerKey"
+          :duration="timerDurations[level - 1]"
+          @timeout="wrongAnswer"
+        />
       </div>
+      <StarRow :streak="streak" :just-won="cardColor === 'green'" />
+    </div>
+
+    <div class="kid-levels">
+      <RouterLink
+        v-for="n in 3"
+        :key="n"
+        class="kid-pill"
+        :class="{ active: Number(level) === n }"
+        :to="`/dzielenie/${n}`"
+      >
+        <span class="pl">Poziom {{ n }}</span>
+        <span class="rg">{{ levelMinScale[n - 1] }}–{{ levelMaxScale[n - 1] }}</span>
+      </RouterLink>
+    </div>
+
+    <div class="kid-eq">
+      <AnimatedInteger :value="dividend" />
+      <span class="op">÷</span>
+      <AnimatedInteger :value="divisor" />
+      <span>=</span>
+      <span class="ans" :class="{ reveal: wrongAnswers === 3 }">
+        {{ wrongAnswers === 3 ? `${solutionTotal} r ${solutionRest}` : '?' }}
+      </span>
+    </div>
+
+    <div style="display: flex; justify-content: center">
+      <WrongAnswers :wrong="wrongAnswers" />
+    </div>
+
+    <div class="kid-fields">
+      <div class="kid-field">
+        <label class="kid-field-label">Całość</label>
+        <input
+          ref="answerTotalInput"
+          v-model="answerTotal"
+          class="kid-input"
+          type="number"
+          inputmode="numeric"
+          placeholder="?"
+          autofocus
+          :disabled="wrongAnswers === 3"
+          @keyup.enter="checkAnswer"
+        />
+      </div>
+      <div class="kid-field">
+        <label class="kid-field-label">Reszta</label>
+        <input
+          v-model="answerRest"
+          class="kid-input"
+          type="number"
+          inputmode="numeric"
+          placeholder="?"
+          :disabled="wrongAnswers === 3"
+          @keyup.enter="checkAnswer"
+        />
+      </div>
+    </div>
+
+    <div class="kid-actions">
+      <button class="kid-btn kid-btn-ghost" @click="generateNew">
+        <RefreshCw :size="18" /> Nowe
+      </button>
+      <button
+        class="kid-btn kid-btn-primary"
+        :disabled="wrongAnswers === 3"
+        @click="checkAnswer"
+      >
+        <Check :size="20" /> Sprawdź
+      </button>
     </div>
   </div>
 </template>

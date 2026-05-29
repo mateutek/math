@@ -1,0 +1,82 @@
+/* ============================================================================
+   shadcn.css — component layer for the Math design system
+   Plain-CSS recreations of the shadcn/ui primitives used across the product.
+   Depends on tokens from colors_and_type.css.
+   ============================================================================ */
+
+/* ---- Button --------------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-sans); font-size: var(--text-sm); font-weight: var(--weight-medium);
+  height: 40px; padding: 0 16px; border-radius: var(--radius-md);
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  user-select: none;
+}
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 45%, transparent); }
+.btn:disabled { opacity: .5; pointer-events: none; }
+.btn svg { width: 18px; height: 18px; }
+
+.btn-primary    { background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow-xs); }
+.btn-primary:hover    { background: color-mix(in oklch, var(--primary) 90%, black); }
+.btn-secondary  { background: var(--secondary); color: var(--secondary-foreground); box-shadow: var(--shadow-xs); }
+.btn-secondary:hover  { background: color-mix(in oklch, var(--secondary) 80%, var(--foreground) 6%); }
+.btn-outline    { background: var(--background); color: var(--foreground); border-color: var(--border); box-shadow: var(--shadow-xs); }
+.btn-outline:hover    { background: var(--accent); color: var(--accent-foreground); }
+.btn-ghost      { background: transparent; color: var(--foreground); }
+.btn-ghost:hover      { background: var(--accent); color: var(--accent-foreground); }
+.btn-destructive{ background: var(--destructive); color: var(--destructive-foreground); box-shadow: var(--shadow-xs); }
+.btn-destructive:hover{ background: color-mix(in oklch, var(--destructive) 90%, black); }
+
+.btn-sm { height: 32px; padding: 0 12px; font-size: var(--text-xs); }
+.btn-lg { height: 48px; padding: 0 24px; font-size: var(--text-base); }
+.btn-icon { width: 40px; height: 40px; padding: 0; }
+
+/* ---- Input ---------------------------------------------------------------- */
+.input {
+  display: flex; align-items: center; width: 100%; height: 40px;
+  padding: 0 12px; font-family: var(--font-sans); font-size: var(--text-sm);
+  color: var(--foreground); background: var(--background);
+  border: 1px solid var(--input); border-radius: var(--radius-md);
+  transition: border-color .15s ease, box-shadow .15s ease; outline: none;
+}
+.input::placeholder { color: var(--muted-foreground); }
+.input:focus { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 35%, transparent); }
+.field-label { display: block; font-size: var(--text-sm); font-weight: var(--weight-medium); margin-bottom: 6px; }
+
+/* ---- Card ----------------------------------------------------------------- */
+.shadcard {
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm); padding: 24px;
+}
+
+/* ---- Badge ---------------------------------------------------------------- */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--text-xs); font-weight: var(--weight-medium);
+  padding: 3px 10px; border-radius: 999px; border: 1px solid transparent;
+}
+.badge-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+.badge-outline   { background: transparent; color: var(--foreground); border-color: var(--border); }
+.badge-success   { background: color-mix(in srgb, var(--success) 15%, var(--background)); color: var(--success); border-color: color-mix(in srgb, var(--success) 35%, transparent); }
+.badge-primary   { background: color-mix(in srgb, var(--primary) 12%, var(--background)); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+
+/* ---- Switch (shadcn) ------------------------------------------------------ */
+.switch { position: relative; width: 36px; height: 20px; border-radius: 999px; background: var(--input); border: none; cursor: pointer; transition: background-color .15s ease; flex: none; }
+.switch[aria-checked="true"] { background: var(--primary); }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: #fff; box-shadow: var(--shadow-xs); transition: transform .15s ease; }
+.switch[aria-checked="true"]::after { transform: translateX(16px); }
+
+/* ---- Nav item ------------------------------------------------------------- */
+.navitem {
+  display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px;
+  border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: var(--weight-medium);
+  color: var(--muted-foreground); cursor: pointer; transition: background-color .15s ease, color .15s ease;
+  border: none; background: transparent; font-family: var(--font-sans); white-space: nowrap;
+}
+.navitem:hover { background: var(--accent); color: var(--accent-foreground); }
+.navitem.active { background: var(--primary); color: var(--primary-foreground); }
+
+/* ---- Separator ------------------------------------------------------------ */
+.sep { height: 1px; background: var(--border); border: none; width: 100%; }

@@ -1,15 +1,14 @@
 <script setup name="addition">
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { Plus } from 'lucide-vue-next'
+import { RefreshCw, Check } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
-import Timer from '@/components/Timer.vue'
+import TimerRing from '@/components/TimerRing.vue'
+import StarRow from '@/components/StarRow.vue'
+import Celebration from '@/components/Celebration.vue'
 import { randomIntFromInterval } from '@/helpers/helpers'
 import settings from '@/store/settings'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 const route = useRoute()
 const router = useRouter()
@@ -25,11 +24,13 @@ const solution = ref(1)
 const answer = ref('')
 const addend1 = ref(1)
 const addend2 = ref(1)
-const cardFlash = ref('')
+const cardColor = ref('')
 const tasksTotal = ref(0)
 const wrongAnswers = ref(0)
 const levelMin = ref(0)
 const levelMax = ref(0)
+const streak = ref(0)
+const cheer = ref(0)
 
 const answerInput = ref(null)
 
@@ -43,22 +44,25 @@ function generateNew() {
   addend2.value = randomIntFromInterval(levelMin.value, levelMax.value)
   solution.value = addend1.value + addend2.value
   answer.value = ''
-  cardFlash.value = ''
+  cardColor.value = ''
   tasksTotal.value += 1
   wrongAnswers.value = 0
   timerKey.value += 1
 }
 
 function correctAnswer() {
-  cardFlash.value = 'bg-green-900/40 border-green-700'
+  cardColor.value = 'green'
+  streak.value += 1
+  cheer.value += 1
   if (flashTimeout) clearTimeout(flashTimeout)
   flashTimeout = setTimeout(() => {
-    cardFlash.value = ''
+    cardColor.value = ''
   }, 1000)
 }
 
 function wrongAnswer() {
-  cardFlash.value = 'bg-red-900/40 border-red-700'
+  cardColor.value = 'red'
+  streak.value = 0
   wrongAnswers.value += 1
   if (wrongAnswers.value < 3) {
     timerKey.value += 1
@@ -67,7 +71,7 @@ function wrongAnswer() {
 
 function focusAnswer() {
   nextTick(() => {
-    answerInput.value?.$el?.focus?.()
+    answerInput.value?.focus?.()
   })
 }
 
@@ -104,71 +108,86 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container px-2 py-4 md:px-4">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
-      <!-- Sidebar: level links -->
-      <aside class="order-2 md:order-1 md:col-span-2">
-        <Card>
-          <CardContent class="p-2">
-            <nav class="flex flex-col">
-              <RouterLink
-                v-for="n in 3"
-                :key="n"
-                :to="`/dodawanie/${n}`"
-                class="rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-                :class="{ 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground': Number(level) === n }"
-              >
-                Poziom: {{ n }}
-              </RouterLink>
-            </nav>
-          </CardContent>
-        </Card>
-      </aside>
+  <div
+    class="kid-card"
+    :class="{ correct: cardColor === 'green', wrong: cardColor === 'red' }"
+  >
+    <Celebration v-if="cardColor === 'green'" :key="cheer" />
 
-      <!-- Main: task card -->
-      <section class="order-1 md:order-2 md:col-span-10">
-        <Card :class="['transition-colors duration-300', cardFlash]">
-          <CardContent class="p-6">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <h2 class="text-xl font-semibold">
-                Poziom {{ level }} (od {{ levelMin }} do {{ levelMax }})
-              </h2>
-              <WrongAnswers :wrong="wrongAnswers" />
-              <timer
-                v-if="settings.timerEnabled"
-                :key="timerKey"
-                :duration="timerDurations[level - 1]"
-                @timeout="wrongAnswer"
-              />
-              <h2 class="text-xl font-semibold">Punkty: {{ score }} z {{ tasksTotal }}</h2>
-            </div>
+    <!-- status row -->
+    <div class="kid-status">
+      <div class="kid-score">
+        <span class="num">{{ score }} / {{ tasksTotal }}</span>
+        <span class="cap">Punkty</span>
+      </div>
+      <div v-if="settings.timerEnabled" class="kid-timer-slot">
+        <TimerRing
+          :key="timerKey"
+          :duration="timerDurations[level - 1]"
+          @timeout="wrongAnswer"
+        />
+      </div>
+      <StarRow :streak="streak" :just-won="cardColor === 'green'" />
+    </div>
 
-            <div class="my-10 flex items-center justify-center gap-4 text-5xl font-bold md:text-6xl">
-              <animated-integer :value="addend1" />
-              <Plus class="h-10 w-10 md:h-12 md:w-12" />
-              <animated-integer :value="addend2" />
-              <span>= {{ wrongAnswers === 3 ? solution : '?' }}</span>
-            </div>
+    <!-- level pills -->
+    <div class="kid-levels">
+      <RouterLink
+        v-for="n in 3"
+        :key="n"
+        class="kid-pill"
+        :class="{ active: Number(level) === n }"
+        :to="`/dodawanie/${n}`"
+      >
+        <span class="pl">Poziom {{ n }}</span>
+        <span class="rg">{{ levelMinScale[n - 1] }}–{{ levelMaxScale[n - 1] }}</span>
+      </RouterLink>
+    </div>
 
-            <Input
-              ref="answerInput"
-              v-model="answer"
-              type="number"
-              placeholder="Wynik"
-              autofocus
-              class="mb-6"
-              @keyup.enter="checkAnswer"
-            />
+    <!-- equation -->
+    <div class="kid-eq" style="--k-display-op: var(--k-op-add)">
+      <AnimatedInteger :value="addend1" />
+      <span class="op">+</span>
+      <AnimatedInteger :value="addend2" />
+      <span>=</span>
+      <span class="ans" :class="{ reveal: wrongAnswers === 3 }">
+        {{ wrongAnswers === 3 ? solution : '?' }}
+      </span>
+    </div>
 
-            <div class="flex items-center justify-between gap-4">
-              <Button variant="secondary" @click="generateNew">Nowe zadanie</Button>
-              <Button variant="primary" :disabled="wrongAnswers === 3" @click="checkAnswer">
-                Sprawdź
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+    <!-- strikes -->
+    <div style="display: flex; justify-content: center">
+      <WrongAnswers :wrong="wrongAnswers" />
+    </div>
+
+    <!-- answer field -->
+    <div class="kid-field">
+      <label class="kid-field-label">Wynik</label>
+      <input
+        ref="answerInput"
+        v-model="answer"
+        class="kid-input"
+        type="number"
+        inputmode="numeric"
+        placeholder="?"
+        autofocus
+        :disabled="wrongAnswers === 3"
+        @keyup.enter="checkAnswer"
+      />
+    </div>
+
+    <!-- actions -->
+    <div class="kid-actions">
+      <button class="kid-btn kid-btn-ghost" @click="generateNew">
+        <RefreshCw :size="18" /> Nowe
+      </button>
+      <button
+        class="kid-btn kid-btn-primary"
+        :disabled="wrongAnswers === 3"
+        @click="checkAnswer"
+      >
+        <Check :size="20" /> Sprawdź
+      </button>
     </div>
   </div>
 </template>

@@ -1,0 +1,251 @@
+/* ============================================================================
+   kid.css — kid-friendly component layer for the Math app.
+   Built ON TOP of the design-system tokens (colors_and_type.css). Themes set
+   the --k-* variables on .kid-root; every kid component reads from them so the
+   three directions share one structure and differ only by theme.
+   ============================================================================ */
+
+.kid-root {
+  /* sensible fallbacks; themes override these */
+  --k-brand: var(--primary);
+  --k-brand-deep: color-mix(in oklch, var(--k-brand) 78%, black);
+  --k-brand-soft: color-mix(in srgb, var(--k-brand) 12%, #fff);
+  --k-brand-fg: #fff;
+  --k-accent: var(--warning);
+  --k-page: #f6f7fb;
+  --k-card: #ffffff;
+  --k-card-border: var(--border);
+  --k-card-radius: 24px;
+  --k-card-shadow: var(--shadow-lg);
+  --k-border-w: 1px;
+  --k-btn-radius: 16px;
+  --k-btn-lift: 0px;            /* chunky offset; 0 = soft */
+  --k-correct: var(--success);
+  --k-wrong: var(--destructive);
+  --k-display-op: var(--k-brand);
+  --k-op-add: #22c55e;
+  --k-op-sub: #f59e0b;
+  --k-op-mul: #6366f1;
+  --k-op-div: #ec4899;
+
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  background: var(--k-page);
+  width: 100%;
+  height: 100%;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.kid-root *, .kid-root *::before, .kid-root *::after { box-sizing: border-box; }
+
+/* ---- top brand strip ------------------------------------------------------ */
+.kid-top { display: flex; align-items: center; gap: 12px; }
+.kid-mark {
+  width: 40px; height: 40px; border-radius: 14px; flex: none;
+  background: var(--k-brand); color: var(--k-brand-fg);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 0 var(--k-brand-deep);
+}
+.kid-wordmark { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+.kid-wordmark .en { font-weight: 600; font-size: 12px; color: var(--muted-foreground); letter-spacing: 0; margin-left: 2px; }
+
+/* ---- operation chips ------------------------------------------------------ */
+.kid-ops { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.kid-chip {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  height: 64px; border-radius: 18px; cursor: pointer;
+  border: 2px solid var(--k-card-border); background: var(--k-card);
+  font-family: var(--font-sans); color: var(--foreground);
+  transition: transform .12s ease, box-shadow .12s ease, background .15s ease, border-color .15s ease;
+}
+.kid-chip .sym { font-family: var(--font-mono); font-size: 26px; font-weight: 700; line-height: 1; }
+.kid-chip .lab { font-size: 10.5px; font-weight: 600; opacity: .75; }
+.kid-chip:hover { transform: translateY(-2px); }
+.kid-chip.active { color: #fff; border-color: transparent; box-shadow: 0 5px 0 rgba(0,0,0,.12); transform: translateY(-1px); }
+.kid-chip.add.active { background: var(--k-op-add); }
+.kid-chip.sub.active { background: var(--k-op-sub); }
+.kid-chip.mul.active { background: var(--k-op-mul); }
+.kid-chip.div.active { background: var(--k-op-div); }
+
+/* ---- the hero card -------------------------------------------------------- */
+.kid-card {
+  position: relative; flex: 1; min-height: 0;
+  background: var(--k-card);
+  border: var(--k-border-w) solid var(--k-card-border);
+  border-radius: var(--k-card-radius);
+  box-shadow: var(--k-card-shadow);
+  padding: 22px;
+  display: flex; flex-direction: column; gap: 16px;
+  transition: background-color .3s ease, border-color .3s ease, transform .15s ease;
+  overflow: hidden;
+}
+.kid-card.correct { animation: kid-pop .5s ease; }
+.kid-card.wrong   { animation: kid-shake .4s ease; }
+@keyframes kid-pop   { 0%{transform:scale(1)} 35%{transform:scale(1.025)} 100%{transform:scale(1)} }
+@keyframes kid-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
+
+/* status row */
+.kid-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.kid-score { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+.kid-score .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 24px; color: var(--k-brand); white-space: nowrap; line-height: 1.05; }
+.kid-score .cap { font-size: 11.5px; font-weight: 600; color: var(--muted-foreground); white-space: nowrap; }
+.kid-streak { display: flex; align-items: center; gap: 4px; }
+.kid-streak .star { color: var(--border); transition: color .2s ease, transform .2s ease; }
+.kid-streak .star.on { color: var(--k-accent); }
+.kid-streak .star.pop { animation: kid-star .4s ease; }
+@keyframes kid-star { 0%{transform:scale(.4) rotate(-30deg)} 60%{transform:scale(1.3) rotate(8deg)} 100%{transform:scale(1)} }
+
+/* level pills */
+.kid-levels { display: flex; gap: 8px; }
+.kid-pill {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  height: 56px; justify-content: center; border-radius: 14px; cursor: pointer;
+  border: 2px solid var(--k-card-border); background: var(--k-card); color: var(--foreground);
+  font-family: var(--font-sans); transition: all .14s ease;
+}
+.kid-pill .pl { font-size: 12.5px; font-weight: 700; white-space: nowrap; line-height: 1; }
+.kid-pill .rg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; opacity: .65; white-space: nowrap; }
+.kid-pill:hover { transform: translateY(-1px); }
+.kid-pill.active { background: var(--k-brand-soft); border-color: var(--k-brand); color: var(--k-brand-deep); }
+
+/* equation */
+.kid-eq {
+  flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em; line-height: 1;
+  font-size: clamp(40px, 9vw, 72px);
+}
+.kid-eq .op { color: var(--k-display-op); }
+.kid-eq .ans { color: var(--muted-foreground); min-width: 1ch; }
+.kid-eq .ans.reveal { color: var(--k-wrong); }
+
+/* strike dots */
+.kid-strikes { display: flex; gap: 6px; }
+
+/* answer fields */
+.kid-fields { display: flex; gap: 12px; }
+.kid-fields .kid-field { flex: 1; }
+.kid-field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--muted-foreground); }
+.kid-field-label .en { font-weight: 500; opacity: .8; }
+.kid-input {
+  width: 100%; height: 56px; padding: 0 16px;
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 24px;
+  text-align: center; color: var(--foreground); background: #fff;
+  border: 2px solid var(--k-card-border); border-radius: 14px; outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.kid-input::placeholder { color: color-mix(in srgb, var(--muted-foreground) 60%, transparent); font-weight: 500; }
+.kid-input:focus { border-color: var(--k-brand); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-brand) 22%, transparent); }
+.kid-input:disabled { opacity: .55; }
+.kid-input[type=number]::-webkit-inner-spin-button, .kid-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.kid-input[type=number] { -moz-appearance: textfield; }
+
+/* buttons */
+.kid-actions { display: flex; gap: 12px; }
+.kid-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 56px; padding: 0 18px; border-radius: var(--k-btn-radius);
+  font-family: var(--font-sans); font-weight: 700; font-size: 16px; cursor: pointer;
+  border: none; transition: transform .1s ease, box-shadow .1s ease, background .15s ease, filter .15s ease;
+  user-select: none; white-space: nowrap;
+}
+.kid-btn .en { font-weight: 600; font-size: 11px; opacity: .8; margin-left: 1px; }
+.kid-btn-primary { flex: 1; background: var(--k-brand); color: var(--k-brand-fg); box-shadow: 0 var(--k-btn-lift) 0 var(--k-brand-deep); }
+.kid-btn-primary:hover { filter: brightness(1.05); }
+.kid-btn-primary:active { transform: translateY(var(--k-btn-lift)); box-shadow: 0 0 0 var(--k-brand-deep); }
+.kid-btn-primary:disabled { opacity: .45; pointer-events: none; }
+.kid-btn-ghost { background: var(--k-brand-soft); color: var(--k-brand-deep); }
+.kid-btn-ghost:hover { filter: brightness(.97); }
+
+/* celebration banner */
+.kid-cheer {
+  position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--k-correct); color: #fff; font-weight: 800; font-size: 16px;
+  padding: 8px 18px; border-radius: 999px; box-shadow: var(--shadow-md);
+  animation: kid-cheer-in .4s ease; z-index: 5; white-space: nowrap;
+}
+.kid-cheer .en { font-weight: 600; font-size: 12px; opacity: .9; }
+@keyframes kid-cheer-in { 0%{opacity:0; transform:translate(-50%,-12px) scale(.8)} 100%{opacity:1; transform:translate(-50%,0) scale(1)} }
+
+/* confetti */
+.kid-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+.kid-confetti i {
+  position: absolute; top: 38%; left: 50%;
+  width: var(--s); height: var(--s); background: var(--c);
+  border-radius: var(--br);
+  animation: kid-conf var(--d) cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes kid-conf {
+  0%   { opacity: 1; transform: translate(0,0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(.4); }
+}
+
+/* ============================================================================
+   FULL-APP CHROME — page / header / footer for the promoted Warm build.
+   ============================================================================ */
+.kid-page {
+  --k-brand: #2f6bed; --k-brand-deep: #1f4fc4; --k-brand-soft: #eaf1fe; --k-brand-fg: #ffffff;
+  --k-accent: #f6a823; --k-page: #f6f4ee; --k-card: #ffffff;
+  --k-card-border: #e8e4dc; --k-card-radius: 26px; --k-card-shadow: var(--shadow-lg);
+  --k-border-w: 1px; --k-btn-radius: 16px; --k-btn-lift: 0px;
+  --k-display-op: #2f6bed;
+  --k-op-add: #22c55e; --k-op-sub: #f59e0b; --k-op-mul: #6366f1; --k-op-div: #ec4899;
+
+  min-height: 100vh; display: flex; flex-direction: column;
+  background: var(--k-page); font-family: var(--font-sans); color: var(--foreground);
+}
+.kid-header {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--k-page) 86%, transparent);
+  backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--k-card-border);
+}
+.kid-header-in {
+  max-width: 620px; margin: 0 auto; height: 64px; padding: 0 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.kid-header .kid-wordmark { font-size: 19px; display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+.kid-header .kid-wordmark .en { margin-left: 0; }
+.kid-zegar {
+  display: flex; align-items: center; gap: 9px; cursor: pointer;
+  font-size: 13px; font-weight: 700; color: var(--foreground); user-select: none;
+}
+.kid-zegar .en { font-weight: 500; font-size: 11px; color: var(--muted-foreground); }
+.kid-switch {
+  position: relative; width: 46px; height: 26px; border-radius: 999px; flex: none;
+  background: var(--k-card-border); border: none; cursor: pointer; transition: background .18s ease;
+}
+.kid-switch[aria-checked="true"] { background: var(--k-brand); }
+.kid-switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+  border-radius: 999px; background: #fff; box-shadow: var(--shadow-sm); transition: transform .18s ease;
+}
+.kid-switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+/* language switch (segmented PL | EN) */
+.kid-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.kid-lang { display: flex; gap: 2px; background: var(--k-card); border: 1px solid var(--k-card-border);
+  border-radius: 999px; padding: 3px; }
+.kid-lang button { border: none; background: transparent; font-family: var(--font-sans);
+  font-weight: 700; font-size: 12px; padding: 5px 11px; border-radius: 999px; cursor: pointer;
+  color: var(--muted-foreground); transition: background .15s ease, color .15s ease; }
+.kid-lang button.on { background: var(--k-brand); color: #fff; }
+@media (max-width: 540px) { .kid-header .kid-wordmark .en { display: none; } }
+
+.kid-main { flex: 1; width: 100%; max-width: 560px; margin: 0 auto; padding: 24px 20px 8px;
+  display: flex; flex-direction: column; gap: 16px; }
+
+/* in full-app mode the root is not a fixed artboard — let it size to content */
+.kid-page .kid-main .kid-card { min-height: 460px; }
+
+.kid-foot { text-align: center; color: var(--muted-foreground); font-size: 12.5px;
+  padding: 22px; border-top: 1px solid var(--k-card-border); margin-top: 18px; }
+
+.kid-timer-slot { display: flex; align-items: center; justify-content: center; }
+

@@ -19,7 +19,7 @@ const output = useTransition(source, {
   duration: 500,
 })
 
-const rounded = computed(() => output.value.toFixed(0))
+const rounded = computed(() => Math.round(output.value))
 
 watch(
   () => props.value,
