@@ -96,6 +96,9 @@ watch(
 )
 
 watch(level, () => {
+  score.value = 0
+  tasksTotal.value = 0
+  streak.value = 0
   generateNew()
 })
 
@@ -111,6 +114,7 @@ onMounted(() => {
   <div
     class="kid-card"
     :class="{ correct: cardColor === 'green', wrong: cardColor === 'red' }"
+    :style="{ borderColor: 'var(--k-op-add)', borderWidth: '2px' }"
   >
     <Celebration v-if="cardColor === 'green'" :key="cheer" />
 
