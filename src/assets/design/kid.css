@@ -27,6 +27,7 @@
   --k-op-sub: #f59e0b;
   --k-op-mul: #6366f1;
   --k-op-div: #ec4899;
+  --k-op-div2: #14b8a6;
 
   font-family: var(--font-sans);
   color: var(--foreground);
@@ -74,6 +75,7 @@
 .kid-chip.sub.active { background: var(--k-op-sub); }
 .kid-chip.mul.active { background: var(--k-op-mul); }
 .kid-chip.div.active { background: var(--k-op-div); }
+.kid-chip.div2.active { background: var(--k-op-div2); }
 
 /* ---- the hero card -------------------------------------------------------- */
 .kid-card {
@@ -199,7 +201,7 @@
   --k-card-border: #e8e4dc; --k-card-radius: 26px; --k-card-shadow: var(--shadow-lg);
   --k-border-w: 1px; --k-btn-radius: 16px; --k-btn-lift: 0px;
   --k-display-op: #2f6bed;
-  --k-op-add: #22c55e; --k-op-sub: #f59e0b; --k-op-mul: #6366f1; --k-op-div: #ec4899;
+  --k-op-add: #22c55e; --k-op-sub: #f59e0b; --k-op-mul: #6366f1; --k-op-div: #ec4899; --k-op-div2: #14b8a6;
 
   min-height: 100vh; display: flex; flex-direction: column;
   background: var(--k-page); font-family: var(--font-sans); color: var(--foreground);

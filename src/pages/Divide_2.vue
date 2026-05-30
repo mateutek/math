@@ -118,7 +118,7 @@ onMounted(() => {
   <div
     class="kid-card"
     :class="{ correct: cardColor === 'green', wrong: cardColor === 'red' }"
-    :style="{ borderColor: 'var(--k-op-div)', borderWidth: '2px' }"
+    :style="{ borderColor: 'var(--k-op-div2)', borderWidth: '2px' }"
   >
     <Celebration v-if="cardColor === 'green'" :key="cheer" />
 
@@ -152,7 +152,7 @@ onMounted(() => {
       </RouterLink>
     </div>
 
-    <div class="kid-eq" style="--k-display-op: var(--k-op-div)">
+    <div class="kid-eq" style="--k-display-op: var(--k-op-div2)">
       <AnimatedInteger :value="dividend" />
       <span class="op">÷</span>
       <AnimatedInteger :value="divisor" />

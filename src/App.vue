@@ -15,7 +15,7 @@ const ops = [
   { key: 'subtraction', symbol: '−', cls: 'sub', color: '#f59e0b', route: '/odejmowanie' },
   { key: 'multiply', symbol: '×', cls: 'mul', color: '#6366f1', route: '/mnozenie' },
   { key: 'divide', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie' },
-  { key: 'divide2', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie2' },
+  { key: 'divide2', symbol: '÷', cls: 'div2', color: '#14b8a6', route: '/dzielenie2' },
 ]
 
 function setLang(lang) {
