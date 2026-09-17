@@ -255,3 +255,42 @@
 
 .kid-timer-slot { display: flex; align-items: center; justify-content: center; }
 
+/* ============================================================================
+   NEW GAMES - shared board pieces used by src/pages/games/*.vue
+   ============================================================================ */
+.kid-back {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 44px; height: 44px; margin: -8px 0 -8px -8px; border-radius: 999px;
+  color: var(--muted-foreground); transition: background .15s ease, color .15s ease;
+}
+.kid-back:hover { background: var(--k-brand-soft); color: var(--k-brand-deep); }
+.kid-prompt { margin: 0; text-align: center; font-weight: 700; font-size: 15px; color: var(--muted-foreground); }
+.kid-eq.sm { font-size: clamp(22px, 6.5vw, 36px); flex-wrap: wrap; }
+.kid-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.kid-tiles.two { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 1024px) { .kid-tiles.six { grid-template-columns: repeat(6, 1fr); } }
+.kid-tile {
+  min-height: 60px; padding: 6px; border-radius: var(--k-btn-radius);
+  border: 2px solid var(--k-card-border); background: var(--k-card); color: var(--foreground);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 20px;
+  cursor: pointer; transition: transform .12s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+}
+@media (min-width: 1024px) { .kid-tile { min-height: 76px; font-size: 26px; } }
+.kid-tile.res { background: var(--k-page); }
+.kid-tile:hover:not(:disabled) { transform: translateY(-2px); }
+.kid-tile:disabled { cursor: default; }
+.kid-tile.on { border-color: var(--k-display-op); background: color-mix(in srgb, var(--k-display-op) 14%, #fff); }
+.kid-tile.done { opacity: .35; }
+.kid-tile.reveal { border-color: var(--k-wrong); color: var(--k-wrong); }
+.kid-domino { display: flex; align-items: center; justify-content: center; padding: 10px; }
+.kid-domino .bone { display: flex; border: 2px solid var(--foreground); border-radius: 10px; background: #fbfaf6; }
+.kid-domino .half {
+  display: grid; grid-template-columns: repeat(3, 9px); grid-template-rows: repeat(3, 9px);
+  gap: 4px; padding: 8px;
+}
+.kid-domino .half + .half { border-left: 2px solid var(--foreground); }
+.kid-domino i { border-radius: 999px; }
+.kid-domino i.pip { background: var(--foreground); }
+.kid-trail { min-height: 24px; margin: 0; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 16px; color: var(--muted-foreground); }
+.kid-trail.reveal { color: var(--k-wrong); }
+
