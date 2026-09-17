@@ -294,3 +294,95 @@
 .kid-trail { min-height: 24px; margin: 0; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 16px; color: var(--muted-foreground); }
 .kid-trail.reveal { color: var(--k-wrong); }
 
+/* ============================================================================
+   TWO-COLUMN LAYOUT - phone: stacked. From 1024px: main column + 340px side.
+   ============================================================================ */
+.kid-cols { display: flex; flex-direction: column; gap: 16px; }
+.kid-col-main, .kid-col-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+@media (min-width: 1024px) {
+  .kid-cols { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; align-items: start; }
+  .kid-col-side { gap: 20px; position: sticky; top: 92px; }
+}
+.kid-h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+@media (min-width: 1024px) { .kid-h1 { font-size: 30px; letter-spacing: -0.03em; } }
+.kid-panel {
+  padding: 18px; display: flex; flex-direction: column; gap: 12px;
+  background: var(--k-card); border: 1px solid var(--k-card-border); border-radius: var(--k-card-radius);
+}
+.kid-panel h2 { margin: 0; font-size: 16px; font-weight: 800; }
+@media (min-width: 1024px) { .kid-panel { padding: 22px; } }
+/* declared after .kid-panel: both set display and share specificity, and this
+   one must win so the panel it decorates actually hides on narrow screens */
+.kid-desktop-only { display: none; }
+@media (min-width: 1024px) { .kid-desktop-only { display: flex; } }
+.kid-badge { padding: 3px 9px; border-radius: 999px; background: var(--k-accent); color: #3b2600; font-size: 11px; font-weight: 800; white-space: nowrap; }
+
+/* ============================================================================
+   VILLAGE - iso map (src/pages/Village.vue, src/components/IsoBuilding.vue)
+   ============================================================================ */
+.kid-village { position: relative; }
+.kid-village-head { display: flex; align-items: baseline; gap: 12px; }
+.kid-village-head .count { font-family: var(--font-mono); font-weight: 700; font-size: 14px; color: var(--muted-foreground); }
+.kid-village-hint { margin: 0; font-size: 14px; color: var(--muted-foreground); }
+.kid-map { display: block; width: 100%; height: auto; }
+.iso-b .shade { fill: #000; opacity: .14; }
+.iso-b .shade2 { fill: #000; opacity: .28; }
+.iso-b.built { cursor: pointer; }
+.iso-b.sel polygon { stroke: var(--k-brand); stroke-width: 2; }
+.iso-b.ghost polygon {
+  fill: transparent; stroke: var(--muted-foreground); stroke-width: 1.5;
+  stroke-dasharray: 4 4; opacity: .4;
+}
+.iso-b.ghost.next polygon { fill: color-mix(in srgb, var(--k-brand-soft) 70%, transparent); stroke: var(--k-brand); stroke-width: 2; opacity: 1; }
+.iso-b.ghost.next { animation: iso-pulse 1.6s ease-in-out infinite; }
+.iso-smoke { fill: #fff; opacity: 0; animation: iso-smoke 3s ease-out infinite; }
+.iso-flag { transform-box: fill-box; transform-origin: left center; animation: iso-flag 1.2s ease-in-out infinite alternate; }
+@keyframes iso-pulse { 50% { opacity: .35; } }
+@keyframes iso-smoke { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: .85; } 100% { opacity: 0; transform: translateY(-22px); } }
+@keyframes iso-flag { from { transform: scaleX(1); } to { transform: scaleX(.7); } }
+
+/* ============================================================================
+   GOAL CARD, SHOP, BUILDING LIST
+   ============================================================================ */
+.kid-goal { box-shadow: var(--k-card-shadow); }
+.kid-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--k-brand-deep); }
+.kid-goal-head { display: flex; align-items: center; gap: 12px; }
+.kid-goal-head .art { width: 64px; height: 84px; flex: none; }
+.kid-goal-head .art .iso-b { animation: none; }
+.kid-goal-head h2 { font-size: 20px; letter-spacing: -0.02em; }
+.kid-goal-head .sub { font-size: 13px; font-weight: 600; color: var(--muted-foreground); }
+.kid-fire { margin-left: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: #8a5200; white-space: nowrap; }
+.kid-bar { display: grid; grid-template-columns: 22px minmax(0, 1fr) 48px; align-items: center; gap: 8px; }
+.kid-bar .track { height: 12px; border-radius: 999px; background: #efece4; overflow: hidden; }
+.kid-bar .fill { height: 100%; border-radius: 999px; background: var(--k-brand); transition: width .4s ease; }
+.kid-bar .fill.full { background: #15803d; }
+.kid-bar .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; text-align: right; }
+/* .kid-btn-primary carries flex: 1 for the game action row; in these column
+   and row layouts that would collapse or stretch the button, so pin it */
+.kid-goal .kid-btn, .kid-shop .kid-btn { flex: none; text-decoration: none; }
+.kid-goal-hint { margin: 0; text-align: center; font-size: 14px; font-weight: 600; color: var(--muted-foreground); }
+.kid-goal-hint a { font-weight: 700; color: var(--k-brand-deep); }
+
+.kid-shop-head { display: flex; align-items: center; gap: 8px; }
+.kid-shop-head .purse { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: #7a4e00; }
+.kid-shop-row { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.kid-shop-row .rate { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
+.kid-shop-row .arrow { color: var(--muted-foreground); }
+.kid-shop-row .name { font-size: 14px; font-weight: 700; }
+.kid-shop-btn { margin-left: auto; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 14px; }
+.kid-shop-btn:disabled { opacity: .45; pointer-events: none; }
+
+.kid-blist ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 24px; row-gap: 9px; }
+.kid-blist li { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--muted-foreground); }
+.kid-blist li .dot { width: 9px; height: 9px; flex: none; border-radius: 999px; background: var(--k-card-border); }
+.kid-blist li .tag { margin-left: auto; font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.kid-blist li.built { color: var(--foreground); }
+.kid-blist li.built .dot { background: #15803d; }
+.kid-blist li.next { color: var(--k-brand-deep); font-weight: 800; }
+.kid-blist li.next .dot { background: transparent; border: 2px solid var(--k-brand); }
+
+@media (prefers-reduced-motion: reduce) {
+  .iso-smoke, .iso-flag, .iso-b.ghost.next { animation: none; }
+  .kid-bar .fill { transition: none; }
+}
+

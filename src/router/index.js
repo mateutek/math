@@ -1,12 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/pages/Home.vue'
+import Village from '@/pages/Village.vue'
 
 const routes = [
   {
     path: '/',
-    redirect: '/dodawanie/1',
-    name: 'Home',
-    component: Home,
+    name: 'village',
+    component: Village,
   },
   {
     path: '/dodawanie/:level?',
