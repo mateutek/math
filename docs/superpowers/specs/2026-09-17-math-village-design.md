@@ -35,11 +35,14 @@ refactoring the five existing operation pages.
 
 | File | Purpose |
 |---|---|
-| `src/store/village.js` | Reactive store, same pattern as `store/settings.js`. Holds `materials`, `buildings`, `streak`. Persists to one `village` localStorage key via `watch`. Exposes `reward(kind, level)`, `build(id)`, `exportSave()`, `importSave(str)`, `reset()`. |
+| `src/store/villageLogic.js` | Pure rules on plain state objects (validate, applyReward, applyBuild, encode, decode). No Vue, no localStorage, so it runs under plain node. |
+| `src/store/village.js` | Reactive wrapper, same pattern as `store/settings.js`. Persists to one `village` localStorage key via `watch`. Exposes `reward(kind, amount)`, `build(id)`, `exportSave()`, `checkSave(str)`, `importSave(str)`, `reset()`. |
 | `src/data/buildings.js` | Static list of 12 buildings: id, plot tile, cost per tier, unlock order. |
-| `src/composables/useRound.js` | Shared round state for the new games: score, tasksTotal, streak, strikes, flash colour. Calls `village.reward()` on a correct answer and awards coins. |
-| `src/pages/Village.vue` | Isometric map, next-goal panel, Build button. |
-| `src/components/IsoTile.vue` | One SVG ground tile. |
+| `src/data/games.js` | Game list grouped for the Play grid. |
+| `src/games/generators.js` | Pure task generators for the six games, checked under plain node. |
+| `src/composables/useRound.js` | Shared round state for the new games: score, total, streak, strikes, flash colour. Calls `reward()` on a correct answer and awards coins. |
+| `src/components/GameCard.vue` | Shared card shell for the new games: back arrow, score, timer, stars, level pills, strikes, New button. |
+| `src/pages/Village.vue` | Isometric map (ground tiles are inline polygons), next-goal panel, Build button. |
 | `src/components/IsoBuilding.vue` | One SVG building, drawn from id and tier. |
 | `src/components/SettingsSheet.vue` | Language, timer, export, import, reset. |
 | `src/pages/Play.vue` | Game grid grouped by category. |
@@ -49,7 +52,7 @@ refactoring the five existing operation pages.
 | `src/pages/games/Biggest.vue` | Najwieksza. |
 | `src/pages/games/Ascending.vue` | Rosnaco. |
 | `src/pages/games/Missing.vue` | Brakujaca. |
-| `src/store/village.check.js` | Plain Node self-check for the store logic. |
+| `src/store/villageLogic.check.js`, `src/games/generators.check.js` | Plain Node self-checks, run with `npm run check`. |
 
 ### Changes to existing files
 
@@ -131,7 +134,7 @@ the existing card layout. All use `useRound`.
 | Compare | Two sides, tap `<`, `=` or `>`. | Number vs number, number vs expression, expression vs expression |
 | Biggest | 4 to 6 distinct numbers. Tap the biggest or the smallest, the prompt says which. | Up to 50, 200, 1000 |
 | Ascending | 5 distinct shuffled numbers. Tap them in ascending order. A wrong tap is a strike and does not advance. | Up to 50, 200, 1000 |
-| Missing | `7 + ? = 12`, typed answer. Reuses the current input UI. All four operations; division only with whole results. | Existing operation ranges |
+| Missing | `7 + ? = 12`, typed answer. Reuses the current input UI. Division only with whole results. | Same operation unlocks as Tiles: L1 + and -, L2 adds x, L3 adds /, so level 1 stays playable for a first grader |
 
 Three strikes reveal the answer and move on, as the current pages do. The
 timer setting applies to the single-question games and is ignored by Tiles.
@@ -176,9 +179,10 @@ the next plot. Upgrades are offered from a tap on a built building.
 
 `[logo] [wood] [stone] [food] [coins] [settings]`
 
-- Counters animate with `AnimatedInteger`. Under 380px the labels drop and
-  icons stay. Each counter has an `aria-label` such as "Wood: 24". Tapping
-  the counters goes to the village.
+- Counters are icon plus number, no text label, and animate with
+  `AnimatedInteger`. Under 380px the wordmark hides to make room. Each counter
+  has an `aria-label` such as "Wood: 24". Tapping the counters goes to the
+  village.
 - The language switch and timer toggle move into `SettingsSheet`, together
   with export (string plus Copy via `useClipboard`), import (paste field plus
   Load) and Reset village (with confirm).
