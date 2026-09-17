@@ -48,6 +48,21 @@ const routes = [
     name: 'biggest',
     component: () => import('@/pages/games/Biggest.vue'),
   },
+  {
+    path: '/gry/kafelki/:level?',
+    name: 'tiles',
+    component: () => import('@/pages/games/Tiles.vue'),
+  },
+  {
+    path: '/gry/rosnaco/:level?',
+    name: 'ascending',
+    component: () => import('@/pages/games/Ascending.vue'),
+  },
+  {
+    path: '/gry/brakujaca/:level?',
+    name: 'missing',
+    component: () => import('@/pages/games/Missing.vue'),
+  },
 ]
 
 const router = createRouter({
