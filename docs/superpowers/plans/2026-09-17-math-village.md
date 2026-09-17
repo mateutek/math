@@ -2,13 +2,15 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add six new math games, a localStorage-only village-building reward loop with an export/import save string, and a two-tab navigation that replaces the five operation chips.
+**Goal:** Add six new math games, a localStorage-only village-building reward loop with a coin shop and an export/import save string, and a navigation that works as a phone app and as a two-column desktop page.
 
-**Architecture:** Pure state logic (`villageLogic.js`) and pure task generators (`generators.js`) are plain ES modules checked with `node` and `assert`. A thin reactive store (`village.js`) wraps the logic and persists one `village` localStorage key. The six new games share one composable (`useRound`) and one shell component (`GameCard`). The five existing operation pages are not refactored, they only gain reward and back-arrow lines.
+**Architecture:** Pure state logic (`villageLogic.js`) and pure task generators (`generators.js`) are plain ES modules checked with `node` and `assert`. A thin reactive store (`village.js`) wraps the logic and persists one `village` localStorage key. The six new games share one composable (`useRound`) and one shell component (`GameCard`). The village widgets (`NextGoal`, `ShopCard`, `BuildingList`, `RewardsCard`) are small components reused by the village page and by the desktop side column. The five existing operation pages are not refactored, they only gain reward and back-arrow lines.
 
 **Tech Stack:** Vue 3 `<script setup>`, vue-router 4, @vueuse/core (`useClipboard`), reka-ui Sheet (already in `src/components/ui/sheet`), lucide-vue-next, Vite 6, plain CSS in `src/assets/design/kid.css`. Node 24 for checks.
 
 **Spec:** `docs/superpowers/specs/2026-09-17-math-village-design.md`
+
+**Visual reference:** the Claude Design canvas "Math Village redesign" (phone row and desktop row). The CSS in this plan implements it. Building art on the canvas and in `IsoBuilding.vue` is placeholder and will be swapped later, so keep all building drawing inside that one component.
 
 ## Global Constraints
 
@@ -18,17 +20,19 @@
 - Existing URLs (`/dodawanie/1`, `/odejmowanie/1`, `/mnozenie/1`, `/dzielenie/1`, `/dzielenie2/1`) keep working.
 - Every user-visible string goes through `t()` with a PL and an EN entry.
 - NEVER use the em dash character anywhere: code, comments, docs, commit messages, UI strings. Use a hyphen.
+- No emoji in the UI. Material icons are the drawn SVGs in `MaterialIcon.vue`; other icons come from lucide-vue-next.
 - Subtraction is displayed with the minus sign `−` (U+2212), multiplication `×`, division `÷`, matching the existing pages.
 - Use `npm run`, not yarn, for scripts.
 - Do not refactor the five existing operation pages beyond the lines named in Task 8.
 - Tap targets are at least 44px. Animations are disabled under `prefers-reduced-motion`.
+- Breakpoints: below 768px is the phone layout (fixed bottom tabs). From 768px the tabs move into the header. From 1024px the page is a 1120px two-column layout (main column plus a 340px side column).
 - Commit messages follow the repo style: one imperative sentence, no prefix (example: `Add PL/EN language switch`).
 
 ## File Structure
 
 | File | Responsibility |
 |---|---|
-| `src/data/buildings.js` | Static building list, material keys, material icons. No logic beyond cost tiers. |
+| `src/data/buildings.js` | Static building list, material keys, shop rate. No logic beyond cost tiers. |
 | `src/store/villageLogic.js` | Pure functions on plain state objects. No Vue, no localStorage. |
 | `src/store/villageLogic.check.js` | Node self-check for the logic. |
 | `src/store/village.js` | Reactive wrapper, localStorage persistence, public actions. |
@@ -37,8 +41,13 @@
 | `src/composables/useRound.js` | Shared round state for the new games. |
 | `src/components/GameCard.vue` | Shared card shell: back arrow, score, timer, stars, level pills, strikes, New button. |
 | `src/pages/games/*.vue` | One file per game, only the game-specific board. |
-| `src/components/IsoBuilding.vue` | Draws one building as SVG from id and tier. |
-| `src/pages/Village.vue` | Isometric map and next-goal panel. |
+| `src/components/MaterialIcon.vue` | The four drawn material icons. |
+| `src/components/IsoBuilding.vue` | Draws one building as SVG from id and tier. Placeholder art, swappable. |
+| `src/components/NextGoal.vue` | Goal card: building, one bar per material, Build button or link to the village. |
+| `src/components/ShopCard.vue` | Trades 1 coin for `SHOP_RATE` of a material. |
+| `src/components/BuildingList.vue` | All 12 buildings with built / next / locked state. Desktop only. |
+| `src/components/RewardsCard.vue` | What the current game pays. Desktop side column only. |
+| `src/pages/Village.vue` | Isometric map plus the village side column. |
 | `src/data/games.js` | Game list grouped for the Play grid. |
 | `src/pages/Play.vue` | Game grid. |
 | `src/components/SettingsSheet.vue` | Language, timer, export, import, reset. |
@@ -56,8 +65,8 @@
 **Interfaces:**
 - Consumes: nothing.
 - Produces:
-  - `buildings.js`: `MATERIALS: string[]` = `['wood','stone','food','coins']`, `MATERIAL_ICON: Record<string,string>`, `BUILDINGS: {id: string, plot: [col, row], cost: Record<string,number>[]}[]` (array order is unlock order, `cost[tier-1]`).
-  - `villageLogic.js`: `fresh(): State`, `validate(raw): State|null`, `applyReward(state, kind, amount): State`, `canAfford(state, cost): boolean`, `goalFor(state, id): {id, tier, cost}|null`, `nextBuilding(state): {id, tier, cost}|null`, `applyBuild(state, id): State|null`, `touchDay(state, today: 'YYYY-MM-DD'): State`, `encode(state): string`, `decode(str): State|null`.
+  - `buildings.js`: `MATERIALS: string[]` = `['wood','stone','food','coins']`, `SHOP_RATE: number` = `2`, `BUILDINGS: {id: string, plot: [col, row], cost: Record<string,number>[]}[]` (array order is unlock order, `cost[tier-1]`).
+  - `villageLogic.js`: `fresh(): State`, `validate(raw): State|null`, `applyReward(state, kind, amount): State`, `canAfford(state, cost): boolean`, `goalFor(state, id): {id, tier, cost}|null`, `nextBuilding(state): {id, tier, cost}|null`, `applyBuild(state, id): State|null`, `applyTrade(state, kind): State|null`, `touchDay(state, today: 'YYYY-MM-DD'): State`, `encode(state): string`, `decode(str): State|null`.
   - `State` = `{ v: 1, materials: {wood, stone, food, coins}, buildings: {id, tier}[], bestStreak: Record<string,number>, lastPlayed: string, dayStreak: number }`.
   - All functions return new objects and never mutate their input.
 
@@ -67,8 +76,9 @@ Create `src/store/villageLogic.check.js`:
 
 ```js
 import assert from 'node:assert/strict'
+import { SHOP_RATE } from '../data/buildings.js'
 import {
-  fresh, applyReward, applyBuild, nextBuilding, goalFor, touchDay, encode, decode,
+  fresh, applyReward, applyBuild, applyTrade, nextBuilding, goalFor, touchDay, encode, decode,
 } from './villageLogic.js'
 
 // 1. reward adds the right material, ignores unknown kinds and bad amounts
@@ -121,6 +131,14 @@ const bad = [
 ]
 for (const str of bad) assert.equal(decode(str), null, `should reject ${str}`)
 
+// 7. shop: one coin buys SHOP_RATE of a material, one way only
+const shopper = { ...fresh(), materials: { wood: 0, stone: 0, food: 0, coins: 2 } }
+assert.deepEqual(applyTrade(shopper, 'stone').materials, { wood: 0, stone: SHOP_RATE, food: 0, coins: 1 })
+assert.equal(applyTrade(shopper, 'coins'), null)
+assert.equal(applyTrade(shopper, 'gold'), null)
+assert.equal(applyTrade(fresh(), 'wood'), null)
+assert.equal(shopper.materials.coins, 2, 'input state must not be mutated')
+
 // day streak: first day, same day, next day, gap
 let d = touchDay(fresh(), '2026-09-17')
 assert.equal(d.dayStreak, 1)
@@ -136,7 +154,7 @@ console.log('villageLogic: all checks passed')
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `node src/store/villageLogic.check.js`
-Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `villageLogic.js`.
+Expected: FAIL with `ERR_MODULE_NOT_FOUND`.
 
 - [ ] **Step 3: Create the building data**
 
@@ -145,7 +163,8 @@ Create `src/data/buildings.js`:
 ```js
 export const MATERIALS = ['wood', 'stone', 'food', 'coins']
 
-export const MATERIAL_ICON = { wood: '🪵', stone: '🪨', food: '🌾', coins: '🪙' }
+// One coin buys this many units of any material in the shop.
+export const SHOP_RATE = 2
 
 const scale = (cost, f) =>
   Object.fromEntries(
@@ -189,7 +208,7 @@ Create `src/store/villageLogic.js`:
 // Pure village rules. No Vue and no localStorage in here, so this file runs
 // under plain node (see villageLogic.check.js). Every function returns a new
 // state object and never mutates its input.
-import { BUILDINGS, MATERIALS } from '../data/buildings.js'
+import { BUILDINGS, MATERIALS, SHOP_RATE } from '../data/buildings.js'
 
 export const fresh = () => ({
   v: 1,
@@ -269,6 +288,20 @@ export function applyBuild(state, id) {
   return { ...state, materials, buildings }
 }
 
+// Shop: one coin buys SHOP_RATE of a material. One way only, so coins stay a
+// reward for accuracy and cannot be farmed from easy tasks.
+export function applyTrade(state, kind) {
+  if (kind === 'coins' || !MATERIALS.includes(kind) || state.materials.coins < 1) return null
+  return {
+    ...state,
+    materials: {
+      ...state.materials,
+      coins: state.materials.coins - 1,
+      [kind]: state.materials[kind] + SHOP_RATE,
+    },
+  }
+}
+
 export function touchDay(state, today) {
   if (state.lastPlayed === today) return state
   const y = new Date(today)
@@ -296,13 +329,11 @@ Expected: `villageLogic: all checks passed`
 
 - [ ] **Step 6: Add the check script**
 
-In `package.json`, inside `"scripts"`, after the `"lint"` line add:
+In `package.json`, inside `"scripts"`, add a comma after the `"lint": "eslint ."` line and then:
 
 ```json
     "check": "node src/store/villageLogic.check.js"
 ```
-
-(Add a comma after the `"lint": "eslint ."` line.)
 
 Run: `npm run check`
 Expected: `villageLogic: all checks passed`
@@ -328,6 +359,7 @@ git commit -m "Add village rules and building data with a node self-check"
   - `reward(kind: string, amount = 1): void`
   - `recordStreak(game: string, n: number): void`
   - `build(id: string): boolean` (false when refused)
+  - `trade(kind: string): boolean` (false when refused)
   - `exportSave(): string`
   - `checkSave(str: string): boolean` (valid without applying)
   - `importSave(str: string): boolean`
@@ -363,7 +395,14 @@ watch(village, (value) => {
   }
 })
 
-const set = (next) => Object.assign(village, next)
+const set = (state) => Object.assign(village, state)
+
+// applies a logic result that may be null (refused); reports whether it took
+function commit(result) {
+  if (!result) return false
+  set(result)
+  return true
+}
 
 // Local calendar date as YYYY-MM-DD (the sv locale formats dates that way).
 const today = () => new Date().toLocaleDateString('sv')
@@ -376,23 +415,12 @@ export function recordStreak(game, n) {
   if (n > (village.bestStreak[game] ?? 0)) village.bestStreak[game] = n
 }
 
-export function build(id) {
-  const next = logic.applyBuild(village, id)
-  if (!next) return false
-  set(next)
-  return true
-}
+export const build = (id) => commit(logic.applyBuild(village, id))
+export const trade = (kind) => commit(logic.applyTrade(village, kind))
+export const importSave = (str) => commit(logic.decode(str))
 
 export const exportSave = () => logic.encode(village)
 export const checkSave = (str) => logic.decode(str) !== null
-
-export function importSave(str) {
-  const next = logic.decode(str)
-  if (!next) return false
-  set(next)
-  return true
-}
-
 export const reset = () => set(logic.fresh())
 
 export const next = computed(() => logic.nextBuilding(village))
@@ -447,6 +475,7 @@ import {
 } from './generators.js'
 
 const apply = { '+': (a, b) => a + b, '−': (a, b) => a - b, '×': (a, b) => a * b, '÷': (a, b) => a / b }
+const asc = (a, b) => a - b
 
 for (const level of [1, 2, 3]) {
   for (let i = 0; i < 300; i++) {
@@ -454,7 +483,7 @@ for (const level of [1, 2, 3]) {
     const tiles = tilesRound(level)
     assert.equal(tiles.exprs.length, 6)
     assert.equal(new Set(tiles.exprs.map((e) => e.result)).size, 6)
-    assert.deepEqual([...tiles.results].sort((a, b) => a - b), tiles.exprs.map((e) => e.result).sort((a, b) => a - b))
+    assert.deepEqual([...tiles.results].sort(asc), tiles.exprs.map((e) => e.result).sort(asc))
     for (const e of tiles.exprs) {
       assert.equal(apply[e.op](e.a, e.b), e.result)
       assert.ok(Number.isInteger(e.result) && e.result >= 0)
@@ -478,9 +507,9 @@ for (const level of [1, 2, 3]) {
     assert.equal(big.answer, Math[big.want](...big.numbers))
 
     // Ascending: five distinct numbers, sorted is really sorted
-    const asc = ascendingRound(level)
-    assert.equal(new Set(asc.numbers).size, 5)
-    assert.deepEqual(asc.sorted, [...asc.numbers].sort((a, b) => a - b))
+    const up = ascendingRound(level)
+    assert.equal(new Set(up.numbers).size, 5)
+    assert.deepEqual(up.sorted, [...up.numbers].sort(asc))
 
     // Missing: division is whole, and the answer completes the equation
     const mis = missingRound(level)
@@ -659,8 +688,8 @@ git commit -m "Add task generators for the six new games with a node self-check"
   - `useRound(game: string, next: (level: number) => number|void)` returns a `reactive` object with: `level` (1 to 3, from `route.params.level`), `score`, `total`, `streak`, `strikes`, `flash` (`''|'green'|'red'`), `cheer`, `timerKey`, and methods `newTask()`, `correct(material: string, flawless = false)`, `wrong()`. `next` is called synchronously once during `useRound()` and on every level change, so declare the refs it writes to BEFORE calling `useRound`. If `next` returns a number, `total` grows by that much (Tiles returns 6), otherwise by 1.
   - Call order on a correct answer is `round.correct(material)` then `round.newTask()`.
   - After 3 strikes `wrong()` is a no-op; the page shows the answer and the kid presses New.
-  - `<GameCard :round base color :ranges :timed>` with a default slot for the board. `base` is the route without the level (example `/gry/domino`), `ranges` is 3 short labels for the level pills, `timed` enables the timer ring.
-  - i18n keys listed in Step 3 are available to every later task.
+  - `<GameCard :round base color :ranges :timed>` with a default slot for the board and an `action` slot next to the New button. `base` is the route without the level (example `/gry/domino`), `ranges` is 3 short labels for the level pills, `timed` enables the timer ring.
+  - Every i18n key listed in Step 3 is available to every later task.
 
 - [ ] **Step 1: Write the composable**
 
@@ -833,6 +862,7 @@ In `src/i18n.js`, inside the `pl` object after the `divide2: 'Bez reszty',` line
     compare: 'Porównaj',
     biggest: 'Największa',
     ascending: 'Rosnąco',
+    playTitle: 'W co dziś gramy?',
     grpOps: 'Działania',
     grpGames: 'Gry',
     grpNumbers: 'Liczby',
@@ -845,13 +875,29 @@ In `src/i18n.js`, inside the `pl` object after the `divide2: 'Bez reszty',` line
     pickMin: 'Wybierz najmniejszą liczbę',
     ascendingPrompt: 'Klikaj liczby od najmniejszej',
     missingPrompt: 'Jaka liczba się ukryła?',
+    yourVillage: 'Twoja wioska',
+    nextGoal: 'Następny cel',
     build: 'Buduj',
     upgrade: 'Ulepsz',
     tier: 'Poziom',
+    tierShort: 'poz.',
+    now: 'teraz',
+    buildings: 'Budynki',
     villageDone: 'Wioska gotowa! Kliknij budynek, aby go ulepszyć.',
     maxTier: 'Najwyższy poziom',
-    emptyVillage: 'Rozwiązuj zadania, aby zbierać drewno',
+    tapToUpgrade: 'Kliknij zbudowany budynek, aby go ulepszyć.',
+    emptyVillage: 'Rozwiązuj zadania, aby zbierać drewno.',
     dayStreak: 'dni z rzędu',
+    goalShort: 'Brakuje materiałów.',
+    goalPlay: 'Zagraj',
+    goalOrTrade: 'albo wymień monety.',
+    readyToBuild: 'Masz wszystko! Buduj',
+    seeVillage: 'Zobacz wioskę',
+    shop: 'Sklep',
+    trade: 'Wymień',
+    rewardTitle: 'Za dobrą odpowiedź',
+    rewardLevel: 'Tyle sztuk, ile wynosi poziom (1-3).',
+    rewardCoins: 'Seria 5 odpowiedzi daje monetę.',
     exportSave: 'Zapis gry',
     copy: 'Kopiuj',
     copied: 'Skopiowano!',
@@ -895,6 +941,7 @@ Inside the `en` object after the `divide2: 'No remainder',` line, add:
     compare: 'Compare',
     biggest: 'Biggest',
     ascending: 'Ascending',
+    playTitle: 'What shall we play today?',
     grpOps: 'Operations',
     grpGames: 'Games',
     grpNumbers: 'Numbers',
@@ -907,13 +954,29 @@ Inside the `en` object after the `divide2: 'No remainder',` line, add:
     pickMin: 'Pick the smallest number',
     ascendingPrompt: 'Tap the numbers from smallest to biggest',
     missingPrompt: 'Which number is hiding?',
+    yourVillage: 'Your village',
+    nextGoal: 'Next goal',
     build: 'Build',
     upgrade: 'Upgrade',
     tier: 'Tier',
+    tierShort: 'tier',
+    now: 'now',
+    buildings: 'Buildings',
     villageDone: 'Village complete! Tap a building to upgrade it.',
     maxTier: 'Highest tier',
-    emptyVillage: 'Solve tasks to collect wood',
+    tapToUpgrade: 'Click a finished building to upgrade it.',
+    emptyVillage: 'Solve tasks to collect wood.',
     dayStreak: 'days in a row',
+    goalShort: 'Not enough materials.',
+    goalPlay: 'Play',
+    goalOrTrade: 'or trade coins.',
+    readyToBuild: 'You have it all! Build',
+    seeVillage: 'See the village',
+    shop: 'Shop',
+    trade: 'Trade',
+    rewardTitle: 'For a correct answer',
+    rewardLevel: 'As many as the level number (1-3).',
+    rewardCoins: 'A streak of 5 answers gives a coin.',
     exportSave: 'Saved game',
     copy: 'Copy',
     copied: 'Copied!',
@@ -956,23 +1019,27 @@ Append to the end of `src/assets/design/kid.css`:
 .kid-eq.sm { font-size: clamp(22px, 6.5vw, 36px); flex-wrap: wrap; }
 .kid-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .kid-tiles.two { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 1024px) { .kid-tiles.six { grid-template-columns: repeat(6, 1fr); } }
 .kid-tile {
-  min-height: 56px; padding: 6px; border-radius: var(--k-btn-radius);
+  min-height: 60px; padding: 6px; border-radius: var(--k-btn-radius);
   border: 2px solid var(--k-card-border); background: var(--k-card); color: var(--foreground);
   font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 20px;
   cursor: pointer; transition: transform .12s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
 }
+@media (min-width: 1024px) { .kid-tile { min-height: 76px; font-size: 26px; } }
+.kid-tile.res { background: var(--k-page); }
 .kid-tile:hover:not(:disabled) { transform: translateY(-2px); }
 .kid-tile:disabled { cursor: default; }
 .kid-tile.on { border-color: var(--k-display-op); background: color-mix(in srgb, var(--k-display-op) 14%, #fff); }
 .kid-tile.done { opacity: .35; }
 .kid-tile.reveal { border-color: var(--k-wrong); color: var(--k-wrong); }
-.kid-domino { display: flex; align-items: center; justify-content: center; padding: 8px; }
+.kid-domino { display: flex; align-items: center; justify-content: center; padding: 10px; }
+.kid-domino .bone { display: flex; border: 2px solid var(--foreground); border-radius: 10px; background: #fbfaf6; }
 .kid-domino .half {
-  display: grid; grid-template-columns: repeat(3, 10px); grid-template-rows: repeat(3, 10px);
+  display: grid; grid-template-columns: repeat(3, 9px); grid-template-rows: repeat(3, 9px);
   gap: 4px; padding: 8px;
 }
-.kid-domino .half + .half { border-left: 2px solid var(--k-card-border); }
+.kid-domino .half + .half { border-left: 2px solid var(--foreground); }
 .kid-domino i { border-radius: 999px; }
 .kid-domino i.pip { background: var(--foreground); }
 .kid-trail { min-height: 24px; margin: 0; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 16px; color: var(--muted-foreground); }
@@ -1051,8 +1118,10 @@ function pick(o) {
         :disabled="round.strikes === 3"
         @click="pick(o)"
       >
-        <span v-for="(n, h) in o" :key="h" class="half">
-          <i v-for="c in 9" :key="c" :class="{ pip: PIPS[n].includes(c - 1) }" />
+        <span class="bone">
+          <span v-for="(n, h) in o" :key="h" class="half">
+            <i v-for="c in 9" :key="c" :class="{ pip: PIPS[n].includes(c - 1) }" />
+          </span>
         </span>
       </button>
     </div>
@@ -1216,7 +1285,7 @@ git commit -m "Add Domino, Compare and Biggest games"
 - Modify: `src/router/index.js`
 
 **Interfaces:**
-- Consumes: `useRound(game, next)` and `<GameCard>` with its `action` slot (Task 4), `tilesRound`, `ascendingRound`, `missingRound` (Task 3).
+- Consumes: `useRound(game, next)` and `<GameCard>` with its `action` slot (Task 4), `tilesRound`, `ascendingRound`, `missingRound` (Task 3), CSS classes `.kid-tiles.six` and `.kid-tile.res` (Task 4).
 - Produces: routes `/gry/kafelki/:level?`, `/gry/rosnaco/:level?`, `/gry/brakujaca/:level?`.
 
 - [ ] **Step 1: Write Tiles**
@@ -1277,17 +1346,18 @@ function pickResult(value) {
         :key="e.text"
         class="kid-tile"
         :class="{ on: picked === e, done: done.has(e.result) }"
+        :aria-pressed="picked === e"
         :disabled="done.has(e.result) || round.strikes === 3"
         @click="picked = e"
       >
         {{ e.text }}
       </button>
     </div>
-    <div class="kid-tiles">
+    <div class="kid-tiles six">
       <button
         v-for="r in results"
         :key="r"
-        class="kid-tile"
+        class="kid-tile res"
         :class="{ done: done.has(r) }"
         :disabled="done.has(r) || !picked || round.strikes === 3"
         @click="pickResult(r)"
@@ -1464,7 +1534,7 @@ In `src/router/index.js`, after the `biggest` route object added in Task 5, add:
 
 Run: `npm run lint && npm run dev`, then:
 
-- `/gry/kafelki/1`: six operation tiles, six result tiles. Result tiles are disabled until an operation is selected. A right pair fades both tiles and scores one point; the score reads `n / 6`. Clearing a board with no mistakes adds 3 coins to `village.materials.coins` in localStorage. Level 1 shows only `+` and `−`. No timer ring even with the timer switched on.
+- `/gry/kafelki/1`: six operation tiles, six result tiles on a tinted ground. Result tiles are disabled until an operation is selected. A right pair fades both tiles and scores one point; the score reads `n / 6`. Clearing a board with no mistakes adds 3 coins to `village.materials.coins` in localStorage. Level 1 shows only `+` and `−`. No timer ring even with the timer switched on.
 - `/gry/rosnaco/2`: tapping in the right order fades tiles and builds `12 < 40 < 97` under the board. A wrong tap is a strike and does not advance. Three strikes show the full sorted list in red.
 - `/gry/brakujaca/3`: one operand is `?`. Enter submits. Empty input does nothing. `+` and `−` pay wood, `×` and `÷` pay stone. Three strikes reveal the operand in red and disable the input.
 
@@ -1477,22 +1547,84 @@ git commit -m "Add Tiles, Ascending and Missing number games"
 
 ---
 
-### Task 7: Village page
+### Task 7: Village page and village widgets
 
 **Files:**
+- Create: `src/components/MaterialIcon.vue`
 - Create: `src/components/IsoBuilding.vue`
+- Create: `src/components/NextGoal.vue`
+- Create: `src/components/ShopCard.vue`
+- Create: `src/components/BuildingList.vue`
 - Create: `src/pages/Village.vue`
 - Modify: `src/router/index.js` (root route)
 - Delete: `src/pages/Home.vue`
 - Modify: `src/assets/design/kid.css` (append)
 
 **Interfaces:**
-- Consumes: `village` (default), `build`, `next` from `@/store/village` (Task 2); `goalFor`, `canAfford` from `@/store/villageLogic` (Task 1); `BUILDINGS`, `MATERIAL_ICON` from `@/data/buildings` (Task 1); i18n keys `b_<id>`, `build`, `upgrade`, `tier`, `villageDone`, `maxTier`, `emptyVillage`, `dayStreak`, `play` (Task 4).
-- Produces: `<IsoBuilding :id :tier :ghost :next :selected>` rendering an SVG `<g>` whose origin is the top corner of a 96x48 iso tile; route `/` renders `Village.vue`.
+- Consumes: `village` (default), `build`, `trade`, `next` from `@/store/village` (Task 2); `goalFor`, `canAfford` from `@/store/villageLogic` (Task 1); `BUILDINGS`, `MATERIALS`, `SHOP_RATE` from `@/data/buildings` (Task 1); i18n keys from Task 4.
+- Produces:
+  - `<MaterialIcon kind="wood|stone|food|coins" :size="18" />`: an inline `<svg aria-hidden="true">`.
+  - `<IsoBuilding :id :tier :ghost :next :selected>`: an SVG `<g>` whose origin is the top corner of a 96x48 iso tile. Must be placed inside an `<svg>`.
+  - `<NextGoal :building-id :can-build @built>`: `buildingId` (String or null) is a built building picked for upgrade, null means the next unbuilt one. `canBuild` true shows a real Build button (village page); false shows links to the village (side column on other pages). Emits `built` after a successful build.
+  - `<ShopCard />`, `<BuildingList />`: no props.
+  - CSS classes `.kid-cols`, `.kid-col-main`, `.kid-col-side`, `.kid-desktop-only`, `.kid-panel`, `.kid-badge`, `.kid-h1`: the two-column layout and panel look reused by Tasks 8 and 9.
+  - Route `/` renders `Village.vue`.
 
 Isometric math used throughout: a tile is a 96x48 diamond. Grid `[col, row]` maps to screen `x = (col - row) * 48`, `y = (col + row) * 24`. Relative to that origin the tile corners are top `(0,0)`, right `(48,24)`, bottom `(0,48)`, left `(-48,24)`, and the tile centre is `(0,24)`.
 
-- [ ] **Step 1: Write the building renderer**
+- [ ] **Step 1: Write the material icons**
+
+Create `src/components/MaterialIcon.vue`:
+
+```vue
+<script setup>
+defineProps({
+  kind: { type: String, required: true },
+  size: { type: Number, default: 18 },
+})
+
+// darker than the material itself so the stroke reads on white
+const STROKE = { wood: '#9a5a26', stone: '#5f6878', food: '#8a6a00', coins: '#a66a00' }
+</script>
+
+<template>
+  <svg
+    class="kid-mat-icon"
+    :width="size"
+    :height="size"
+    viewBox="0 0 24 24"
+    fill="none"
+    :stroke="STROKE[kind]"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <template v-if="kind === 'wood'">
+      <ellipse cx="6" cy="12" rx="3" ry="5" />
+      <path d="M6 7h11c1.7 0 3 2.2 3 5s-1.3 5-3 5H6" />
+      <path d="M12 11h4" />
+    </template>
+    <template v-else-if="kind === 'stone'">
+      <path d="M4 17l2-7 5-4 6 2 3 6-2 4H6z" />
+      <path d="M11 6l1 6 8 2" />
+    </template>
+    <template v-else-if="kind === 'food'">
+      <path d="M12 21V6" />
+      <path d="M12 10c-3 0-4-2-4-4 3 0 4 2 4 4z" />
+      <path d="M12 10c3 0 4-2 4-4-3 0-4 2-4 4z" />
+      <path d="M12 16c-3 0-4-2-4-4 3 0 4 2 4 4z" />
+      <path d="M12 16c3 0 4-2 4-4-3 0-4 2-4 4z" />
+    </template>
+    <template v-else>
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3.5" />
+    </template>
+  </svg>
+</template>
+```
+
+- [ ] **Step 2: Write the building renderer**
 
 Create `src/components/IsoBuilding.vue`:
 
@@ -1500,6 +1632,8 @@ Create `src/components/IsoBuilding.vue`:
 <script setup>
 import { computed } from 'vue'
 
+// PLACEHOLDER ART. Real building assets will replace this file later; keep
+// every building drawing in here so the swap touches nothing else.
 // a = half-width of the footprint, h = wall height, flat = flat roof.
 const LOOK = {
   hut: { wall: '#f4c98a', roof: '#c2553d', a: 24, h: 22 },
@@ -1535,7 +1669,7 @@ const g = computed(() => {
   const F = [0, cy + a / 2]
   const B = [0, cy - a / 2]
   const up = ([x, y]) => [x, y - h]
-  const apex = [0, cy - h - a * 0.7]
+  const apex = [0, cy - h - a * 0.9]
   const pts = (...p) => p.map((q) => q.join(',')).join(' ')
   // point on the right / left wall: u along the wall (0..1), v pixels up
   const onRight = (u, v) => [u * a, cy + a / 2 - (u * a) / 2 - v]
@@ -1554,7 +1688,7 @@ const g = computed(() => {
     window: tall && props.tier >= 2 && pts(onLeft(0.3, h * 0.45), onLeft(0.6, h * 0.45), onLeft(0.6, h * 0.8), onLeft(0.3, h * 0.8)),
     peak,
     flag: props.tier >= 3 && pts([peak[0], peak[1] - 18], [peak[0] + 12, peak[1] - 14], [peak[0], peak[1] - 10]),
-    smoke: !look.flat && [a * 0.45, cy - h - a * 0.3],
+    smoke: !look.flat && [a * 0.45, cy - h - a * 0.4],
   }
 })
 </script>
@@ -1585,7 +1719,173 @@ const g = computed(() => {
 </template>
 ```
 
-- [ ] **Step 2: Write the village page**
+- [ ] **Step 3: Write the goal card**
+
+Create `src/components/NextGoal.vue`:
+
+```vue
+<script setup>
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import { Flame } from 'lucide-vue-next'
+import MaterialIcon from '@/components/MaterialIcon.vue'
+import IsoBuilding from '@/components/IsoBuilding.vue'
+import village, { build, next } from '@/store/village'
+import { goalFor, canAfford } from '@/store/villageLogic'
+import { t } from '@/i18n'
+
+const props = defineProps({
+  // a built building picked for upgrade; null means the next unbuilt one
+  buildingId: { type: String, default: null },
+  // village page shows a real Build button, other pages link to the village
+  canBuild: { type: Boolean, default: false },
+})
+const emit = defineEmits(['built'])
+
+const goal = computed(() => (props.buildingId ? goalFor(village, props.buildingId) : next.value))
+const affordable = computed(() => !!goal.value && canAfford(village, goal.value.cost))
+const bars = computed(() =>
+  Object.entries(goal.value?.cost ?? {}).map(([kind, need]) => {
+    const have = Math.min(village.materials[kind], need)
+    return { kind, need, have, pct: (have / need) * 100, full: have === need }
+  }),
+)
+
+function onBuild() {
+  if (build(goal.value.id)) emit('built')
+}
+</script>
+
+<template>
+  <section class="kid-panel kid-goal" :aria-label="t('nextGoal')">
+    <span class="kid-eyebrow">{{ t('nextGoal') }}</span>
+    <template v-if="goal">
+      <div class="kid-goal-head">
+        <svg class="art" viewBox="-48 -76 96 128" aria-hidden="true">
+          <IsoBuilding :id="goal.id" :tier="goal.tier" ghost next />
+        </svg>
+        <div>
+          <h2>{{ t('b_' + goal.id) }}</h2>
+          <span class="sub">{{ t('tier') }} {{ goal.tier }}</span>
+        </div>
+        <span v-if="village.dayStreak > 1" class="kid-fire">
+          <Flame :size="15" /> {{ village.dayStreak }} {{ t('dayStreak') }}
+        </span>
+      </div>
+
+      <div
+        v-for="b in bars"
+        :key="b.kind"
+        class="kid-bar"
+        role="img"
+        :aria-label="`${t(b.kind)}: ${b.have}/${b.need}`"
+      >
+        <MaterialIcon :kind="b.kind" />
+        <div class="track"><div class="fill" :class="{ full: b.full }" :style="{ width: b.pct + '%' }"></div></div>
+        <span class="n">{{ b.have }}/{{ b.need }}</span>
+      </div>
+
+      <button v-if="canBuild" class="kid-btn kid-btn-primary" :disabled="!affordable" @click="onBuild">
+        {{ t(goal.tier === 1 ? 'build' : 'upgrade') }}
+      </button>
+      <RouterLink v-else-if="affordable" to="/" class="kid-btn kid-btn-primary">{{ t('readyToBuild') }}</RouterLink>
+
+      <p v-if="!affordable" class="kid-goal-hint">
+        {{ t('goalShort') }} <RouterLink to="/graj">{{ t('goalPlay') }}</RouterLink> {{ t('goalOrTrade') }}
+      </p>
+      <RouterLink v-if="!canBuild && !affordable" to="/" class="kid-btn kid-btn-ghost">{{ t('seeVillage') }}</RouterLink>
+    </template>
+    <p v-else class="kid-prompt">{{ t(buildingId ? 'maxTier' : 'villageDone') }}</p>
+  </section>
+</template>
+```
+
+- [ ] **Step 4: Write the shop**
+
+Create `src/components/ShopCard.vue`:
+
+```vue
+<script setup>
+import { ArrowRight } from 'lucide-vue-next'
+import MaterialIcon from '@/components/MaterialIcon.vue'
+import village, { trade, next } from '@/store/village'
+import { MATERIALS, SHOP_RATE } from '@/data/buildings'
+import { t } from '@/i18n'
+
+// Fixed row order on purpose: rows that re-sort while a kid taps the same
+// button twice would move the button out from under the finger.
+const goods = MATERIALS.filter((k) => k !== 'coins')
+
+// the next building still lacks this material
+const needed = (kind) => (next.value?.cost[kind] ?? 0) > village.materials[kind]
+</script>
+
+<template>
+  <section class="kid-panel kid-shop" :aria-label="t('shop')">
+    <div class="kid-shop-head">
+      <h2>{{ t('shop') }}</h2>
+      <span class="purse" role="img" :aria-label="`${t('coins')}: ${village.materials.coins}`">
+        <MaterialIcon kind="coins" :size="16" /> {{ village.materials.coins }}
+      </span>
+    </div>
+    <div v-for="kind in goods" :key="kind" class="kid-shop-row">
+      <span class="rate" aria-hidden="true">
+        <MaterialIcon kind="coins" />1
+        <ArrowRight :size="16" class="arrow" />
+        <MaterialIcon :kind="kind" />{{ SHOP_RATE }}
+      </span>
+      <span class="name">{{ t(kind) }}</span>
+      <span v-if="needed(kind)" class="kid-badge">{{ t('needed') }}</span>
+      <button
+        class="kid-btn kid-shop-btn"
+        :class="needed(kind) ? 'kid-btn-primary' : 'kid-btn-ghost'"
+        :disabled="village.materials.coins < 1"
+        :aria-label="`${t('trade')}: 1 ${t('coins')}, ${SHOP_RATE} ${t(kind)}`"
+        @click="trade(kind)"
+      >
+        {{ t('trade') }}
+      </button>
+    </div>
+  </section>
+</template>
+```
+
+- [ ] **Step 5: Write the building list**
+
+Create `src/components/BuildingList.vue`:
+
+```vue
+<script setup>
+import { computed } from 'vue'
+import village, { next } from '@/store/village'
+import { BUILDINGS } from '@/data/buildings'
+import { t } from '@/i18n'
+
+const rows = computed(() =>
+  BUILDINGS.map((def) => ({
+    id: def.id,
+    tier: village.buildings.find((b) => b.id === def.id)?.tier ?? 0,
+    isNext: next.value?.id === def.id,
+  })),
+)
+</script>
+
+<template>
+  <section class="kid-panel kid-blist kid-desktop-only" :aria-label="t('buildings')">
+    <h2>{{ t('buildings') }}</h2>
+    <ul>
+      <li v-for="r in rows" :key="r.id" :class="{ built: r.tier > 0, next: r.isNext }">
+        <span class="dot" aria-hidden="true"></span>
+        {{ t('b_' + r.id) }}
+        <span v-if="r.tier" class="tag">{{ t('tierShort') }} {{ r.tier }}</span>
+        <span v-else-if="r.isNext" class="tag">{{ t('now') }}</span>
+      </li>
+    </ul>
+  </section>
+</template>
+```
+
+- [ ] **Step 6: Write the village page**
 
 Create `src/pages/Village.vue`:
 
@@ -1594,16 +1894,18 @@ Create `src/pages/Village.vue`:
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import IsoBuilding from '@/components/IsoBuilding.vue'
+import NextGoal from '@/components/NextGoal.vue'
+import ShopCard from '@/components/ShopCard.vue'
+import BuildingList from '@/components/BuildingList.vue'
 import Celebration from '@/components/Celebration.vue'
-import village, { build, next } from '@/store/village'
-import { goalFor, canAfford } from '@/store/villageLogic'
-import { BUILDINGS, MATERIAL_ICON } from '@/data/buildings'
+import village, { next } from '@/store/village'
+import { BUILDINGS } from '@/data/buildings'
 import { t } from '@/i18n'
 
 const SIZE = 6
 const PATH_ROW = 3
 const POND = ['4,0', '5,0', '5,1']
-const FILL = { grass: '#8fd694', grass2: '#84cc8a', path: '#e8d5a6', pond: '#7cc6f2' }
+const FILL = { grass: '#a5d98a', grass2: '#9ad07e', path: '#ead9ac', pond: '#86c8ee' }
 
 const place = ([col, row]) => `translate(${(col - row) * 48} ${(col + row) * 24})`
 
@@ -1633,75 +1935,67 @@ const plots = computed(() =>
   })).sort((p, q) => p.plot[0] + p.plot[1] - (q.plot[0] + q.plot[1])),
 )
 
-const goal = computed(() => (selected.value ? goalFor(village, selected.value) : next.value))
-const affordable = computed(() => !!goal.value && canAfford(village, goal.value.cost))
-
 function select(plot) {
   if (!plot.tier) return
   selected.value = selected.value === plot.id ? null : plot.id
 }
-
-function onBuild() {
-  if (build(goal.value.id)) cheer.value += 1
-}
 </script>
 
 <template>
-  <div class="kid-card">
-    <Celebration v-if="cheer" :key="cheer" />
+  <div class="kid-cols">
+    <div class="kid-col-main kid-village">
+      <Celebration v-if="cheer" :key="cheer" />
 
-    <svg class="kid-map" viewBox="-300 -80 600 400" role="img" :aria-label="t('village')">
-      <g v-for="tile in ground" :key="tile.key" :transform="tile.at">
-        <polygon points="0,0 48,24 0,48 -48,24" :fill="tile.fill" stroke="rgba(0,0,0,.06)" />
-      </g>
-      <g
-        v-for="p in plots"
-        :key="p.id"
-        :transform="place(p.plot)"
-        :role="p.tier ? 'button' : undefined"
-        :tabindex="p.tier ? 0 : undefined"
-        :aria-label="t('b_' + p.id)"
-        @click="select(p)"
-        @keyup.enter="select(p)"
-      >
-        <IsoBuilding
-          :id="p.id"
-          :tier="p.tier"
-          :ghost="!p.tier"
-          :next="next?.id === p.id"
-          :selected="selected === p.id"
-        />
-      </g>
-    </svg>
+      <div class="kid-village-head">
+        <h1 class="kid-h1">{{ t('yourVillage') }}</h1>
+        <span class="count">{{ village.buildings.length }} / {{ BUILDINGS.length }}</span>
+      </div>
 
-    <div class="kid-goal">
-      <template v-if="goal">
-        <div class="kid-goal-head">
-          <strong>{{ t('b_' + goal.id) }}</strong>
-          <span>{{ t('tier') }} {{ goal.tier }}</span>
-          <span v-if="village.dayStreak > 1" class="kid-fire">🔥 {{ village.dayStreak }} {{ t('dayStreak') }}</span>
-        </div>
-        <div v-for="(need, k) in goal.cost" :key="k" class="kid-bar">
-          <span aria-hidden="true">{{ MATERIAL_ICON[k] }}</span>
-          <progress :value="Math.min(village.materials[k], need)" :max="need" :aria-label="t(k)" />
-          <span class="n">{{ Math.min(village.materials[k], need) }}/{{ need }}</span>
-        </div>
-        <button class="kid-btn kid-btn-primary" :disabled="!affordable" @click="onBuild">
-          {{ t(goal.tier === 1 ? 'build' : 'upgrade') }}
-        </button>
-      </template>
-      <p v-else class="kid-prompt">{{ t(selected ? 'maxTier' : 'villageDone') }}</p>
+      <svg class="kid-map" viewBox="-296 -52 592 360" role="img" :aria-label="t('yourVillage')">
+        <!-- earth edge under the front two sides of the map -->
+        <polygon points="-288,144 0,288 0,302 -288,158" fill="#b58a5a" />
+        <polygon points="0,288 288,144 288,158 0,302" fill="#9c7448" />
+        <g v-for="tile in ground" :key="tile.key" :transform="tile.at">
+          <polygon points="0,0 48,24 0,48 -48,24" :fill="tile.fill" />
+        </g>
+        <g
+          v-for="p in plots"
+          :key="p.id"
+          :transform="place(p.plot)"
+          :role="p.tier ? 'button' : undefined"
+          :tabindex="p.tier ? 0 : undefined"
+          :aria-label="t('b_' + p.id)"
+          :aria-pressed="p.tier ? selected === p.id : undefined"
+          @click="select(p)"
+          @keyup.enter="select(p)"
+        >
+          <IsoBuilding
+            :id="p.id"
+            :tier="p.tier"
+            :ghost="!p.tier"
+            :next="next?.id === p.id"
+            :selected="selected === p.id"
+          />
+        </g>
+      </svg>
 
-      <p v-if="!village.buildings.length" class="kid-prompt">
-        {{ t('emptyVillage') }} -
-        <RouterLink to="/graj">{{ t('play') }}</RouterLink>
+      <p class="kid-village-hint">
+        <template v-if="village.buildings.length">{{ t('tapToUpgrade') }}</template>
+        <template v-else>{{ t('emptyVillage') }} <RouterLink to="/graj">{{ t('play') }}</RouterLink></template>
       </p>
+
+      <BuildingList />
     </div>
+
+    <aside class="kid-col-side">
+      <NextGoal :building-id="selected" can-build @built="cheer += 1" />
+      <ShopCard />
+    </aside>
   </div>
 </template>
 ```
 
-- [ ] **Step 3: Point the root route at the village**
+- [ ] **Step 7: Point the root route at the village**
 
 In `src/router/index.js`:
 
@@ -1727,14 +2021,39 @@ Then delete the now unused page:
 git rm src/pages/Home.vue
 ```
 
-- [ ] **Step 4: Add the village styles**
+- [ ] **Step 8: Add the village styles**
 
 Append to the end of `src/assets/design/kid.css`:
 
 ```css
 /* ============================================================================
-   VILLAGE - iso map and next-goal panel (src/pages/Village.vue)
+   TWO-COLUMN LAYOUT - phone: stacked. From 1024px: main column + 340px side.
    ============================================================================ */
+.kid-cols { display: flex; flex-direction: column; gap: 16px; }
+.kid-col-main, .kid-col-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.kid-desktop-only { display: none; }
+@media (min-width: 1024px) {
+  .kid-cols { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; align-items: start; }
+  .kid-col-side { gap: 20px; position: sticky; top: 92px; }
+  .kid-desktop-only { display: flex; }
+}
+.kid-h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+@media (min-width: 1024px) { .kid-h1 { font-size: 30px; letter-spacing: -0.03em; } }
+.kid-panel {
+  padding: 18px; display: flex; flex-direction: column; gap: 12px;
+  background: var(--k-card); border: 1px solid var(--k-card-border); border-radius: var(--k-card-radius);
+}
+.kid-panel h2 { margin: 0; font-size: 16px; font-weight: 800; }
+@media (min-width: 1024px) { .kid-panel { padding: 22px; } }
+.kid-badge { padding: 3px 9px; border-radius: 999px; background: var(--k-accent); color: #3b2600; font-size: 11px; font-weight: 800; white-space: nowrap; }
+
+/* ============================================================================
+   VILLAGE - iso map (src/pages/Village.vue, src/components/IsoBuilding.vue)
+   ============================================================================ */
+.kid-village { position: relative; }
+.kid-village-head { display: flex; align-items: baseline; gap: 12px; }
+.kid-village-head .count { font-family: var(--font-mono); font-weight: 700; font-size: 14px; color: var(--muted-foreground); }
+.kid-village-hint { margin: 0; font-size: 14px; color: var(--muted-foreground); }
 .kid-map { display: block; width: 100%; height: auto; }
 .iso-b .shade { fill: #000; opacity: .14; }
 .iso-b .shade2 { fill: #000; opacity: .28; }
@@ -1744,45 +2063,80 @@ Append to the end of `src/assets/design/kid.css`:
   fill: transparent; stroke: var(--muted-foreground); stroke-width: 1.5;
   stroke-dasharray: 4 4; opacity: .4;
 }
-.iso-b.ghost.next polygon { stroke: var(--k-brand); opacity: 1; animation: iso-pulse 1.6s ease-in-out infinite; }
+.iso-b.ghost.next polygon { fill: color-mix(in srgb, var(--k-brand-soft) 70%, transparent); stroke: var(--k-brand); stroke-width: 2; opacity: 1; }
+.iso-b.ghost.next { animation: iso-pulse 1.6s ease-in-out infinite; }
 .iso-smoke { fill: #fff; opacity: 0; animation: iso-smoke 3s ease-out infinite; }
 .iso-flag { transform-box: fill-box; transform-origin: left center; animation: iso-flag 1.2s ease-in-out infinite alternate; }
 @keyframes iso-pulse { 50% { opacity: .35; } }
-@keyframes iso-smoke { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: .8; } 100% { opacity: 0; transform: translateY(-22px); } }
+@keyframes iso-smoke { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: .85; } 100% { opacity: 0; transform: translateY(-22px); } }
 @keyframes iso-flag { from { transform: scaleX(1); } to { transform: scaleX(.7); } }
 
-.kid-goal { display: flex; flex-direction: column; gap: 10px; }
-.kid-goal-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 15px; }
-.kid-goal-head strong { font-size: 18px; font-weight: 800; }
-.kid-goal-head span { color: var(--muted-foreground); font-weight: 600; font-size: 13px; }
-.kid-goal-head .kid-fire { margin-left: auto; color: var(--k-accent); }
-.kid-bar { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px; }
-.kid-bar progress { width: 100%; height: 12px; accent-color: var(--k-brand); }
-.kid-bar .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; }
+/* ============================================================================
+   GOAL CARD, SHOP, BUILDING LIST
+   ============================================================================ */
+.kid-goal { box-shadow: var(--k-card-shadow); }
+.kid-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--k-brand-deep); }
+.kid-goal-head { display: flex; align-items: center; gap: 12px; }
+.kid-goal-head .art { width: 64px; height: 84px; flex: none; }
+.kid-goal-head .art .iso-b { animation: none; }
+.kid-goal-head h2 { font-size: 20px; letter-spacing: -0.02em; }
+.kid-goal-head .sub { font-size: 13px; font-weight: 600; color: var(--muted-foreground); }
+.kid-fire { margin-left: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: #8a5200; white-space: nowrap; }
+.kid-bar { display: grid; grid-template-columns: 22px minmax(0, 1fr) 48px; align-items: center; gap: 8px; }
+.kid-bar .track { height: 12px; border-radius: 999px; background: #efece4; overflow: hidden; }
+.kid-bar .fill { height: 100%; border-radius: 999px; background: var(--k-brand); transition: width .4s ease; }
+.kid-bar .fill.full { background: #15803d; }
+.kid-bar .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; text-align: right; }
+/* .kid-btn-primary carries flex: 1 for the game action row; in these column
+   and row layouts that would collapse or stretch the button, so pin it */
+.kid-goal .kid-btn, .kid-shop .kid-btn { flex: none; text-decoration: none; }
+.kid-goal-hint { margin: 0; text-align: center; font-size: 14px; font-weight: 600; color: var(--muted-foreground); }
+.kid-goal-hint a { font-weight: 700; color: var(--k-brand-deep); }
+
+.kid-shop-head { display: flex; align-items: center; gap: 8px; }
+.kid-shop-head .purse { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: #7a4e00; }
+.kid-shop-row { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.kid-shop-row .rate { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
+.kid-shop-row .arrow { color: var(--muted-foreground); }
+.kid-shop-row .name { font-size: 14px; font-weight: 700; }
+.kid-shop-btn { margin-left: auto; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 14px; }
+.kid-shop-btn:disabled { opacity: .45; pointer-events: none; }
+
+.kid-blist ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 24px; row-gap: 9px; }
+.kid-blist li { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--muted-foreground); }
+.kid-blist li .dot { width: 9px; height: 9px; flex: none; border-radius: 999px; background: var(--k-card-border); }
+.kid-blist li .tag { margin-left: auto; font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.kid-blist li.built { color: var(--foreground); }
+.kid-blist li.built .dot { background: #15803d; }
+.kid-blist li.next { color: var(--k-brand-deep); font-weight: 800; }
+.kid-blist li.next .dot { background: transparent; border: 2px solid var(--k-brand); }
 
 @media (prefers-reduced-motion: reduce) {
-  .iso-smoke, .iso-flag, .iso-b.ghost.next polygon { animation: none; }
+  .iso-smoke, .iso-flag, .iso-b.ghost.next { animation: none; }
+  .kid-bar .fill { transition: none; }
 }
 ```
 
-- [ ] **Step 5: Verify in the browser**
+- [ ] **Step 9: Verify in the browser**
 
-Run: `npm run check && npm run lint && npm run dev`, open `/`:
+Run: `npm run check && npm run lint && npm run dev`, open `/`. (The header still shows the old chip row until Task 9; ignore it here.)
 
-- A green 6x6 diamond with a sand path across the middle and a blue pond in one corner. Twelve dashed ghost outlines; only the hut pulses in the brand colour.
-- The panel shows `Chatka`, tier 1, one wood bar at `0/5`, a disabled Build button and the empty-village hint with a Play link.
-- In the DevTools console run `localStorage.setItem('village', JSON.stringify({v:1,materials:{wood:500,stone:500,food:500,coins:500},buildings:[],bestStreak:{},lastPlayed:'',dayStreak:0}))` and reload. Build is enabled. Pressing it draws the hut, fires confetti, deducts 5 wood, and the pulse moves to the well.
-- Build several more. Nearer buildings overlap farther ones correctly, none sits on the path or pond.
-- Click a built building: it gets a brand outline and the panel switches to its upgrade cost (materials plus coins). Upgrade twice: it grows, gains a window at tier 2 and a waving flag at tier 3, then the panel says highest tier. Click it again to deselect.
+- A green 6x6 diamond with a brown earth edge, a sand path across the middle and a blue pond in one corner. Twelve dashed ghost outlines; only the hut is blue and pulsing.
+- Below the map (phone width) or in the right column (1280px wide): the goal card shows `Chatka`, tier 1, one wood bar at `0/5`, a disabled Build button and the "not enough materials" hint. Under it the shop with three rows; all Trade buttons are disabled at 0 coins. The wood row carries the `potrzebne` badge.
+- In the DevTools console run `localStorage.setItem('village', JSON.stringify({v:1,materials:{wood:500,stone:0,food:500,coins:5},buildings:[],bestStreak:{},lastPlayed:'',dayStreak:0}))` and reload. Build is enabled and its height is the full 56px (not collapsed). Pressing it draws the hut, fires confetti, deducts 5 wood, and the pulse moves to the well.
+- Build up to the bakery. The next goal is the school and needs 6 stone, which you do not have: the stone bar is `0/6`, the stone shop row has the badge and a blue Trade button. Press it three times: coins go 5 to 2, stone 0 to 6, the bar turns green, the badge disappears, the row order never changes. Build the school.
+- Nearer buildings overlap farther ones correctly, none sits on the path or pond.
+- Click a built building: brand outline, and the goal card switches to its upgrade cost (materials plus coins). Upgrade twice: it grows, gains a window at tier 2 and a waving flag at tier 3, then the card says highest tier. Click it again to deselect.
 - Tab reaches built buildings and Enter selects them.
+- At 1280px the building list shows under the map in four columns with built, next and locked states; at 390px it is hidden.
 - Set `localStorage.setItem('village', '{broken')` and reload: a fresh empty village, no console error.
 - Run `localStorage.removeItem('village')` to clean up.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 10: Commit**
 
 ```bash
-git add src/components/IsoBuilding.vue src/pages/Village.vue src/router/index.js src/assets/design/kid.css
-git commit -m "Add isometric village page with build and upgrade flow"
+git add src/components/MaterialIcon.vue src/components/IsoBuilding.vue src/components/NextGoal.vue src/components/ShopCard.vue src/components/BuildingList.vue src/pages/Village.vue src/router/index.js src/assets/design/kid.css
+git commit -m "Add isometric village page with goal card, coin shop and building list"
 ```
 
 ---
@@ -1797,48 +2151,56 @@ git commit -m "Add isometric village page with build and upgrade flow"
 - Modify: `src/assets/design/kid.css` (append)
 
 **Interfaces:**
-- Consumes: `village` (default), `next`, `reward`, `recordStreak` from `@/store/village` (Task 2); `MATERIAL_ICON` (Task 1); i18n keys `grpOps`, `grpGames`, `grpNumbers`, `needed`, `best`, `back` and the game names (Task 4); CSS class `.kid-back` (Task 4).
-- Produces: `GROUPS` from `@/data/games`: `{ key, pays: string[], games: { id, symbol, color, route }[] }[]` where `id` is both the i18n key and the `bestStreak` key; route `/graj`; a catch-all redirect to `/`.
+- Consumes: `village` (default), `next`, `reward`, `recordStreak` from `@/store/village` (Task 2); `<MaterialIcon>` and CSS `.kid-h1`, `.kid-badge` (Task 7); `.kid-back` (Task 4); i18n keys from Task 4.
+- Produces:
+  - `GROUPS` from `@/data/games`: `{ key, pays: string[], games: Game[] }[]`.
+  - `Game` = `{ id, route, color, ink, pays: string[], symbol?: string, icon?: Component }`. `id` is both the i18n key and the `bestStreak` key. `color` is the border colour, `ink` is a darker shade of it that passes contrast as text on white. Exactly one of `symbol` or `icon` is set.
+  - `GAMES`: the flat list of every `Game`.
+  - Route `/graj`; a catch-all redirect to `/`.
 
 - [ ] **Step 1: Write the game list**
 
 Create `src/data/games.js`:
 
 ```js
+import { LayoutGrid, Dices } from 'lucide-vue-next'
+
 // Every playable page, grouped for the Play grid. `id` doubles as the i18n key
-// for the name and as the bestStreak key in the village save. `pays` lists the
-// materials a group can earn, used for the "needed" badge.
+// for the name and as the bestStreak key in the village save. `ink` is the
+// darker text shade of `color`: the operation colours fail contrast on white.
 export const GROUPS = [
   {
     key: 'grpOps',
     pays: ['wood', 'stone'],
     games: [
-      { id: 'addition', symbol: '+', color: 'var(--k-op-add)', route: '/dodawanie' },
-      { id: 'subtraction', symbol: '−', color: 'var(--k-op-sub)', route: '/odejmowanie' },
-      { id: 'multiply', symbol: '×', color: 'var(--k-op-mul)', route: '/mnozenie' },
-      { id: 'divide', symbol: '÷', color: 'var(--k-op-div)', route: '/dzielenie' },
-      { id: 'divide2', symbol: '÷', color: 'var(--k-op-div2)', route: '/dzielenie2' },
-      { id: 'missing', symbol: '?', color: 'var(--k-brand)', route: '/gry/brakujaca' },
+      { id: 'addition', symbol: '+', color: 'var(--k-op-add)', ink: '#15803d', route: '/dodawanie', pays: ['wood'] },
+      { id: 'subtraction', symbol: '−', color: 'var(--k-op-sub)', ink: '#b45309', route: '/odejmowanie', pays: ['wood'] },
+      { id: 'multiply', symbol: '×', color: 'var(--k-op-mul)', ink: '#4f46e5', route: '/mnozenie', pays: ['stone'] },
+      { id: 'divide', symbol: '÷', color: 'var(--k-op-div)', ink: '#be185d', route: '/dzielenie', pays: ['stone'] },
+      { id: 'divide2', symbol: '÷', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/dzielenie2', pays: ['stone'] },
+      { id: 'missing', symbol: '?', color: 'var(--k-brand)', ink: '#1f4fc4', route: '/gry/brakujaca', pays: ['wood', 'stone'] },
     ],
   },
   {
     key: 'grpGames',
     pays: ['wood', 'stone'],
     games: [
-      { id: 'tiles', symbol: '▦', color: 'var(--k-op-mul)', route: '/gry/kafelki' },
-      { id: 'domino', symbol: '⚅', color: 'var(--k-op-add)', route: '/gry/domino' },
+      { id: 'tiles', icon: LayoutGrid, color: 'var(--k-op-mul)', ink: '#4f46e5', route: '/gry/kafelki', pays: ['wood', 'stone'] },
+      { id: 'domino', icon: Dices, color: 'var(--k-op-add)', ink: '#15803d', route: '/gry/domino', pays: ['wood'] },
     ],
   },
   {
     key: 'grpNumbers',
     pays: ['food'],
     games: [
-      { id: 'compare', symbol: '<', color: 'var(--k-op-div2)', route: '/gry/porownaj' },
-      { id: 'biggest', symbol: '↑', color: 'var(--k-op-div2)', route: '/gry/najwieksza' },
-      { id: 'ascending', symbol: '123', color: 'var(--k-op-div2)', route: '/gry/rosnaco' },
+      { id: 'compare', symbol: '<', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/gry/porownaj', pays: ['food'] },
+      { id: 'biggest', symbol: '↑', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/gry/najwieksza', pays: ['food'] },
+      { id: 'ascending', symbol: '123', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/gry/rosnaco', pays: ['food'] },
     ],
   },
 ]
+
+export const GAMES = GROUPS.flatMap((group) => group.games)
 ```
 
 - [ ] **Step 2: Write the Play page**
@@ -1848,9 +2210,9 @@ Create `src/pages/Play.vue`:
 ```vue
 <script setup>
 import { RouterLink } from 'vue-router'
+import MaterialIcon from '@/components/MaterialIcon.vue'
 import village, { next } from '@/store/village'
 import { GROUPS } from '@/data/games'
-import { MATERIAL_ICON } from '@/data/buildings'
 import { t } from '@/i18n'
 
 // true when the next building still lacks a material this group can earn
@@ -1859,10 +2221,11 @@ const needed = (pays) =>
 </script>
 
 <template>
+  <h1 class="kid-h1">{{ t('playTitle') }}</h1>
   <section v-for="group in GROUPS" :key="group.key" class="kid-group">
     <h2>
       {{ t(group.key) }}
-      <span aria-hidden="true">{{ group.pays.map((k) => MATERIAL_ICON[k]).join(' ') }}</span>
+      <MaterialIcon v-for="k in group.pays" :key="k" :kind="k" :size="16" />
       <span v-if="needed(group.pays)" class="kid-badge">{{ t('needed') }}</span>
     </h2>
     <div class="kid-grid">
@@ -1871,9 +2234,10 @@ const needed = (pays) =>
         :key="game.id"
         :to="`${game.route}/1`"
         class="kid-game"
-        :style="{ '--g': game.color }"
+        :style="{ '--g': game.color, '--ink': game.ink }"
       >
-        <span class="sym">{{ game.symbol }}</span>
+        <component :is="game.icon" v-if="game.icon" :size="28" class="sym" aria-hidden="true" />
+        <span v-else class="sym" aria-hidden="true">{{ game.symbol }}</span>
         <span class="lab">{{ t(game.id) }}</span>
         <span v-if="village.bestStreak[game.id]" class="best">
           {{ t('best') }}: {{ village.bestStreak[game.id] }}
@@ -1913,18 +2277,19 @@ Append to the end of `src/assets/design/kid.css`:
 /* ============================================================================
    PLAY GRID (src/pages/Play.vue)
    ============================================================================ */
-.kid-group h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 15px; font-weight: 800; }
-.kid-badge { padding: 2px 8px; border-radius: 999px; background: var(--k-accent); color: #fff; font-size: 11px; font-weight: 700; }
-.kid-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-@media (min-width: 768px) { .kid-grid { grid-template-columns: repeat(4, 1fr); } }
+.kid-group { display: flex; flex-direction: column; gap: 10px; }
+.kid-group h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 800; }
+.kid-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 1024px) { .kid-grid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 12px; } }
 .kid-game {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  min-height: 104px; padding: 14px 8px; border-radius: 20px; border: 2px solid var(--g);
+  min-height: 92px; padding: 12px 8px; border-radius: 20px; border: 2px solid var(--g);
   background: var(--k-card); color: var(--foreground); text-decoration: none;
   transition: transform .12s ease, box-shadow .12s ease;
 }
+@media (min-width: 1024px) { .kid-game { min-height: 108px; } }
 .kid-game:hover { transform: translateY(-2px); box-shadow: 0 5px 0 rgba(0,0,0,.08); }
-.kid-game .sym { font-family: var(--font-mono); font-size: 28px; font-weight: 700; line-height: 1; color: var(--g); }
+.kid-game .sym { font-family: var(--font-mono); font-size: 28px; font-weight: 700; line-height: 1; color: var(--ink); }
 .kid-game .lab { font-size: 13px; font-weight: 700; text-align: center; }
 .kid-game .best { font-size: 11px; color: var(--muted-foreground); }
 ```
@@ -1989,7 +2354,8 @@ to
 
 Run: `npm run lint && npm run dev`, then:
 
-- `/graj`: three headed groups with material icons. Six, two and three cards. Two columns at 360px wide, four at 1280px. With a fresh village the first two groups show the `potrzebne` badge (the hut needs wood) and the Numbers group does not.
+- `/graj`: a heading, then three headed groups with drawn material icons. Six, two and three cards. Two columns at 390px wide. With a fresh village the first two groups show the `potrzebne` badge (the hut needs wood) and the Numbers group does not.
+- Card symbols are the darker ink shades (dark green, brown, indigo, deep pink, teal), borders keep the lighter operation colours.
 - Every card opens its game at level 1. Every game has a back arrow that returns to `/graj`.
 - `/dodawanie/2`: a correct answer adds 2 wood in localStorage. `/mnozenie/1` adds 1 stone. After a 3-answer streak the card on `/graj` shows `Rekord: 3`.
 - `/no-such-page` redirects to `/`.
@@ -2004,18 +2370,23 @@ git commit -m "Add Play grid and pay village materials from the operation pages"
 
 ---
 
-### Task 9: App shell - header counters, settings sheet, tabs
+### Task 9: App shell - header, tabs, settings sheet, desktop side column
 
 **Files:**
+- Create: `src/components/RewardsCard.vue`
 - Create: `src/components/SettingsSheet.vue`
 - Modify: `src/App.vue` (full rewrite)
 - Modify: `src/assets/design/kid.css:198-208` (theme token scope) and append
 
 **Interfaces:**
-- Consumes: `village` (default), `affordable`, `exportSave`, `checkSave`, `importSave`, `reset` from `@/store/village` (Task 2); `MATERIALS`, `MATERIAL_ICON` (Task 1); Sheet parts from `@/components/ui/sheet`; `useClipboard` from `@vueuse/core`; i18n keys from Task 4.
+- Consumes: `village` (default), `affordable`, `exportSave`, `checkSave`, `importSave`, `reset` from `@/store/village` (Task 2); `MATERIALS` (Task 1); `<MaterialIcon>`, `<NextGoal>` and CSS `.kid-cols`, `.kid-col-main`, `.kid-col-side`, `.kid-desktop-only`, `.kid-panel` (Task 7); `GAMES` (Task 8); Sheet parts from `@/components/ui/sheet`; `useClipboard` from `@vueuse/core`; i18n keys from Task 4.
 - Produces: the final navigation. Nothing downstream.
 
-Background the implementer needs: `SheetContent` renders through a reka-ui portal into `<body>`, which is OUTSIDE `.kid-page`. The theme variables (`--k-brand`, `--k-card-border` and so on) are declared on `.kid-page`, so without Step 1 the sheet would render with undefined colours.
+Background the implementer needs:
+
+1. `SheetContent` renders through a reka-ui portal into `<body>`, which is OUTSIDE `.kid-page`. The theme variables (`--k-brand`, `--k-card-border` and so on) are declared on `.kid-page`, so without Step 1 the sheet would render with undefined colours.
+2. `.kid-header` has `backdrop-filter`, which makes it the containing block for any `position: fixed` descendant. The phone tab bar is fixed to the bottom of the viewport, so it must NOT live inside the header. That is why the same two links are rendered twice: once inside the header (shown from 768px) and once as a sibling of the header (shown below 768px).
+3. `Village.vue` brings its own two columns (goal and shop on the side). Every other page gets a side column from `App.vue` holding the goal card and what the current game pays. It is desktop only.
 
 - [ ] **Step 1: Let the sheet see the theme tokens**
 
@@ -2036,7 +2407,33 @@ In `src/assets/design/kid.css`, replace the `.kid-page { ... }` rule at lines 19
 }
 ```
 
-- [ ] **Step 2: Write the settings sheet**
+- [ ] **Step 2: Write the rewards card**
+
+Create `src/components/RewardsCard.vue`:
+
+```vue
+<script setup>
+import MaterialIcon from '@/components/MaterialIcon.vue'
+import { t } from '@/i18n'
+
+defineProps({
+  pays: { type: Array, required: true },
+})
+</script>
+
+<template>
+  <section class="kid-panel kid-rewards" :aria-label="t('rewardTitle')">
+    <h2>{{ t('rewardTitle') }}</h2>
+    <ul>
+      <li v-for="kind in pays" :key="kind"><MaterialIcon :kind="kind" /> {{ t(kind) }}</li>
+    </ul>
+    <p>{{ t('rewardLevel') }}</p>
+    <p><MaterialIcon kind="coins" :size="16" /> {{ t('rewardCoins') }}</p>
+  </section>
+</template>
+```
+
+- [ ] **Step 3: Write the settings sheet**
 
 Create `src/components/SettingsSheet.vue`:
 
@@ -2044,7 +2441,7 @@ Create `src/components/SettingsSheet.vue`:
 <script setup>
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core'
-import { Settings, Timer } from 'lucide-vue-next'
+import { SlidersHorizontal, Timer } from 'lucide-vue-next'
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
@@ -2076,7 +2473,7 @@ function onReset() {
 <template>
   <Sheet>
     <SheetTrigger as-child>
-      <button class="kid-gear" :aria-label="t('settings')"><Settings :size="20" /></button>
+      <button class="kid-gear" :aria-label="t('settings')"><SlidersHorizontal :size="20" /></button>
     </SheetTrigger>
     <SheetContent class="kid-root kid-sheet">
       <SheetHeader>
@@ -2087,8 +2484,8 @@ function onReset() {
       <div class="kid-set">
         <span class="kid-set-label">{{ t('language') }}</span>
         <div class="kid-lang" role="group" :aria-label="t('language')">
-          <button :class="{ on: settings.lang === 'pl' }" @click="settings.lang = 'pl'">PL</button>
-          <button :class="{ on: settings.lang === 'en' }" @click="settings.lang = 'en'">EN</button>
+          <button :class="{ on: settings.lang === 'pl' }" :aria-pressed="settings.lang === 'pl'" @click="settings.lang = 'pl'">PL</button>
+          <button :class="{ on: settings.lang === 'en' }" :aria-pressed="settings.lang === 'en'" @click="settings.lang = 'en'">EN</button>
         </div>
       </div>
 
@@ -2112,35 +2509,61 @@ function onReset() {
 
       <div class="kid-set col">
         <label class="kid-set-label" for="save-in">{{ t('importSave') }}</label>
-        <textarea id="save-in" v-model="pasted" class="kid-save" rows="3" :placeholder="t('importPlaceholder')" />
+        <textarea
+          id="save-in"
+          v-model="pasted"
+          class="kid-save"
+          :class="{ bad: importFailed }"
+          rows="3"
+          :placeholder="t('importPlaceholder')"
+          @input="importFailed = false"
+        />
         <p v-if="importFailed" class="kid-set-error" role="alert">{{ t('importError') }}</p>
         <button class="kid-btn kid-btn-primary" :disabled="!pasted.trim()" @click="onLoad">{{ t('load') }}</button>
       </div>
 
       <div class="kid-set col">
-        <button class="kid-btn kid-btn-ghost kid-danger" @click="onReset">{{ t('resetVillage') }}</button>
+        <button class="kid-btn kid-danger" @click="onReset">{{ t('resetVillage') }}</button>
       </div>
     </SheetContent>
   </Sheet>
 </template>
 ```
 
-- [ ] **Step 3: Rewrite App.vue**
+- [ ] **Step 4: Rewrite App.vue**
 
 Replace the whole of `src/App.vue` with:
 
 ```vue
 <script setup>
+import { computed } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
 import { Infinity as InfinityIcon, Home, Gamepad2 } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
+import MaterialIcon from '@/components/MaterialIcon.vue'
+import NextGoal from '@/components/NextGoal.vue'
+import RewardsCard from '@/components/RewardsCard.vue'
 import SettingsSheet from '@/components/SettingsSheet.vue'
 import village, { affordable } from '@/store/village'
-import { MATERIALS, MATERIAL_ICON } from '@/data/buildings'
+import { MATERIALS } from '@/data/buildings'
+import { GAMES } from '@/data/games'
 import { t } from '@/i18n'
 
 const route = useRoute()
 const year = new Date().getFullYear()
+
+const onVillage = computed(() => route.path === '/')
+
+const tabs = computed(() => [
+  { to: '/', key: 'village', icon: Home, active: onVillage.value, dot: affordable.value },
+  { to: '/graj', key: 'play', icon: Gamepad2, active: !onVillage.value, dot: false },
+])
+
+// the game being played, matched at a path boundary so `/dzielenie` does not
+// also match `/dzielenie2`
+const game = computed(() =>
+  GAMES.find((g) => route.path === g.route || route.path.startsWith(`${g.route}/`)),
+)
 </script>
 
 <template>
@@ -2149,15 +2572,18 @@ const year = new Date().getFullYear()
       <div class="kid-header-in">
         <span class="kid-mark"><InfinityIcon :size="22" /></span>
         <span class="kid-wordmark">Math <span class="en">{{ t('subtitle') }}</span></span>
+
+        <!-- from 768px the tabs live here; below that see the fixed bar -->
+        <nav class="kid-nav-top" aria-label="Main">
+          <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+            <component :is="tab.icon" :size="18" /> {{ t(tab.key) }}
+            <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
+          </RouterLink>
+        </nav>
+
         <RouterLink to="/" class="kid-mats">
-          <span
-            v-for="k in MATERIALS"
-            :key="k"
-            class="kid-mat"
-            role="img"
-            :aria-label="`${t(k)}: ${village.materials[k]}`"
-          >
-            <span aria-hidden="true">{{ MATERIAL_ICON[k] }}</span>
+          <span v-for="k in MATERIALS" :key="k" class="kid-mat" role="img" :aria-label="`${t(k)}: ${village.materials[k]}`">
+            <MaterialIcon :kind="k" />
             <AnimatedInteger :value="village.materials[k]" aria-hidden="true" />
           </span>
         </RouterLink>
@@ -2165,38 +2591,44 @@ const year = new Date().getFullYear()
       </div>
     </header>
 
-    <!-- fixed to the bottom on phones, two pills under the header from 768px -->
-    <nav class="kid-tabs" aria-label="Main">
-      <RouterLink to="/" class="kid-tab" :class="{ active: route.path === '/' }">
-        <Home :size="20" /> {{ t('village') }}
-        <span v-if="affordable" class="kid-dot" aria-hidden="true"></span>
-      </RouterLink>
-      <RouterLink to="/graj" class="kid-tab" :class="{ active: route.path !== '/' }">
-        <Gamepad2 :size="20" /> {{ t('play') }}
-      </RouterLink>
-    </nav>
-
     <main class="kid-main">
-      <RouterView />
+      <!-- the village page brings its own side column (goal and shop) -->
+      <RouterView v-if="onVillage" />
+      <div v-else class="kid-cols">
+        <div class="kid-col-main"><RouterView /></div>
+        <aside class="kid-col-side kid-desktop-only">
+          <NextGoal />
+          <RewardsCard v-if="game" :pays="game.pays" />
+        </aside>
+      </div>
     </main>
 
     <footer class="kid-foot">© Mateusz Woźniak - {{ year }}</footer>
+
+    <!-- phone tab bar. Outside the header on purpose: the header's
+         backdrop-filter would capture position: fixed -->
+    <nav class="kid-tabs" aria-label="Main">
+      <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+        <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}
+        <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
+      </RouterLink>
+    </nav>
   </div>
 </template>
 ```
 
 Note the footer separator is now a plain hyphen (the old file used an em dash, which the project rules forbid).
 
-- [ ] **Step 4: Add the shell styles**
+- [ ] **Step 5: Add the shell styles**
 
 Append to the end of `src/assets/design/kid.css`:
 
 ```css
 /* ============================================================================
-   APP SHELL - material counters, tabs, settings sheet
+   APP SHELL - counters, tabs, settings sheet, desktop widths
    ============================================================================ */
 .kid-mats {
-  margin-left: auto; display: flex; align-items: center; gap: 10px; min-height: 44px;
+  margin-left: auto; display: flex; align-items: center; gap: 9px; min-height: 44px;
   color: var(--foreground); text-decoration: none;
   font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px;
 }
@@ -2209,63 +2641,94 @@ Append to the end of `src/assets/design/kid.css`:
 .kid-gear:hover { background: var(--k-brand-soft); color: var(--k-brand-deep); }
 @media (max-width: 380px) { .kid-header .kid-wordmark { display: none; } .kid-mats { gap: 7px; font-size: 13px; } }
 
-.kid-tabs {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  display: flex; gap: 8px; padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
-  background: var(--k-card); border-top: 1px solid var(--k-card-border);
-}
 .kid-tab {
-  flex: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px;
-  border-radius: var(--k-btn-radius); color: var(--muted-foreground);
-  font-weight: 800; font-size: 15px; text-decoration: none;
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--muted-foreground); font-weight: 800; font-size: 15px; text-decoration: none;
   transition: background .15s ease, color .15s ease;
 }
 .kid-tab.active { background: var(--k-brand); color: #fff; }
 .kid-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--k-accent); animation: iso-pulse 1.2s ease-in-out infinite; }
-.kid-page { padding-bottom: 72px; } /* room for the fixed tab bar */
-@media (min-width: 768px) {
-  .kid-tabs {
-    position: static; width: 100%; max-width: 560px; margin: 16px auto 0; padding: 0 20px;
-    background: transparent; border-top: none;
-  }
-  .kid-tab { background: var(--k-card); border: 1px solid var(--k-card-border); }
-  .kid-page { padding-bottom: 0; }
+
+/* phone: fixed bottom bar */
+.kid-nav-top { display: none; }
+.kid-tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: flex; gap: 8px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--k-card); border-top: 1px solid var(--k-card-border);
 }
+.kid-tabs .kid-tab { flex: 1; min-height: 48px; border-radius: var(--k-btn-radius); }
+.kid-page { padding-bottom: 76px; } /* room for the fixed tab bar */
+
+/* from 768px: tabs move into the header */
+@media (min-width: 768px) {
+  .kid-tabs { display: none; }
+  .kid-page { padding-bottom: 0; }
+  .kid-nav-top { display: flex; gap: 6px; margin-left: 24px; }
+  .kid-nav-top .kid-tab { height: 44px; padding: 0 18px; border-radius: 14px; }
+}
+
+/* from 1024px: wide two-column page */
+@media (min-width: 1024px) {
+  .kid-header-in { max-width: 1120px; height: 72px; }
+  .kid-main { max-width: 1120px; padding-top: 28px; }
+  .kid-nav-top { margin-left: 36px; }
+  .kid-mats { gap: 8px; font-size: 15px; }
+  .kid-mat { height: 40px; padding: 0 12px; gap: 6px; border-radius: 999px; background: var(--k-card); border: 1px solid var(--k-card-border); }
+}
+
+.kid-rewards ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.kid-rewards li { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.kid-rewards p { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
 
 .kid-sheet { font-family: var(--font-sans); color: var(--foreground); overflow-y: auto; }
 .kid-set { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--k-card-border); }
 .kid-set.col { flex-direction: column; align-items: stretch; gap: 8px; }
-.kid-set-label { font-size: 13px; font-weight: 700; }
-.kid-set-error { margin: 0; font-size: 13px; font-weight: 600; color: var(--k-wrong); }
+.kid-set .kid-btn { flex: none; height: 48px; font-size: 15px; }
+.kid-set-label { font-size: 14px; font-weight: 700; }
+.kid-set-error { margin: 0; font-size: 13px; font-weight: 600; color: #b91c1c; }
 .kid-save {
-  width: 100%; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--k-card-border);
-  background: var(--k-card); color: var(--foreground); resize: none;
-  font-family: var(--font-mono); font-size: 11px; word-break: break-all;
+  width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--k-card-border);
+  background: var(--k-page); color: var(--foreground); resize: none;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.4; word-break: break-all;
 }
-.kid-danger { color: var(--k-wrong); }
+.kid-save.bad { border: 2px solid #dc2626; background: var(--k-card); }
+.kid-danger { background: #fdecec; color: #b91c1c; }
 
 @media (prefers-reduced-motion: reduce) { .kid-dot { animation: none; } }
 ```
 
-- [ ] **Step 5: Verify in the browser**
+- [ ] **Step 6: Verify in the browser**
 
-Run: `npm run lint && npm run dev`, then at 360px wide:
+Run: `npm run lint && npm run dev`.
 
-- Header: logo, four counters, gear. No horizontal scroll. The five chips are gone. The tab bar is fixed at the bottom and the footer is fully visible above it when scrolled down.
+At 390px wide:
+
+- Header: logo, four drawn-icon counters, settings button. No horizontal scroll. The five chips are gone. The tab bar is fixed at the bottom and the footer is fully visible above it when scrolled down.
 - Village tab is active on `/`, Play tab on `/graj` and on every game.
 - Play `/dodawanie/1` until wood reaches 5: the wood counter animates on each answer and a pulsing dot appears on the Village tab. Build the hut and the dot disappears.
 - Tapping the counters goes to `/`.
-- Gear opens the sheet with correct brand colours (blue active language pill, blue switch). PL and EN switch every string including the sheet itself. The timer switch still controls the ring on `/dodawanie/1`.
+- No goal card on `/graj` or in games (the side column is desktop only). On `/` the goal card and shop sit under the map.
+- The settings button opens the sheet with correct brand colours (blue active language pill, blue switch). PL and EN switch every string including the sheet itself. The timer switch still controls the ring on `/dodawanie/1`.
 - Copy puts the string on the clipboard and the button reads `Skopiowano!` briefly.
-- Paste `hello` and press Load: the inline error shows and the village is unchanged. Press Clear village and confirm: counters drop to 0. Paste the copied string and press Load, confirm: the village and counters come back exactly.
-- At 1280px wide: the tabs are two pills under the header, not a fixed bar.
-- Turn on "reduce motion" in the OS or DevTools rendering panel: smoke, flag, ghost pulse and tab dot stop animating.
+- Paste `hello` and press Load: the field gets a red border, the inline error shows and the village is unchanged. Typing clears the error. Press Clear village and confirm: counters drop to 0. Paste the copied string and press Load, confirm: the village and counters come back exactly.
 
-- [ ] **Step 6: Commit**
+At 800px wide: no bottom bar; Village and Play are two pills in the header; content is still one 560px column.
+
+At 1280px wide:
+
+- Header and content are 1120px wide. Counters are white pills.
+- `/`: map on the left with the building list under it, goal card and shop on the right. The side column stays in view while scrolling.
+- `/graj`: six operation cards in one row. On the right the goal card with a `Zobacz wioskę` button.
+- `/gry/kafelki/2`: the game card fills the left column, the six result tiles sit in one row. On the right the goal card and a rewards card listing wood and stone. Play until the next building is affordable: the goal button turns into `Masz wszystko! Buduj` and links to `/`.
+- `/dodawanie/1`: rewards card lists wood only.
+
+Turn on "reduce motion" in the OS or the DevTools rendering panel: smoke, flag, ghost pulse, tab dot and bar transitions stop.
+
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/components/SettingsSheet.vue src/App.vue src/assets/design/kid.css
-git commit -m "Replace operation chips with village and play tabs, counters and settings sheet"
+git add src/components/RewardsCard.vue src/components/SettingsSheet.vue src/App.vue src/assets/design/kid.css
+git commit -m "Replace operation chips with village and play tabs, counters, settings sheet and desktop side column"
 ```
 
 ---
@@ -2279,14 +2742,17 @@ git commit -m "Replace operation chips with village and play tabs, counters and 
 Run: `npm run check && npm run lint && npm run build`
 Expected: both "all checks passed" lines, zero lint errors, a successful Vite build.
 
-- [ ] **Step 2: Em dash sweep**
+- [ ] **Step 2: Em dash and emoji sweep**
 
 Run: `grep -rn "—" src/ docs/superpowers/ index.html`
 Expected: no output. Replace any hit with a hyphen.
 
+Run: `perl -CSD -ne 'print "$ARGV:$.: $_" if /[\x{1F300}-\x{1FAFF}]/; close ARGV if eof' $(git ls-files src)`
+Expected: no output. Replace any emoji with `MaterialIcon` or a lucide icon. (macOS grep has no `-P`, hence perl.)
+
 - [ ] **Step 3: Production smoke test**
 
-Run: `npm run preview`, open the printed URL, and walk the full loop once: fresh village, play Domino to 5 wood, build the hut, play Compare for food, open settings, copy the save, clear the village, load the save, confirm everything returns. Hard-reload on `/gry/kafelki/2` and on `/dodawanie/3` to confirm deep links work (`public/_redirects` already handles this in production).
+Run: `npm run preview`, open the printed URL, and walk the full loop once at 1280px and once at 390px: fresh village, play Domino to 5 wood, build the hut, play Compare for food, earn a coin from a 5-streak, trade it in the shop, open settings, copy the save, clear the village, load the save, confirm everything returns. Hard-reload on `/gry/kafelki/2` and on `/dodawanie/3` to confirm deep links work (`public/_redirects` already handles this in production).
 
 - [ ] **Step 4: Commit any fixes**
 

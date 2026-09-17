@@ -42,8 +42,13 @@ refactoring the five existing operation pages.
 | `src/games/generators.js` | Pure task generators for the six games, checked under plain node. |
 | `src/composables/useRound.js` | Shared round state for the new games: score, total, streak, strikes, flash colour. Calls `reward()` on a correct answer and awards coins. |
 | `src/components/GameCard.vue` | Shared card shell for the new games: back arrow, score, timer, stars, level pills, strikes, New button. |
-| `src/pages/Village.vue` | Isometric map (ground tiles are inline polygons), next-goal panel, Build button. |
-| `src/components/IsoBuilding.vue` | One SVG building, drawn from id and tier. |
+| `src/pages/Village.vue` | Isometric map (ground tiles are inline polygons) plus the village side column. |
+| `src/components/IsoBuilding.vue` | One SVG building, drawn from id and tier. Placeholder art. |
+| `src/components/MaterialIcon.vue` | The four drawn material icons. |
+| `src/components/NextGoal.vue` | Goal card: bars per material, Build button on the village page, link to the village elsewhere. |
+| `src/components/ShopCard.vue` | Coin shop. |
+| `src/components/BuildingList.vue` | All 12 buildings with their state. Desktop only. |
+| `src/components/RewardsCard.vue` | What the current game pays. Desktop side column only. |
 | `src/components/SettingsSheet.vue` | Language, timer, export, import, reset. |
 | `src/pages/Play.vue` | Game grid grouped by category. |
 | `src/pages/games/Tiles.vue` | Kafelki. |
@@ -122,6 +127,25 @@ no duplicate ids. Anything else returns `null`.
 | Tiles, Missing | wood for + and -, stone for x and / |
 | Compare, Biggest, Ascending | food |
 
+## Shop
+
+- One coin buys `SHOP_RATE` (2) units of wood, stone or food. The rate is one
+  constant in `buildings.js`.
+- One way only. Materials cannot be sold for coins, so coins stay a reward
+  for accuracy and cannot be farmed from easy tasks.
+- Coins are still needed for tier 2 and 3 upgrades, so spending them in the
+  shop is a real choice.
+- The shop also unblocks a kid who cannot multiply yet: stone comes only from
+  multiplication and division, but coins come from any streak.
+- No confirm and no undo: one tap is one coin.
+- Pure rule `applyTrade(state, kind)` in `villageLogic.js`, refused when
+  coins are 0, when `kind` is unknown or when `kind` is `coins`. The save
+  format does not change.
+- UI: a Sklep card on the village page under the goal card. Three rows in a
+  fixed order (rows never re-sort, so a button does not move under a finger).
+  The row for a material the next building lacks carries the "needed" badge
+  and a primary button.
+
 ## Games
 
 All six have 3 levels, a status row, level pills and the back arrow, matching
@@ -189,9 +213,34 @@ the next plot. Upgrades are offered from a tap on a built building.
 
 ### Tabs
 
-Two tabs: Village and Play. Fixed bottom bar on mobile, two pills under the
-header at 768px and up. The Village tab shows a pulsing dot when the next
+Two tabs: Village and Play. Fixed bottom bar below 768px, two pills inside
+the header from 768px. The Village tab shows a pulsing dot when the next
 building is affordable.
+
+### Desktop layout (from 1024px)
+
+The page is a real desktop web page, not the phone column centred. Header and
+content are 1120px wide. Content is two columns: the main column and a 340px
+side column that stays in view while scrolling.
+
+- Village: map plus the building list (all 12, with built, next and locked
+  state) on the left; goal card and shop on the right.
+- Play and every game: the page on the left; on the right the goal card and,
+  in a game, a card listing what that game pays. The goal button becomes
+  "You have it all! Build" and links to the village once the next building
+  is affordable, so the reward loop is visible while playing.
+- The side column is desktop only, except on the village page where the goal
+  card and shop stack under the map on a phone.
+- Counters become white pills. The Tiles result row becomes six columns.
+
+### Icons and colour
+
+- No emoji in the UI. The four materials are drawn SVG icons
+  (`MaterialIcon.vue`); everything else comes from lucide.
+- The operation colours stay as card borders, but fail contrast as text on
+  white, so each game also has a darker `ink` shade for its symbol.
+- Building art is placeholder and lives only in `IsoBuilding.vue`, so real
+  assets can replace it later without touching anything else.
 
 ### `/` village
 
