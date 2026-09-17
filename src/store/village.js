@@ -38,7 +38,9 @@ export function reward(kind, amount = 1) {
 }
 
 export function recordStreak(game, n) {
-  if (n > (village.bestStreak[game] ?? 0)) village.bestStreak[game] = n
+  // validate() rejects the whole save if any bestStreak value is not a
+  // non-negative integer, so a bad number must never be written here
+  if (Number.isInteger(n) && n > (village.bestStreak[game] ?? 0)) village.bestStreak[game] = n
 }
 
 export const build = (id) => commit(logic.applyBuild(village, id))
