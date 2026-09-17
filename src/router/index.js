@@ -33,6 +33,21 @@ const routes = [
     name: 'multiply',
     component: () => import('@/pages/Multiply.vue'),
   },
+  {
+    path: '/gry/domino/:level?',
+    name: 'domino',
+    component: () => import('@/pages/games/Domino.vue'),
+  },
+  {
+    path: '/gry/porownaj/:level?',
+    name: 'compare',
+    component: () => import('@/pages/games/Compare.vue'),
+  },
+  {
+    path: '/gry/najwieksza/:level?',
+    name: 'biggest',
+    component: () => import('@/pages/games/Biggest.vue'),
+  },
 ]
 
 const router = createRouter({
