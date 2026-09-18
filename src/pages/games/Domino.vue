@@ -26,6 +26,7 @@ function pick(o) {
 <template>
   <GameCard
     :round="round"
+    game="domino"
     :title="t('domino')"
     color="var(--k-op-add)"
     ink="var(--k-ink-add, #15803d)"

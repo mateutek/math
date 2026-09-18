@@ -21,6 +21,7 @@ function pick(n) {
 <template>
   <GameCard
     :round="round"
+    game="biggest"
     :title="t('biggest')"
     color="var(--k-op-div2)"
     timed

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import ClassChip from '@/components/ClassChip.vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
 import village, { next, streakKey } from '@/store/village'
 import { classConfig } from '@/store/settings'
@@ -33,6 +34,7 @@ function caption(id) {
   <div class="kid-play">
     <!-- the phone board starts straight at the first group -->
     <h1 class="kid-h1 kid-wide-only">{{ t('playTitle') }}</h1>
+    <ClassChip />
     <section v-for="group in groups" :key="group.key" class="kid-group">
       <h2>
         {{ t(group.key) }}

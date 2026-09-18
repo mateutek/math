@@ -27,6 +27,7 @@ function pick(n) {
 <template>
   <GameCard
     :round="round"
+    game="ascending"
     :title="t('ascending')"
     color="var(--k-op-div2)"
     timed
