@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core'
-import { SlidersHorizontal, Timer } from 'lucide-vue-next'
+import { SlidersHorizontal, Timer, Copy } from 'lucide-vue-next'
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
@@ -36,9 +36,9 @@ function onReset() {
       <button class="kid-gear" :aria-label="t('settings')"><SlidersHorizontal :size="20" /></button>
     </SheetTrigger>
     <SheetContent class="kid-root kid-sheet">
-      <SheetHeader>
-        <SheetTitle>{{ t('settings') }}</SheetTitle>
-        <SheetDescription>{{ t('settingsDesc') }}</SheetDescription>
+      <SheetHeader class="kid-sheet-head">
+        <SheetTitle class="kid-sheet-title">{{ t('settings') }}</SheetTitle>
+        <SheetDescription class="kid-sheet-desc">{{ t('settingsDesc') }}</SheetDescription>
       </SheetHeader>
 
       <div class="kid-set">
@@ -50,21 +50,24 @@ function onReset() {
       </div>
 
       <div class="kid-set">
+        <span class="kid-zegar"><Timer :size="17" :stroke-width="2.2" /> {{ t('timer') }}</span>
         <button
-          class="kid-zegar"
+          class="kid-switch-btn"
           role="switch"
           :aria-checked="settings.timerEnabled"
+          :aria-label="t('timer')"
           @click="settings.timerEnabled = !settings.timerEnabled"
         >
           <span class="kid-switch" :aria-checked="settings.timerEnabled"></span>
-          <Timer :size="16" /> {{ t('timer') }}
         </button>
       </div>
 
       <div class="kid-set col">
         <label class="kid-set-label" for="save-out">{{ t('exportSave') }}</label>
         <textarea id="save-out" class="kid-save" rows="3" readonly :value="saveString" @focus="$event.target.select()" />
-        <button class="kid-btn kid-btn-ghost" @click="copy()">{{ t(copied ? 'copied' : 'copy') }}</button>
+        <button class="kid-btn kid-btn-ghost" @click="copy()">
+          <Copy :size="17" :stroke-width="2.2" /> {{ t(copied ? 'copied' : 'copy') }}
+        </button>
       </div>
 
       <div class="kid-set col">
