@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { ArrowLeft, RefreshCw } from 'lucide-vue-next'
-import ClassChip from '@/components/ClassChip.vue'
 import StarRow from '@/components/StarRow.vue'
 import Celebration from '@/components/Celebration.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
@@ -11,8 +10,6 @@ import { t } from '@/i18n'
 
 defineProps({
   round: { type: Object, required: true },
-  // game id, so the chip can name this game's range
-  game: { type: String, required: true },
   // shown from 1024px only; the phone boards have no game title
   title: { type: String, default: '' },
   color: { type: String, default: 'var(--k-brand)' },
@@ -48,8 +45,6 @@ defineProps({
       </div>
       <StarRow :streak="round.streak" :just-won="round.flash === 'green'" />
     </div>
-
-    <ClassChip :game="game" />
 
     <slot />
 

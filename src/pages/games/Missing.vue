@@ -37,7 +37,6 @@ function check() {
 <template>
   <GameCard
     :round="round"
-    game="missing"
     :title="t('missing')"
     color="var(--k-brand)"
     ink="var(--k-ink-missing, #1f4fc4)"

@@ -21,7 +21,6 @@ function pick(sign) {
 <template>
   <GameCard
     :round="round"
-    game="compare"
     :title="t('compare')"
     color="var(--k-op-div2)"
     timed

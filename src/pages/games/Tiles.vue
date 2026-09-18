@@ -40,7 +40,6 @@ function pickResult(value) {
 <template>
   <GameCard
     :round="round"
-    game="tiles"
     :title="t('tiles')"
     color="var(--k-op-mul)"
   >

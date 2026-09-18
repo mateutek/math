@@ -4,7 +4,6 @@ import { RouterLink } from 'vue-router'
 import { RefreshCw, Check, ArrowLeft } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
-import ClassChip from '@/components/ClassChip.vue'
 import StarRow from '@/components/StarRow.vue'
 import Celebration from '@/components/Celebration.vue'
 import TimerRing from '@/components/TimerRing.vue'
@@ -128,8 +127,6 @@ onMounted(focusAnswer)
       </div>
       <StarRow :streak="streak" :just-won="cardColor === 'green'" />
     </div>
-
-    <ClassChip game="divide" />
 
     <div class="kid-eq">
       <AnimatedInteger :value="dividend" />
