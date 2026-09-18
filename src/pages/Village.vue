@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { Flame } from 'lucide-vue-next'
 import IsoBuilding from '@/components/IsoBuilding.vue'
 import NextGoal from '@/components/NextGoal.vue'
 import ShopCard from '@/components/ShopCard.vue'
@@ -8,7 +9,7 @@ import BuildingList from '@/components/BuildingList.vue'
 import Celebration from '@/components/Celebration.vue'
 import village, { next } from '@/store/village'
 import { BUILDINGS } from '@/data/buildings'
-import { t } from '@/i18n'
+import { t, tp } from '@/i18n'
 
 const SIZE = 6
 const PATH_ROW = 3
@@ -34,6 +35,14 @@ for (let row = 0; row < SIZE; row++) {
 
 const selected = ref(null)
 const cheer = ref(0)
+
+// The two boards crop the map differently: the phone one shows less sky, and a
+// viewBox cannot be set from CSS.
+const WIDE = window.matchMedia('(min-width: 1024px)')
+const wide = ref(WIDE.matches)
+const onWide = (event) => (wide.value = event.matches)
+WIDE.addEventListener('change', onWide)
+onUnmounted(() => WIDE.removeEventListener('change', onWide))
 
 // back-to-front so nearer buildings overlap farther ones
 const plots = computed(() =>
@@ -65,10 +74,19 @@ function onPlotKey(event, plot) {
 
       <div class="kid-village-head">
         <h1 class="kid-h1">{{ t('yourVillage') }}</h1>
-        <span class="count">{{ village.buildings.length }} / {{ BUILDINGS.length }}</span>
+        <span class="count">{{ tp('ofBuildings', BUILDINGS.length, { a: village.buildings.length }) }}</span>
+        <!-- on the phone board this chip sits in the goal card instead -->
+        <span v-if="village.dayStreak > 1" class="kid-fire kid-wide-only">
+          <Flame :size="16" /> {{ tp('dayStreakChip', village.dayStreak) }}
+        </span>
       </div>
 
-      <svg class="kid-map" viewBox="-296 -52 592 360" role="img" :aria-label="t('yourVillage')">
+      <svg
+        class="kid-map"
+        :viewBox="wide ? '-296 -52 592 360' : '-296 -16 592 324'"
+        role="img"
+        :aria-label="t('yourVillage')"
+      >
         <!-- earth edge under the front two sides of the map -->
         <polygon points="-288,144 0,288 0,302 -288,158" fill="#b58a5a" />
         <polygon points="0,288 288,144 288,158 0,302" fill="#9c7448" />
@@ -97,7 +115,7 @@ function onPlotKey(event, plot) {
         </g>
       </svg>
 
-      <p class="kid-village-hint">
+      <p class="kid-village-hint kid-wide-only">
         <template v-if="village.buildings.length">{{ t('tapToUpgrade') }}</template>
         <template v-else>{{ t('emptyVillage') }} <RouterLink to="/graj">{{ t('play') }}</RouterLink></template>
       </p>
@@ -108,6 +126,11 @@ function onPlotKey(event, plot) {
     <aside class="kid-col-side">
       <NextGoal :building-id="selected" can-build @built="cheer += 1" />
       <ShopCard />
+      <!-- the phone board closes with the hint, under the shop -->
+      <p class="kid-village-hint kid-phone-only">
+        <template v-if="village.buildings.length">{{ t('tapToUpgradePhone') }}</template>
+        <template v-else>{{ t('emptyVillage') }} <RouterLink to="/graj">{{ t('play') }}</RouterLink></template>
+      </p>
     </aside>
   </div>
 </template>

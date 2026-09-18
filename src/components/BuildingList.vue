@@ -21,7 +21,7 @@ const rows = computed(() =>
         <span class="dot" aria-hidden="true"></span>
         {{ t('b_' + r.id) }}
         <span v-if="r.tier" class="tag">{{ t('tierShort') }} {{ r.tier }}</span>
-        <span v-else-if="r.isNext" class="tag">{{ t('now') }}</span>
+        <span v-else-if="r.isNext" class="tag now">{{ t('now') }}</span>
       </li>
     </ul>
   </section>

@@ -6,7 +6,7 @@ import MaterialIcon from '@/components/MaterialIcon.vue'
 import IsoBuilding from '@/components/IsoBuilding.vue'
 import village, { build, next } from '@/store/village'
 import { goalFor, canAfford } from '@/store/villageLogic'
-import { t } from '@/i18n'
+import { t, tp } from '@/i18n'
 
 const props = defineProps({
   // a built building picked for upgrade; null means the next unbuilt one
@@ -25,38 +25,46 @@ const bars = computed(() =>
   }),
 )
 
+// the hint names one shortfall: the material the goal lacks most of
+const short = computed(() =>
+  bars.value.filter((b) => !b.full).sort((a, b) => b.need - b.have - (a.need - a.have))[0],
+)
+
 function onBuild() {
   if (build(goal.value.id)) emit('built')
 }
 </script>
 
 <template>
-  <section class="kid-panel kid-goal" :aria-label="t('nextGoal')">
+  <section class="kid-panel kid-goal" :class="{ side: !canBuild }" :aria-label="t('nextGoal')">
     <span class="kid-eyebrow">{{ t('nextGoal') }}</span>
     <template v-if="goal">
       <div class="kid-goal-head">
-        <svg class="art" viewBox="-48 -76 96 128" aria-hidden="true">
+        <svg v-if="!canBuild" class="art" viewBox="-36 -36 72 80" aria-hidden="true">
           <IsoBuilding :id="goal.id" :tier="goal.tier" ghost next />
         </svg>
-        <div>
+        <div class="txt">
           <h2>{{ t('b_' + goal.id) }}</h2>
           <span class="sub">{{ t('tier') }} {{ goal.tier }}</span>
         </div>
-        <span v-if="village.dayStreak > 1" class="kid-fire">
-          <Flame :size="15" /> {{ village.dayStreak }} {{ t('dayStreak') }}
+        <!-- on the wide layout this chip lives in the village heading instead -->
+        <span v-if="village.dayStreak > 1" class="kid-fire kid-phone-only">
+          <Flame :size="15" /> {{ tp('dayStreakChip', village.dayStreak) }}
         </span>
       </div>
 
-      <div
-        v-for="b in bars"
-        :key="b.kind"
-        class="kid-bar"
-        role="img"
-        :aria-label="`${t(b.kind)}: ${b.have}/${b.need}`"
-      >
-        <MaterialIcon :kind="b.kind" />
-        <div class="track"><div class="fill" :class="{ full: b.full }" :style="{ width: b.pct + '%' }"></div></div>
-        <span class="n">{{ b.have }}/{{ b.need }}</span>
+      <div class="kid-bars">
+        <div
+          v-for="b in bars"
+          :key="b.kind"
+          class="kid-bar"
+          role="img"
+          :aria-label="`${t(b.kind)}: ${b.have}/${b.need}`"
+        >
+          <MaterialIcon :kind="b.kind" />
+          <div class="track"><div class="fill" :class="{ full: b.full }" :style="{ width: b.pct + '%' }"></div></div>
+          <span class="n">{{ b.have }}/{{ b.need }}</span>
+        </div>
       </div>
 
       <button v-if="canBuild" class="kid-btn kid-btn-primary" :disabled="!affordable" @click="onBuild">
@@ -64,8 +72,12 @@ function onBuild() {
       </button>
       <RouterLink v-else-if="affordable" to="/" class="kid-btn kid-btn-primary">{{ t('readyToBuild') }}</RouterLink>
 
-      <p v-if="!affordable" class="kid-goal-hint">
-        {{ t('goalShort') }} <RouterLink to="/graj">{{ t('goalPlay') }}</RouterLink> {{ t('goalOrTrade') }}
+      <p v-if="short" class="kid-goal-hint">
+        {{ tp('need_' + short.kind, short.need - short.have) }}
+        <template v-if="canBuild">
+          <RouterLink to="/graj">{{ t('play_' + short.kind) }}</RouterLink> {{ t('goalOrTrade') }}
+        </template>
+        <template v-else>{{ t('from_' + short.kind) }}</template>
       </p>
       <RouterLink v-if="!canBuild && !affordable" to="/" class="kid-btn kid-btn-ghost">{{ t('seeVillage') }}</RouterLink>
     </template>
