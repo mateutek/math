@@ -113,25 +113,17 @@
 .kid-streak .star.pop { animation: kid-star .4s ease; }
 @keyframes kid-star { 0%{transform:scale(.4) rotate(-30deg)} 60%{transform:scale(1.3) rotate(8deg)} 100%{transform:scale(1)} }
 
-/* class chip (src/components/ClassChip.vue) - read-only, with the one way back
-   to the picker. Replaced the three level pills. */
-.kid-class-chip {
-  min-height: 52px; box-sizing: border-box; padding: 4px 4px 4px 14px;
-  display: flex; align-items: center; gap: 10px;
-  border-radius: 14px; background: var(--k-brand-soft);
+/* class caption (src/components/ClassChip.vue) - static text on Play only; the
+   picker is reached from the settings sheet. */
+.kid-class-cap {
+  margin: 0; display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--muted-foreground);
 }
-.kid-class-chip .cls { font-size: 14px; font-weight: 800; color: var(--k-brand-on-soft); }
-.kid-class-chip .rg {
-  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
-  font-size: 12.5px; font-weight: 500; color: var(--k-chip-ink);
+.kid-class-cap .cls {
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--k-brand-soft); color: var(--k-brand-on-soft);
+  font-size: 12.5px; font-weight: 800;
 }
-.kid-class-chip .chg {
-  margin-left: auto; min-height: 44px; padding: 0 14px; box-sizing: border-box;
-  display: flex; align-items: center; border-radius: 10px; white-space: nowrap;
-  background: var(--k-card); color: var(--k-brand-on-soft);
-  font-size: 13px; font-weight: 700; text-decoration: none;
-}
-@media (min-width: 1024px) { .kid-class-chip { min-height: 48px; } }
 
 /* equation */
 .kid-eq {
@@ -240,8 +232,6 @@
   /* how much of an operation colour a picked tile is tinted with, and the
      surface colour that tint is blended toward */
   --k-tile-mix: 14%; --k-mix-base: #ffffff;
-  /* the mono range line inside the class chip */
-  --k-chip-ink: #33415c;
   /* the design's muted ink; the shadcn default is a cooler grey */
   --muted-foreground: #55657e;
 }
@@ -272,7 +262,6 @@
   --k-seg-bg: var(--k-page);
   --k-fire: #f2b84b; --k-purse: #f2b84b; --k-error: #ff9a9a; --k-danger-bg: #3a1d20;
   --k-tile-mix: 18%; --k-mix-base: #12141c;
-  --k-chip-ink: #c3cbe0;
 
   /* map ground and the earth edge under it */
   --k-grass: #2f5a45; --k-grass2: #2a523f; --k-path: #6a6048; --k-pond: #1f4e73;
@@ -611,7 +600,7 @@
   .kid-play { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 22px 28px; }
   .kid-play > .kid-h1 { grid-column: 1; align-self: center; }
   .kid-play > .kid-group:first-of-type { grid-column: 1 / -1; }
-  .kid-play > .kid-class-chip { grid-column: 2; width: 380px; justify-self: end; }
+  .kid-play > .kid-class-cap { grid-column: 2; justify-self: end; align-self: center; }
   .kid-group h2 { font-size: 16px; }
   .kid-group h2 .kid-badge { margin-left: 0; }
   .kid-grid { grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 12px; }
