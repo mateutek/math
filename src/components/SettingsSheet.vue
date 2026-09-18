@@ -1,13 +1,19 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useClipboard } from '@vueuse/core'
-import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon } from 'lucide-vue-next'
+import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon, ChevronRight } from 'lucide-vue-next'
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
-import settings from '@/store/settings'
+import settings, { classConfig } from '@/store/settings'
 import { exportSave, checkSave, importSave, reset } from '@/store/village'
-import { t } from '@/i18n'
+import { t, tp } from '@/i18n'
+
+// "Klasa 2", or "Zerówka" for the pre-school class
+const className = computed(() =>
+  classConfig.value.id === 0 ? t('classZero') : tp('classLabel', classConfig.value.id),
+)
 
 // reads the whole village, so it re-computes whenever anything in it changes
 const saveString = computed(() => exportSave())
@@ -54,6 +60,15 @@ const themes = [
           <button :class="{ on: settings.lang === 'en' }" :aria-pressed="settings.lang === 'en'" @click="settings.lang = 'en'">EN</button>
         </div>
       </div>
+
+      <RouterLink to="/klasa" class="kid-set kid-set-link">
+        <span class="kid-set-text">
+          <span class="kid-set-label">{{ t('classRow') }}</span>
+          <span class="kid-set-hint">{{ t('classRowHint') }}</span>
+        </span>
+        <span class="kid-class-pill">{{ className }}</span>
+        <ChevronRight :size="18" :stroke-width="2.4" class="kid-set-chev" />
+      </RouterLink>
 
       <div class="kid-set col theme">
         <span id="theme-label" class="kid-set-label">{{ t('theme') }}</span>

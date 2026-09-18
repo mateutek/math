@@ -708,6 +708,17 @@
 .kid-sheet > .kid-set:last-of-type { margin-top: auto; }
 .kid-set .kid-btn { flex: none; height: 48px; font-size: 15px; }
 .kid-set-label { font-size: 14px; font-weight: 700; }
+/* the class row: the whole row is the link to the picker, 60px tall so the tap
+   target clears 44px under the 16px rule above it */
+.kid-set-link { flex: none; min-height: 60px; gap: 10px; color: inherit; text-decoration: none; }
+.kid-set-text { display: flex; flex-direction: column; gap: 2px; }
+.kid-set-hint { font-size: 12.5px; color: var(--muted-foreground); }
+.kid-set-chev { flex: none; color: var(--muted-foreground); }
+.kid-class-pill {
+  margin-left: auto; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  background: var(--k-brand-soft); color: var(--k-brand-on-soft);
+  font-size: 13px; font-weight: 800;
+}
 .kid-set-error { margin: 0; font-size: 13px; font-weight: 600; color: var(--k-error); }
 .kid-save {
   width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--k-card-border);
