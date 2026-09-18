@@ -8,6 +8,7 @@ import NextGoal from '@/components/NextGoal.vue'
 import RewardsCard from '@/components/RewardsCard.vue'
 import SettingsSheet from '@/components/SettingsSheet.vue'
 import village, { affordable } from '@/store/village'
+import { classConfig } from '@/store/settings'
 import { MATERIALS } from '@/data/buildings'
 import { GAMES } from '@/data/games'
 import { t } from '@/i18n'
@@ -32,9 +33,6 @@ const tabs = computed(() => [
 const game = computed(() =>
   GAMES.find((g) => route.path === g.route || route.path.startsWith(`${g.route}/`)),
 )
-
-// the rewards card names the amount a correct answer pays, which is the level
-const level = computed(() => Math.min(3, Math.max(1, Number(route.params.level) || 1)))
 </script>
 
 <template>
@@ -69,7 +67,7 @@ const level = computed(() => Math.min(3, Math.max(1, Number(route.params.level) 
         <div class="kid-col-main"><RouterView /></div>
         <aside class="kid-col-side kid-desktop-only">
           <NextGoal />
-          <RewardsCard v-if="game" :pays="game.pays" :level="level" />
+          <RewardsCard v-if="game" :pays="game.pays" :pay="classConfig.pay" />
         </aside>
       </div>
     </main>

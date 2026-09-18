@@ -1,17 +1,15 @@
-import { ref, computed, watch, reactive } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, watch, reactive } from 'vue'
+import { classConfig } from '@/store/settings'
 import { reward, recordStreak } from '@/store/village'
 
 // A board finished without a mistake, and every tenth correct answer in a row,
 // pays this many coins. RewardsCard shows the number, so it lives here.
 export const CLEAN_BOARD_COINS = 3
 
-// Round state shared by the new games. `next(level)` builds a fresh task and
-// runs once right away, so the caller must declare its task refs first.
+// Round state shared by the new games. `next(cfg)` builds a fresh task from the
+// class config and runs once right away, so the caller must declare its task
+// refs first.
 export function useRound(game, next) {
-  const route = useRoute()
-  const level = computed(() => Math.min(3, Math.max(1, Number(route.params.level) || 1)))
-
   const score = ref(0)
   const total = ref(0)
   const streak = ref(0)
@@ -25,7 +23,7 @@ export function useRound(game, next) {
     strikes.value = 0
     if (flash.value === 'red') flash.value = ''
     timerKey.value += 1
-    total.value += next(level.value) ?? 1
+    total.value += next(classConfig.value) ?? 1
   }
 
   function correct(material, flawless = false) {
@@ -33,10 +31,10 @@ export function useRound(game, next) {
     streak.value += 1
     cheer.value += 1
     flash.value = 'green'
-    reward(material, level.value)
+    reward(material, classConfig.value.pay)
     if (streak.value % 5 === 0) reward('coins', 1)
     if (flawless || streak.value % 10 === 0) reward('coins', CLEAN_BOARD_COINS)
-    recordStreak(game, streak.value)
+    recordStreak(game, classConfig.value.id, streak.value)
     clearTimeout(flashTimeout)
     flashTimeout = setTimeout(() => {
       flash.value = ''
@@ -52,7 +50,7 @@ export function useRound(game, next) {
   }
 
   watch(
-    level,
+    classConfig,
     () => {
       score.value = 0
       total.value = 0
@@ -62,5 +60,5 @@ export function useRound(game, next) {
     { immediate: true },
   )
 
-  return reactive({ level, score, total, streak, strikes, flash, cheer, timerKey, newTask, correct, wrong })
+  return reactive({ cfg: classConfig, score, total, streak, strikes, flash, cheer, timerKey, newTask, correct, wrong })
 }

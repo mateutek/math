@@ -8,8 +8,8 @@ import { t } from '@/i18n'
 const task = ref(null)
 const done = ref([])
 
-const round = useRound('ascending', (level) => {
-  task.value = ascendingRound(level)
+const round = useRound('ascending', (cfg) => {
+  task.value = ascendingRound(cfg)
   done.value = []
 })
 
@@ -27,10 +27,8 @@ function pick(n) {
 <template>
   <GameCard
     :round="round"
-    base="/gry/rosnaco"
     :title="t('ascending')"
     color="var(--k-op-div2)"
-    :ranges="['1-50', '1-200', '1-1000']"
     timed
   >
     <p class="kid-prompt">{{ t('ascendingPrompt') }}</p>

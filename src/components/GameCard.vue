@@ -10,17 +10,13 @@ import { t } from '@/i18n'
 
 defineProps({
   round: { type: Object, required: true },
-  base: { type: String, required: true },
   // shown from 1024px only; the phone boards have no game title
   title: { type: String, default: '' },
   color: { type: String, default: 'var(--k-brand)' },
   // darker shade of `color`, used where the card colour fails contrast on white
   ink: { type: String, default: '' },
-  ranges: { type: Array, default: () => ['', '', ''] },
   timed: { type: Boolean, default: false },
 })
-
-const timerDurations = [30, 20, 15]
 </script>
 
 <template>
@@ -43,24 +39,11 @@ const timerDurations = [30, 20, 15]
       <div v-if="timed && settings.timerEnabled && round.strikes < 3" class="kid-timer-slot">
         <TimerRing
           :key="round.timerKey"
-          :duration="timerDurations[round.level - 1]"
+          :duration="round.cfg.seconds"
           @timeout="round.wrong()"
         />
       </div>
       <StarRow :streak="round.streak" :just-won="round.flash === 'green'" />
-    </div>
-
-    <div class="kid-levels">
-      <RouterLink
-        v-for="n in 3"
-        :key="n"
-        class="kid-pill"
-        :class="{ active: round.level === n }"
-        :to="`${base}/${n}`"
-      >
-        <span class="pl">{{ t('level') }} {{ n }}</span>
-        <span class="rg">{{ ranges[n - 1] }}</span>
-      </RouterLink>
     </div>
 
     <slot />

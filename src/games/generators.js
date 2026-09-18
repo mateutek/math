@@ -1,17 +1,7 @@
 // Pure task generators for the six games. No Vue in here, so this file runs
-// under plain node (see generators.check.js).
+// under plain node (see generators.check.js). Every one takes a class config
+// from src/data/classes.js and stays inside the numbers that class knows.
 import { randomIntFromInterval as rnd } from '../helpers/helpers.js'
-
-// Operations unlocked per level (index = level - 1).
-export const OPS = [
-  ['+', '−'],
-  ['+', '−', '×'],
-  ['+', '−', '×', '÷'],
-]
-
-const ADD_RANGE = [[2, 10], [5, 100], [20, 200]]
-const MUL_RANGE = [[1, 9], [2, 9], [2, 15]]
-const NUMBER_MAX = [50, 200, 1000]
 
 export function shuffle(list) {
   const a = [...list]
@@ -34,32 +24,30 @@ const make = (a, b, op, result) => ({
   material: op === '+' || op === '−' ? 'wood' : 'stone',
 })
 
-export function expr(op, level) {
+// A times table never runs past ten times ten, whatever the class ceiling is.
+const TABLE = 10
+
+export function expr(op, cfg) {
   if (op === '+' || op === '−') {
-    const [lo, hi] = ADD_RANGE[level - 1]
-    let a = rnd(lo, hi)
-    let b = rnd(lo, hi)
-    if (op === '+') return make(a, b, op, a + b)
-    if (b > a) [a, b] = [b, a] // never a negative result
-    return make(a, b, op, a - b)
+    // built from the two parts, so the sum never passes the class ceiling and
+    // the difference is never negative
+    const a = rnd(1, cfg.max - 1)
+    const b = rnd(1, cfg.max - a)
+    return op === '+' ? make(a, b, op, a + b) : make(a + b, b, op, a)
   }
   // both factors are >= 1, so division is always defined and whole
-  const [lo, hi] = MUL_RANGE[level - 1]
-  const x = rnd(lo, hi)
-  const y = rnd(lo, hi)
+  const x = rnd(1, Math.min(TABLE, cfg.mulMax))
+  const y = rnd(1, Math.min(TABLE, Math.floor(cfg.mulMax / x)))
   return op === '×' ? make(x, y, op, x * y) : make(x * y, y, op, x)
 }
 
-const randomExpr = (level) => {
-  const ops = OPS[level - 1]
-  return expr(ops[rnd(0, ops.length - 1)], level)
-}
+const randomExpr = (cfg) => expr(cfg.ops[rnd(0, cfg.ops.length - 1)], cfg)
 
-export function tilesRound(level) {
+export function tilesRound(cfg) {
   const exprs = []
   const seen = new Set()
   while (exprs.length < 6) {
-    const e = randomExpr(level)
+    const e = randomExpr(cfg)
     if (seen.has(e.result)) continue
     seen.add(e.result)
     exprs.push(e)
@@ -67,8 +55,8 @@ export function tilesRound(level) {
   return { exprs, results: shuffle(exprs.map((e) => e.result)) }
 }
 
-export function dominoRound(level) {
-  const total = rnd(2, [6, 9, 12][level - 1])
+export function dominoRound(cfg) {
+  const total = rnd(2, cfg.dominoMax)
   // a domino half holds 0 to 6 pips
   const split = (sum) => {
     const x = rnd(Math.max(0, sum - 6), Math.min(6, sum))
@@ -76,39 +64,38 @@ export function dominoRound(level) {
   }
   const [a, b] = split(total)
   const totals = new Set([total])
-  while (totals.size < 4) totals.add(rnd(1, 12))
+  while (totals.size < 4) totals.add(rnd(1, cfg.dominoMax))
   const options = shuffle([...totals].map((sum) => (sum === total ? [a, b] : split(sum))))
   return { a, b, total, options }
 }
 
-export function compareRound(level) {
-  const num = (n = rnd(1, 100)) => ({ text: String(n), value: n })
-  const ex = () => {
-    const e = expr(OPS[1][rnd(0, 2)], 1)
-    return { text: e.text, value: e.result }
+export function compareRound(cfg) {
+  const num = (n = rnd(0, cfg.max)) => ({ text: String(n), value: n })
+  // once a class multiplies, one side is worth making a small sum instead
+  let left = num()
+  if (cfg.mulMax) {
+    const e = randomExpr(cfg)
+    left = { text: e.text, value: e.result }
   }
-  const left = level === 1 ? num() : ex()
-  let right
-  if (level === 1) right = rnd(0, 3) === 0 ? num(left.value) : num()
-  else if (level === 2) right = num(Math.max(0, left.value + rnd(-5, 5)))
-  else right = ex()
+  const near = Math.min(cfg.max, Math.max(0, left.value + rnd(-5, 5)))
+  const right = num(rnd(0, 3) === 0 ? left.value : near)
   const answer = left.value < right.value ? '<' : left.value > right.value ? '>' : '='
   return { left, right, answer }
 }
 
-export function biggestRound(level) {
-  const numbers = distinct(3 + level, 1, NUMBER_MAX[level - 1])
+export function biggestRound(cfg) {
+  const numbers = distinct(cfg.max <= 10 ? 4 : 5, 1, cfg.max)
   const want = rnd(0, 1) ? 'max' : 'min'
   return { numbers, want, answer: Math[want](...numbers) }
 }
 
-export function ascendingRound(level) {
-  const numbers = distinct(5, 1, NUMBER_MAX[level - 1])
+export function ascendingRound(cfg) {
+  const numbers = distinct(5, 1, cfg.max)
   return { numbers, sorted: [...numbers].sort((a, b) => a - b) }
 }
 
-export function missingRound(level) {
-  const e = randomExpr(level)
+export function missingRound(cfg) {
+  const e = randomExpr(cfg)
   const hide = rnd(0, 1) ? 'a' : 'b'
   return { ...e, hide, answer: e[hide] }
 }

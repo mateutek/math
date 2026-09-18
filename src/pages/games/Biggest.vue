@@ -6,8 +6,8 @@ import { biggestRound } from '@/games/generators'
 import { t } from '@/i18n'
 
 const task = ref(null)
-const round = useRound('biggest', (level) => {
-  task.value = biggestRound(level)
+const round = useRound('biggest', (cfg) => {
+  task.value = biggestRound(cfg)
 })
 
 function pick(n) {
@@ -21,10 +21,8 @@ function pick(n) {
 <template>
   <GameCard
     :round="round"
-    base="/gry/najwieksza"
     :title="t('biggest')"
     color="var(--k-op-div2)"
-    :ranges="['1-50', '1-200', '1-1000']"
     timed
   >
     <p class="kid-prompt">{{ t(task.want === 'max' ? 'pickMax' : 'pickMin') }}</p>

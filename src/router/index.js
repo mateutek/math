@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Village from '@/pages/Village.vue'
+import { classConfig } from '@/store/settings'
+import { gameOffered } from '@/data/classes'
 
 const routes = [
   {
@@ -76,6 +78,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+// The `:level?` in the paths above is kept only so links shared before the
+// class model landed still open; nothing reads its value any more.
+// Route names double as game ids, so this also catches a game the class has no
+// operation for, such as /mnozenie in class 1.
+router.beforeEach((to) => {
+  if (!gameOffered(to.name, classConfig.value)) return '/graj'
 })
 
 export default router

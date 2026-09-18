@@ -11,8 +11,8 @@ const picked = ref(null)
 const done = ref(new Set())
 const clean = ref(true)
 
-const round = useRound('tiles', (level) => {
-  const board = tilesRound(level)
+const round = useRound('tiles', (cfg) => {
+  const board = tilesRound(cfg)
   exprs.value = board.exprs
   results.value = board.results
   picked.value = null
@@ -40,10 +40,8 @@ function pickResult(value) {
 <template>
   <GameCard
     :round="round"
-    base="/gry/kafelki"
     :title="t('tiles')"
     color="var(--k-op-mul)"
-    :ranges="['+ −', '+ − ×', '+ − × ÷']"
   >
     <p class="kid-prompt">{{ t('tilesPrompt') }}</p>
     <div class="kid-tiles">

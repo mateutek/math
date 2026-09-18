@@ -1,28 +1,18 @@
 <script setup>
 import { ref, watch, onMounted, nextTick } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { RefreshCw, Check, ArrowLeft } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
 import StarRow from '@/components/StarRow.vue'
 import Celebration from '@/components/Celebration.vue'
 import TimerRing from '@/components/TimerRing.vue'
-import { randomIntFromInterval } from '@/helpers/helpers'
-import settings from '@/store/settings'
+import { expr } from '@/games/generators'
+import settings, { classConfig } from '@/store/settings'
 import { reward, recordStreak } from '@/store/village'
 import { t } from '@/i18n'
 
-const route = useRoute()
-const router = useRouter()
-
-const timerDurations = [30, 20, 15]
-const divisorMinScale = [1, 2, 2]
-const divisorMaxScale = [9, 15, 15]
-const multiplierMinScale = [1, 2, 2]
-const multiplierMaxScale = [9, 9, 15]
-
 const timerKey = ref(0)
-const level = ref(0)
 const score = ref(0)
 const solution = ref(1)
 const answerTotal = ref('')
@@ -44,17 +34,10 @@ function focusAnswer() {
 }
 
 function generateNew() {
-  const index = level.value - 1
-  const divisorMin = divisorMinScale[index]
-  const divisorMax = divisorMaxScale[index]
-  const multiplierMin = multiplierMinScale[index]
-  const multiplierMax = multiplierMaxScale[index]
-
-  divisor.value = randomIntFromInterval(divisorMin, divisorMax)
-  const multiplier = randomIntFromInterval(multiplierMin, multiplierMax)
-  dividend.value = divisor.value * multiplier
-
-  solution.value = multiplier
+  const task = expr('÷', classConfig.value)
+  dividend.value = task.a
+  divisor.value = task.b
+  solution.value = task.result
   answerTotal.value = ''
   cardColor.value = 'default'
   tasksTotal.value += 1
@@ -84,8 +67,8 @@ function checkAnswer() {
     answerTotal.value = ''
     score.value += 1
     streak.value += 1
-    reward('stone', Number(level.value))
-    recordStreak('divide2', streak.value)
+    reward('stone', classConfig.value.pay)
+    recordStreak('divide2', classConfig.value.id, streak.value)
     cheer.value += 1
     correctAnswer()
   } else {
@@ -95,26 +78,17 @@ function checkAnswer() {
 }
 
 watch(
-  () => route.params.level,
-  (newLevel) => {
-    level.value = newLevel || 1
-  }
+  classConfig,
+  () => {
+    score.value = 0
+    tasksTotal.value = 0
+    streak.value = 0
+    generateNew()
+  },
+  { immediate: true },
 )
 
-watch(level, () => {
-  score.value = 0
-  tasksTotal.value = 0
-  streak.value = 0
-  generateNew()
-})
-
-onMounted(() => {
-  if (route.params.level === undefined) {
-    router.push(`${route.path}/1`)
-  }
-  level.value = route.params.level
-  focusAnswer()
-})
+onMounted(focusAnswer)
 </script>
 
 <template>
@@ -137,25 +111,12 @@ onMounted(() => {
       <div v-if="settings.timerEnabled" class="kid-timer-slot">
         <TimerRing
           :key="timerKey"
-          :duration="timerDurations[level - 1]"
+          :duration="classConfig.seconds"
           @timeout="wrongAnswer"
         />
       </div>
 
       <StarRow :streak="streak" :just-won="cardColor === 'green'" />
-    </div>
-
-    <div class="kid-levels">
-      <RouterLink
-        v-for="n in 3"
-        :key="n"
-        class="kid-pill"
-        :class="{ active: Number(level) === n }"
-        :to="`/dzielenie2/${n}`"
-      >
-        <span class="pl">{{ t('level') }} {{ n }}</span>
-        <span class="rg">{{ divisorMinScale[n - 1] }}–{{ divisorMaxScale[n - 1] }}</span>
-      </RouterLink>
     </div>
 
     <div class="kid-eq" style="--k-display-op: var(--k-op-div2)">

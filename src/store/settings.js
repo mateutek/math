@@ -1,11 +1,17 @@
-import { reactive, watch } from 'vue'
+import { reactive, computed, watch } from 'vue'
+import { CLASSES, configFor } from '@/data/classes'
 
 const stored = localStorage.getItem('timerEnabled')
 const storedLang = localStorage.getItem('lang')
 const storedTheme = localStorage.getItem('theme')
+// note: not Number(), which would read a missing entry as Zerowka (class 0)
+const storedClass = CLASSES.find((c) => String(c.id) === localStorage.getItem('schoolClass'))
 const dark = window.matchMedia('(prefers-color-scheme: dark)')
 
 const settings = reactive({
+  // 0 is Zerowka and 1..8 the school classes; null until one has been picked,
+  // which is what sends a first-run visitor to the picker
+  schoolClass: storedClass?.available ? storedClass.id : null,
   timerEnabled: stored !== null ? JSON.parse(stored) : false,
   lang: storedLang === 'en' || storedLang === 'pl' ? storedLang : 'pl',
   // 'auto' follows the device, 'day' and 'night' force one
@@ -46,5 +52,17 @@ watch(
     localStorage.setItem('lang', value)
   },
 )
+
+watch(
+  () => settings.schoolClass,
+  (value) => {
+    if (value === null) localStorage.removeItem('schoolClass')
+    else localStorage.setItem('schoolClass', String(value))
+  },
+)
+
+// Everything that needs a number range, a reward or an operator list reads
+// this, never settings.schoolClass, so the unpicked case has one answer.
+export const classConfig = computed(() => configFor(settings.schoolClass))
 
 export default settings

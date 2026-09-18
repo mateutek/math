@@ -12,8 +12,8 @@ const answerInput = ref(null)
 
 const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 
-const round = useRound('missing', (level) => {
-  task.value = missingRound(level)
+const round = useRound('missing', (cfg) => {
+  task.value = missingRound(cfg)
   answer.value = ''
   focusAnswer()
 })
@@ -37,11 +37,9 @@ function check() {
 <template>
   <GameCard
     :round="round"
-    base="/gry/brakujaca"
     :title="t('missing')"
     color="var(--k-brand)"
     ink="var(--k-ink-missing, #1f4fc4)"
-    :ranges="['+ −', '+ − ×', '+ − × ÷']"
     timed
   >
     <p class="kid-prompt">{{ t('missingPrompt') }}</p>

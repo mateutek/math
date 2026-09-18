@@ -1,26 +1,18 @@
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { ref, watch, nextTick } from 'vue'
+import { RouterLink } from 'vue-router'
 import { RefreshCw, Check, ArrowLeft } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
 import StarRow from '@/components/StarRow.vue'
 import Celebration from '@/components/Celebration.vue'
 import TimerRing from '@/components/TimerRing.vue'
-import { randomIntFromInterval } from '@/helpers/helpers'
-import settings from '@/store/settings'
+import { expr } from '@/games/generators'
+import settings, { classConfig } from '@/store/settings'
 import { reward, recordStreak } from '@/store/village'
 import { t } from '@/i18n'
 
-const route = useRoute()
-const router = useRouter()
-
-const timerDurations = [30, 20, 15]
-const levelMinScale = [1, 5, 10]
-const levelMaxScale = [10, 20, 30]
-
 const timerKey = ref(0)
-const level = ref(0)
 const score = ref(0)
 const solution = ref(1)
 const answer = ref('')
@@ -29,21 +21,16 @@ const multiplayer = ref(1)
 const cardColor = ref('')
 const tasksTotal = ref(0)
 const wrongAnswers = ref(0)
-const levelMin = ref(0)
-const levelMax = ref(0)
 const streak = ref(0)
 const cheer = ref(0)
 
 const answerInput = ref(null)
 
 function generateNew() {
-  const index = level.value - 1
-  levelMin.value = levelMinScale[index]
-  levelMax.value = levelMaxScale[index]
-
-  multiplicand.value = randomIntFromInterval(levelMin.value, levelMax.value)
-  multiplayer.value = randomIntFromInterval(levelMin.value, levelMax.value)
-  solution.value = multiplicand.value * multiplayer.value
+  const task = expr('×', classConfig.value)
+  multiplicand.value = task.a
+  multiplayer.value = task.b
+  solution.value = task.result
   answer.value = ''
   cardColor.value = ''
   tasksTotal.value += 1
@@ -54,8 +41,8 @@ function generateNew() {
 function correctAnswer() {
   cardColor.value = 'green'
   streak.value += 1
-  reward('stone', Number(level.value))
-  recordStreak('multiply', streak.value)
+  reward('stone', classConfig.value.pay)
+  recordStreak('multiply', classConfig.value.id, streak.value)
   cheer.value += 1
   setTimeout(() => {
     cardColor.value = ''
@@ -91,25 +78,15 @@ function checkAnswer() {
 }
 
 watch(
-  () => route.params.level,
-  (newLevel) => {
-    level.value = parseInt(newLevel) || 1
-  }
+  classConfig,
+  () => {
+    score.value = 0
+    tasksTotal.value = 0
+    streak.value = 0
+    generateNew()
+  },
+  { immediate: true },
 )
-
-watch(level, () => {
-  score.value = 0
-  tasksTotal.value = 0
-  streak.value = 0
-  generateNew()
-})
-
-onMounted(() => {
-  if (route.params.level === undefined) {
-    router.push(`${route.path}/1`)
-  }
-  level.value = parseInt(route.params.level) || 1
-})
 </script>
 
 <template>
@@ -132,25 +109,11 @@ onMounted(() => {
       <div v-if="settings.timerEnabled" class="kid-timer-slot">
         <TimerRing
           :key="timerKey"
-          :duration="timerDurations[level - 1]"
+          :duration="classConfig.seconds"
           @timeout="wrongAnswer"
         />
       </div>
       <StarRow :streak="streak" :just-won="cardColor === 'green'" />
-    </div>
-
-    <!-- level pills -->
-    <div class="kid-levels">
-      <RouterLink
-        v-for="n in 3"
-        :key="n"
-        class="kid-pill"
-        :class="{ active: level === n }"
-        :to="`/mnozenie/${n}`"
-      >
-        <span class="pl">{{ t('level') }} {{ n }}</span>
-        <span class="rg">{{ levelMinScale[n - 1] }}–{{ levelMaxScale[n - 1] }}</span>
-      </RouterLink>
     </div>
 
     <!-- equation -->

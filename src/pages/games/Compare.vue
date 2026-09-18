@@ -6,8 +6,8 @@ import { compareRound } from '@/games/generators'
 import { t } from '@/i18n'
 
 const task = ref(null)
-const round = useRound('compare', (level) => {
-  task.value = compareRound(level)
+const round = useRound('compare', (cfg) => {
+  task.value = compareRound(cfg)
 })
 
 function pick(sign) {
@@ -21,10 +21,8 @@ function pick(sign) {
 <template>
   <GameCard
     :round="round"
-    base="/gry/porownaj"
     :title="t('compare')"
     color="var(--k-op-div2)"
-    :ranges="['7 ? 9', '3 + 4 ? 9', '3 + 4 ? 2 × 5']"
     timed
   >
     <p class="kid-prompt">{{ t('comparePrompt') }}</p>

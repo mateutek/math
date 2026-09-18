@@ -6,15 +6,15 @@ import { t, tp } from '@/i18n'
 
 const props = defineProps({
   pays: { type: Array, required: true },
-  // a correct answer pays as many units as the level number
-  level: { type: Number, default: 1 },
+  // units a correct answer pays, which the class table sets
+  pay: { type: Number, default: 1 },
 })
 
 const rows = computed(() => [
   ...props.pays.map((kind) => ({
     kind,
     op: t(`ops_${kind}`),
-    text: tp(`mat_${kind}`, props.level),
+    text: tp(`mat_${kind}`, props.pay),
   })),
   {
     kind: 'coins',

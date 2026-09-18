@@ -37,10 +37,16 @@ export function reward(kind, amount = 1) {
   set(logic.touchDay(logic.applyReward(village, kind, amount), today()))
 }
 
-export function recordStreak(game, n) {
+// Records are kept per game AND per class: a streak at "do 10" says nothing
+// about one at "do 1000". This branch is unreleased, so the old per-game keys
+// are simply left behind in any save that has them - there is no migration.
+export const streakKey = (game, schoolClass) => `${game}#${schoolClass}`
+
+export function recordStreak(game, schoolClass, n) {
+  const key = streakKey(game, schoolClass)
   // validate() rejects the whole save if any bestStreak value is not a
   // non-negative integer, so a bad number must never be written here
-  if (Number.isInteger(n) && n > (village.bestStreak[game] ?? 0)) village.bestStreak[game] = n
+  if (Number.isInteger(n) && n > (village.bestStreak[key] ?? 0)) village.bestStreak[key] = n
 }
 
 export const build = (id) => commit(logic.applyBuild(village, id))

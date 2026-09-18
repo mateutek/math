@@ -9,8 +9,8 @@ import { t } from '@/i18n'
 const PIPS = [[], [4], [0, 8], [0, 4, 8], [0, 2, 6, 8], [0, 2, 4, 6, 8], [0, 2, 3, 5, 6, 8]]
 
 const task = ref(null)
-const round = useRound('domino', (level) => {
-  task.value = dominoRound(level)
+const round = useRound('domino', (cfg) => {
+  task.value = dominoRound(cfg)
 })
 
 const isAnswer = (o) => o[0] + o[1] === task.value.total
@@ -26,11 +26,9 @@ function pick(o) {
 <template>
   <GameCard
     :round="round"
-    base="/gry/domino"
     :title="t('domino')"
     color="var(--k-op-add)"
     ink="var(--k-ink-add, #15803d)"
-    :ranges="['2-6', '2-9', '2-12']"
     timed
   >
     <p class="kid-prompt">{{ t('dominoPrompt') }}</p>
