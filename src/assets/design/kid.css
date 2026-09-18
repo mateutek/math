@@ -581,7 +581,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .iso-smoke, .iso-flag, .iso-b.ghost.next, .kid-star { animation: none; }
-  .kid-bar .fill { transition: none; }
+  .kid-bar .fill, .kid-picker .cls { transition: none; }
 }
 
 /* ============================================================================
