@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
 import { Infinity as InfinityIcon, Home, Gamepad2 } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
@@ -11,6 +11,11 @@ import village, { affordable } from '@/store/village'
 import { MATERIALS } from '@/data/buildings'
 import { GAMES } from '@/data/games'
 import { t } from '@/i18n'
+
+// dev-only cheat panel; the gate lets the production build drop the import
+const DevPanel = import.meta.env.DEV
+  ? defineAsyncComponent(() => import('@/components/DevPanel.vue'))
+  : null
 
 const route = useRoute()
 const year = new Date().getFullYear()
@@ -78,5 +83,7 @@ const level = computed(() => Math.min(3, Math.max(1, Number(route.params.level) 
         <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
       </RouterLink>
     </nav>
+
+    <component :is="DevPanel" v-if="DevPanel" />
   </div>
 </template>
