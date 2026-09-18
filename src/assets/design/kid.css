@@ -296,11 +296,13 @@
   --b-bridge-w: #4d331d; --b-bridge-r: #6b5237;
   --b-townhall-w: #898780; --b-townhall-r: #12337a;
   --b-castle-w: #696b70; --b-castle-r: #494d55;
-  /* material icons flip over: dark body, light outline */
-  --k-mat-wood: #6e4626; --k-mat-wood-line: #d99a63;
-  --k-mat-stone: #464d5b; --k-mat-stone-line: #aab3c2;
-  --k-mat-food: #5e4f10; --k-mat-food-line: #e2c04a;
-  --k-mat-coins: #6e5012; --k-mat-coins-line: #f2b84b;
+  /* The material icons no longer flip after dark: NightVillage and
+     NightDesktopTiles draw them in exactly the day colours, so these repeat the
+     day values rather than leaving the tokens untokened. */
+  --k-mat-wood: #c07a3e; --k-mat-wood-line: #5c3212; --k-mat-wood-cap: #f0c48e;
+  --k-mat-stone: #9aa5b4; --k-mat-stone-line: #3d4453; --k-mat-stone-facet: #cdd4de;
+  --k-mat-food: #eeb322; --k-mat-food-line: #6e4a00;
+  --k-mat-coins: #f2ae1c; --k-mat-coins-line: #7a4c00; --k-mat-coins-core: #ffd660;
   /* game inks: the light counterpart of each operation colour. Board values for
      add and missing; the rest lifted to the same OKLCH lightness (0.73). */
   --k-ink-add: #34c46a; --k-ink-sub: #fbc06a; --k-ink-mul: #a5a3fb;
