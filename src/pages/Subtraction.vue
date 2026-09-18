@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { RefreshCw, Check } from 'lucide-vue-next'
+import { RefreshCw, Check, ArrowLeft } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import WrongAnswers from '@/components/wrongAnswers.vue'
 import StarRow from '@/components/StarRow.vue'
@@ -9,6 +9,7 @@ import Celebration from '@/components/Celebration.vue'
 import TimerRing from '@/components/TimerRing.vue'
 import { randomIntFromInterval } from '@/helpers/helpers'
 import settings from '@/store/settings'
+import { reward, recordStreak } from '@/store/village'
 import { t } from '@/i18n'
 
 const route = useRoute()
@@ -77,6 +78,8 @@ function checkAnswer() {
     answer.value = ''
     score.value += 1
     streak.value += 1
+    reward('wood', Number(level.value))
+    recordStreak('subtraction', streak.value)
     cheer.value += 1
     correctAnswer()
   } else {
@@ -118,6 +121,9 @@ onMounted(() => {
     <Celebration v-if="cardColor === 'green'" :key="cheer" :cheer="cheer" />
 
     <div class="kid-status">
+      <RouterLink to="/graj" class="kid-back" :aria-label="t('back')">
+        <ArrowLeft :size="20" />
+      </RouterLink>
       <div class="kid-score">
         <span class="num">{{ score }} / {{ tasksTotal }}</span>
         <span class="cap">{{ t('points') }}</span>

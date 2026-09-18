@@ -8,6 +8,11 @@ const routes = [
     component: Village,
   },
   {
+    path: '/graj',
+    name: 'play',
+    component: () => import('@/pages/Play.vue'),
+  },
+  {
     path: '/dodawanie/:level?',
     name: 'addition',
     component: () => import('@/pages/Addition.vue'),
@@ -61,6 +66,10 @@ const routes = [
     path: '/gry/brakujaca/:level?',
     name: 'missing',
     component: () => import('@/pages/games/Missing.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
   },
 ]
 
