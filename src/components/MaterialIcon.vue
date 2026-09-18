@@ -4,7 +4,8 @@ defineProps({
   size: { type: Number, default: 18 },
 })
 
-// darker than the material itself so the stroke reads on white
+// the material's own colour, with a darker stroke so it reads on white
+const FILL = { wood: '#e2b98a', stone: '#c9d0da', food: '#f3d868', coins: '#f8cf6a' }
 const STROKE = { wood: '#9a5a26', stone: '#5f6878', food: '#8a6a00', coins: '#a66a00' }
 </script>
 
@@ -14,7 +15,7 @@ const STROKE = { wood: '#9a5a26', stone: '#5f6878', food: '#8a6a00', coins: '#a6
     :width="size"
     :height="size"
     viewBox="0 0 24 24"
-    fill="none"
+    :fill="FILL[kind]"
     :stroke="STROKE[kind]"
     stroke-width="2"
     stroke-linecap="round"

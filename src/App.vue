@@ -27,6 +27,9 @@ const tabs = computed(() => [
 const game = computed(() =>
   GAMES.find((g) => route.path === g.route || route.path.startsWith(`${g.route}/`)),
 )
+
+// the rewards card names the amount a correct answer pays, which is the level
+const level = computed(() => Math.min(3, Math.max(1, Number(route.params.level) || 1)))
 </script>
 
 <template>
@@ -61,15 +64,14 @@ const game = computed(() =>
         <div class="kid-col-main"><RouterView /></div>
         <aside class="kid-col-side kid-desktop-only">
           <NextGoal />
-          <RewardsCard v-if="game" :pays="game.pays" />
+          <RewardsCard v-if="game" :pays="game.pays" :level="level" />
         </aside>
       </div>
     </main>
 
     <footer class="kid-foot">© Mateusz Woźniak - {{ year }}</footer>
 
-    <!-- phone tab bar. Outside the header on purpose: the header's
-         backdrop-filter would capture position: fixed -->
+    <!-- phone tab bar; outside the sticky header so it stays pinned -->
     <nav class="kid-tabs" aria-label="Main">
       <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
         <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}

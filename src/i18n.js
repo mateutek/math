@@ -41,6 +41,37 @@ export const messages = {
     grpNumbers: 'Liczby',
     needed: 'potrzebne',
     best: 'Rekord',
+    close: 'Zamknij',
+    missingShort: 'Brakująca',
+    streakLabel: 'Seria: {n}',
+    strikesLabel: 'Błędy: {n} z 3',
+    noMistake: 'bez błędu',
+    ops_wood: '+ −',
+    ops_stone: '× ÷',
+    ops_food: 'liczby',
+    shop_wood: 'drewna',
+    shop_stone: 'kamienie',
+    shop_food: 'jedzenia',
+    mat_wood: ['{n} drewno', '{n} drewna', '{n} drewna'],
+    mat_stone: ['{n} kamień', '{n} kamienie', '{n} kamieni'],
+    mat_food: ['{n} jedzenie', '{n} jedzenia', '{n} jedzenia'],
+    mat_coins: ['{n} moneta', '{n} monety', '{n} monet'],
+    need_wood: ['Brakuje {n} drewna.', 'Brakuje {n} drewna.', 'Brakuje {n} drewna.'],
+    need_stone: ['Brakuje {n} kamienia.', 'Brakuje {n} kamieni.', 'Brakuje {n} kamieni.'],
+    need_food: ['Brakuje {n} jedzenia.', 'Brakuje {n} jedzenia.', 'Brakuje {n} jedzenia.'],
+    need_coins: ['Brakuje {n} monety.', 'Brakuje {n} monet.', 'Brakuje {n} monet.'],
+    play_wood: 'Zagraj w dodawanie',
+    play_stone: 'Zagraj w mnożenie',
+    play_food: 'Zagraj w gry z liczbami',
+    play_coins: 'Zagraj',
+    from_wood: 'Drewno dają dodawanie i odejmowanie.',
+    from_stone: 'Kamień dają mnożenie i dzielenie.',
+    from_food: 'Jedzenie dają gry z liczbami.',
+    from_coins: 'Monety dają serie bezbłędnych odpowiedzi.',
+    coinsHave: ['Masz {n} monetę', 'Masz {n} monety', 'Masz {n} monet'],
+    coinsPerBoard: ['{n} moneta za planszę', '{n} monety za planszę', '{n} monet za planszę'],
+    ofBuildings: ['{a} z {n} budynku', '{a} z {n} budynków', '{a} z {n} budynków'],
+    dayStreakChip: ['{n} dzień z rzędu', '{n} dni z rzędu', '{n} dni z rzędu'],
     tilesPrompt: 'Dopasuj wynik do działania',
     dominoPrompt: 'Wybierz kostkę z takim dodawaniem',
     comparePrompt: 'Który znak pasuje?',
@@ -59,18 +90,14 @@ export const messages = {
     villageDone: 'Wioska gotowa! Kliknij budynek, aby go ulepszyć.',
     maxTier: 'Najwyższy poziom',
     tapToUpgrade: 'Kliknij zbudowany budynek, aby go ulepszyć.',
+    tapToUpgradePhone: 'Dotknij zbudowanego budynku, aby go ulepszyć.',
     emptyVillage: 'Rozwiązuj zadania, aby zbierać drewno.',
-    dayStreak: 'dni z rzędu',
-    goalShort: 'Brakuje materiałów.',
-    goalPlay: 'Zagraj',
     goalOrTrade: 'albo wymień monety.',
     readyToBuild: 'Masz wszystko! Buduj',
     seeVillage: 'Zobacz wioskę',
     shop: 'Sklep',
     trade: 'Wymień',
     rewardTitle: 'Za dobrą odpowiedź',
-    rewardLevel: 'Tyle sztuk, ile wynosi poziom (1-3).',
-    rewardCoins: 'Seria 5 odpowiedzi daje monetę.',
     exportSave: 'Zapis gry',
     copy: 'Kopiuj',
     copied: 'Skopiowano!',
@@ -132,6 +159,37 @@ export const messages = {
     grpNumbers: 'Numbers',
     needed: 'needed',
     best: 'Best',
+    close: 'Close',
+    missingShort: 'Missing',
+    streakLabel: 'Streak: {n}',
+    strikesLabel: 'Mistakes: {n} of 3',
+    noMistake: 'no mistakes',
+    ops_wood: '+ −',
+    ops_stone: '× ÷',
+    ops_food: 'numbers',
+    shop_wood: 'wood',
+    shop_stone: 'stone',
+    shop_food: 'food',
+    mat_wood: ['{n} wood', '{n} wood'],
+    mat_stone: ['{n} stone', '{n} stone'],
+    mat_food: ['{n} food', '{n} food'],
+    mat_coins: ['{n} coin', '{n} coins'],
+    need_wood: ['You need {n} more wood.', 'You need {n} more wood.'],
+    need_stone: ['You need {n} more stone.', 'You need {n} more stone.'],
+    need_food: ['You need {n} more food.', 'You need {n} more food.'],
+    need_coins: ['You need {n} more coin.', 'You need {n} more coins.'],
+    play_wood: 'Play addition',
+    play_stone: 'Play multiplication',
+    play_food: 'Play the number games',
+    play_coins: 'Play',
+    from_wood: 'Wood comes from addition and subtraction.',
+    from_stone: 'Stone comes from multiplication and division.',
+    from_food: 'Food comes from the number games.',
+    from_coins: 'Coins come from streaks with no mistakes.',
+    coinsHave: ['You have {n} coin', 'You have {n} coins'],
+    coinsPerBoard: ['{n} coin per board', '{n} coins per board'],
+    ofBuildings: ['{a} of {n} building', '{a} of {n} buildings'],
+    dayStreakChip: ['{n} day in a row', '{n} days in a row'],
     tilesPrompt: 'Match each result to its operation',
     dominoPrompt: 'Pick the domino that shows this addition',
     comparePrompt: 'Which sign fits?',
@@ -150,18 +208,14 @@ export const messages = {
     villageDone: 'Village complete! Tap a building to upgrade it.',
     maxTier: 'Highest tier',
     tapToUpgrade: 'Click a finished building to upgrade it.',
+    tapToUpgradePhone: 'Tap a finished building to upgrade it.',
     emptyVillage: 'Solve tasks to collect wood.',
-    dayStreak: 'days in a row',
-    goalShort: 'Not enough materials.',
-    goalPlay: 'Play',
     goalOrTrade: 'or trade coins.',
     readyToBuild: 'You have it all! Build',
     seeVillage: 'See the village',
     shop: 'Shop',
     trade: 'Trade',
     rewardTitle: 'For a correct answer',
-    rewardLevel: 'As many as the level number (1-3).',
-    rewardCoins: 'A streak of 5 answers gives a coin.',
     exportSave: 'Saved game',
     copy: 'Copy',
     copied: 'Copied!',
@@ -187,7 +241,30 @@ export const messages = {
   },
 }
 
+const lang = () => (messages[settings.lang] ? settings.lang : 'pl')
+
 export function t(key) {
-  const lang = messages[settings.lang] ? settings.lang : 'pl'
-  return messages[lang][key] ?? key
+  return messages[lang()][key] ?? key
+}
+
+// Polish counts in three forms: 1, then 2-4 (but not 12-14), then the rest.
+// English only needs one and many, so its entries carry two forms.
+function form(n) {
+  if (n === 1) return 0
+  const unit = n % 10
+  const teen = n % 100
+  return unit >= 2 && unit <= 4 && (teen < 12 || teen > 14) ? 1 : 2
+}
+
+// Counted string. `key` holds the plural forms (or one plain string); `{n}` is
+// the counted number, any other `{name}` comes from `vars`.
+export function tp(key, n, vars = {}) {
+  const entry = t(key)
+  const picked = Array.isArray(entry)
+    ? entry[Math.min(form(n), entry.length - 1)]
+    : entry
+  return Object.entries({ n, ...vars }).reduce(
+    (out, [name, value]) => out.split(`{${name}}`).join(value),
+    String(picked),
+  )
 }
