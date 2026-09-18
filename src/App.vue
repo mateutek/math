@@ -1,86 +1,80 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
-import { Infinity as InfinityIcon, Timer } from 'lucide-vue-next'
-import settings from '@/store/settings'
+import { Infinity as InfinityIcon, Home, Gamepad2 } from 'lucide-vue-next'
+import AnimatedInteger from '@/components/animatedInteger.vue'
+import MaterialIcon from '@/components/MaterialIcon.vue'
+import NextGoal from '@/components/NextGoal.vue'
+import RewardsCard from '@/components/RewardsCard.vue'
+import SettingsSheet from '@/components/SettingsSheet.vue'
+import village, { affordable } from '@/store/village'
+import { MATERIALS } from '@/data/buildings'
+import { GAMES } from '@/data/games'
 import { t } from '@/i18n'
 
 const route = useRoute()
 const year = new Date().getFullYear()
 
-// Operation config reused across the app: symbol, css class, accent color and
-// route. The chip label comes from i18n via the op key. Op-chips link to `<route>/1`.
-const ops = [
-  { key: 'addition', symbol: '+', cls: 'add', color: '#22c55e', route: '/dodawanie' },
-  { key: 'subtraction', symbol: '−', cls: 'sub', color: '#f59e0b', route: '/odejmowanie' },
-  { key: 'multiply', symbol: '×', cls: 'mul', color: '#6366f1', route: '/mnozenie' },
-  { key: 'divide', symbol: '÷', cls: 'div', color: '#ec4899', route: '/dzielenie' },
-  { key: 'divide2', symbol: '÷', cls: 'div2', color: '#14b8a6', route: '/dzielenie2' },
-]
+const onVillage = computed(() => route.path === '/')
 
-function setLang(lang) {
-  settings.lang = lang
-}
+const tabs = computed(() => [
+  { to: '/', key: 'village', icon: Home, active: onVillage.value, dot: affordable.value },
+  { to: '/graj', key: 'play', icon: Gamepad2, active: !onVillage.value, dot: false },
+])
 
-// Match the op route at a path boundary so `/dzielenie` does not also
-// activate while on `/dzielenie2`.
-const isActive = (opRoute) =>
-  route.path === opRoute || route.path.startsWith(`${opRoute}/`)
-
-function toggleTimer() {
-  settings.timerEnabled = !settings.timerEnabled
-}
-
-const timerColor = computed(() =>
-  settings.timerEnabled ? 'var(--k-brand)' : 'var(--muted-foreground)',
+// the game being played, matched at a path boundary so `/dzielenie` does not
+// also match `/dzielenie2`
+const game = computed(() =>
+  GAMES.find((g) => route.path === g.route || route.path.startsWith(`${g.route}/`)),
 )
 </script>
 
 <template>
   <div class="kid-page">
-    <!-- header -->
     <header class="kid-header">
       <div class="kid-header-in">
         <span class="kid-mark"><InfinityIcon :size="22" /></span>
         <span class="kid-wordmark">Math <span class="en">{{ t('subtitle') }}</span></span>
-        <div class="kid-right">
-          <div class="kid-lang" role="group" aria-label="Language">
-            <button :class="{ on: settings.lang === 'pl' }" @click="setLang('pl')">PL</button>
-            <button :class="{ on: settings.lang === 'en' }" @click="setLang('en')">EN</button>
-          </div>
-          <button
-            class="kid-zegar"
-            role="switch"
-            :aria-checked="settings.timerEnabled"
-            @click="toggleTimer"
-          >
-            <span class="kid-switch" :aria-checked="settings.timerEnabled"></span>
-            <Timer :size="16" :style="{ color: timerColor }" />
-            {{ t('timer') }}
-          </button>
-        </div>
+
+        <!-- from 768px the tabs live here; below that see the fixed bar -->
+        <nav class="kid-nav-top" aria-label="Main">
+          <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+            <component :is="tab.icon" :size="18" /> {{ t(tab.key) }}
+            <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
+          </RouterLink>
+        </nav>
+
+        <RouterLink to="/" class="kid-mats">
+          <span v-for="k in MATERIALS" :key="k" class="kid-mat" role="img" :aria-label="`${t(k)}: ${village.materials[k]}`">
+            <MaterialIcon :kind="k" />
+            <AnimatedInteger :value="village.materials[k]" aria-hidden="true" />
+          </span>
+        </RouterLink>
+        <SettingsSheet />
       </div>
     </header>
 
     <main class="kid-main">
-      <!-- operation chips -->
-      <div class="kid-ops" style="grid-template-columns: repeat(5, 1fr)">
-        <RouterLink
-          v-for="o in ops"
-          :key="o.key"
-          :to="`${o.route}/1`"
-          class="kid-chip"
-          :class="[o.cls, { active: isActive(o.route) }]"
-        >
-          <span class="sym">{{ o.symbol }}</span>
-          <span class="lab">{{ t(o.key) }}</span>
-        </RouterLink>
+      <!-- the village page brings its own side column (goal and shop) -->
+      <RouterView v-if="onVillage" />
+      <div v-else class="kid-cols">
+        <div class="kid-col-main"><RouterView /></div>
+        <aside class="kid-col-side kid-desktop-only">
+          <NextGoal />
+          <RewardsCard v-if="game" :pays="game.pays" />
+        </aside>
       </div>
-
-      <!-- active page renders its hero card here -->
-      <RouterView />
     </main>
 
-    <footer class="kid-foot">© Mateusz Woźniak — {{ year }}</footer>
+    <footer class="kid-foot">© Mateusz Woźniak - {{ year }}</footer>
+
+    <!-- phone tab bar. Outside the header on purpose: the header's
+         backdrop-filter would capture position: fixed -->
+    <nav class="kid-tabs" aria-label="Main">
+      <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+        <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}
+        <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
+      </RouterLink>
+    </nav>
   </div>
 </template>

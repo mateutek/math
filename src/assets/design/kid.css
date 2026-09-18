@@ -195,14 +195,15 @@
 /* ============================================================================
    FULL-APP CHROME — page / header / footer for the promoted Warm build.
    ============================================================================ */
-.kid-page {
+.kid-page, .kid-sheet {
   --k-brand: #2f6bed; --k-brand-deep: #1f4fc4; --k-brand-soft: #eaf1fe; --k-brand-fg: #ffffff;
   --k-accent: #f6a823; --k-page: #f6f4ee; --k-card: #ffffff;
   --k-card-border: #e8e4dc; --k-card-radius: 26px; --k-card-shadow: var(--shadow-lg);
   --k-border-w: 1px; --k-btn-radius: 16px; --k-btn-lift: 0px;
   --k-display-op: #2f6bed;
   --k-op-add: #22c55e; --k-op-sub: #f59e0b; --k-op-mul: #6366f1; --k-op-div: #ec4899; --k-op-div2: #14b8a6;
-
+}
+.kid-page {
   min-height: 100vh; display: flex; flex-direction: column;
   background: var(--k-page); font-family: var(--font-sans); color: var(--foreground);
 }
@@ -404,4 +405,76 @@
 .kid-game .sym { font-family: var(--font-mono); font-size: 28px; font-weight: 700; line-height: 1; color: var(--ink); }
 .kid-game .lab { font-size: 13px; font-weight: 700; text-align: center; }
 .kid-game .best { font-size: 11px; color: var(--muted-foreground); }
+
+/* ============================================================================
+   APP SHELL - counters, tabs, settings sheet, desktop widths
+   ============================================================================ */
+.kid-mats {
+  margin-left: auto; display: flex; align-items: center; gap: 9px; min-height: 44px;
+  color: var(--foreground); text-decoration: none;
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px;
+}
+.kid-mat { display: inline-flex; align-items: center; gap: 3px; }
+.kid-gear {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 44px; height: 44px; margin-right: -10px; border: none; border-radius: 999px;
+  background: transparent; color: var(--muted-foreground); cursor: pointer;
+}
+.kid-gear:hover { background: var(--k-brand-soft); color: var(--k-brand-deep); }
+@media (max-width: 380px) { .kid-header .kid-wordmark { display: none; } .kid-mats { gap: 7px; font-size: 13px; } }
+
+.kid-tab {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--muted-foreground); font-weight: 800; font-size: 15px; text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+.kid-tab.active { background: var(--k-brand); color: #fff; }
+.kid-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--k-accent); animation: iso-pulse 1.2s ease-in-out infinite; }
+
+/* phone: fixed bottom bar */
+.kid-nav-top { display: none; }
+.kid-tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: flex; gap: 8px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--k-card); border-top: 1px solid var(--k-card-border);
+}
+.kid-tabs .kid-tab { flex: 1; min-height: 48px; border-radius: var(--k-btn-radius); }
+.kid-page { padding-bottom: 76px; } /* room for the fixed tab bar */
+
+/* from 768px: tabs move into the header */
+@media (min-width: 768px) {
+  .kid-tabs { display: none; }
+  .kid-page { padding-bottom: 0; }
+  .kid-nav-top { display: flex; gap: 6px; margin-left: 24px; }
+  .kid-nav-top .kid-tab { height: 44px; padding: 0 18px; border-radius: 14px; }
+}
+
+/* from 1024px: wide two-column page */
+@media (min-width: 1024px) {
+  .kid-header-in { max-width: 1120px; height: 72px; }
+  .kid-main { max-width: 1120px; padding-top: 28px; }
+  .kid-nav-top { margin-left: 36px; }
+  .kid-mats { gap: 8px; font-size: 15px; }
+  .kid-mat { height: 40px; padding: 0 12px; gap: 6px; border-radius: 999px; background: var(--k-card); border: 1px solid var(--k-card-border); }
+}
+
+.kid-rewards ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.kid-rewards li { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.kid-rewards p { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
+
+.kid-sheet { font-family: var(--font-sans); color: var(--foreground); overflow-y: auto; }
+.kid-set { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--k-card-border); }
+.kid-set.col { flex-direction: column; align-items: stretch; gap: 8px; }
+.kid-set .kid-btn { flex: none; height: 48px; font-size: 15px; }
+.kid-set-label { font-size: 14px; font-weight: 700; }
+.kid-set-error { margin: 0; font-size: 13px; font-weight: 600; color: #b91c1c; }
+.kid-save {
+  width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--k-card-border);
+  background: var(--k-page); color: var(--foreground); resize: none;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.4; word-break: break-all;
+}
+.kid-save.bad { border: 2px solid #dc2626; background: var(--k-card); }
+.kid-danger { background: #fdecec; color: #b91c1c; }
+
+@media (prefers-reduced-motion: reduce) { .kid-dot { animation: none; } }
 
