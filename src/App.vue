@@ -22,6 +22,8 @@ const route = useRoute()
 const year = new Date().getFullYear()
 
 const onVillage = computed(() => route.path === '/')
+// the class picker brings its own bare frame: logo and wordmark, nothing else
+const bare = computed(() => route.meta.bare === true)
 
 const tabs = computed(() => [
   { to: '/', key: 'village', icon: Home, active: onVillage.value, dot: affordable.value },
@@ -36,33 +38,33 @@ const game = computed(() =>
 </script>
 
 <template>
-  <div class="kid-page">
+  <div class="kid-page" :class="{ bare }">
     <header class="kid-header">
       <div class="kid-header-in">
         <span class="kid-mark"><InfinityIcon :size="22" /></span>
         <span class="kid-wordmark">Math <span class="en">{{ t('subtitle') }}</span></span>
 
         <!-- from 768px the tabs live here; below that see the fixed bar -->
-        <nav class="kid-nav-top" aria-label="Main">
+        <nav v-if="!bare" class="kid-nav-top" aria-label="Main">
           <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
             <component :is="tab.icon" :size="18" /> {{ t(tab.key) }}
             <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
           </RouterLink>
         </nav>
 
-        <RouterLink to="/" class="kid-mats">
+        <RouterLink v-if="!bare" to="/" class="kid-mats">
           <span v-for="k in MATERIALS" :key="k" class="kid-mat" role="img" :aria-label="`${t(k)}: ${village.materials[k]}`">
             <MaterialIcon :kind="k" />
             <AnimatedInteger :value="village.materials[k]" aria-hidden="true" />
           </span>
         </RouterLink>
-        <SettingsSheet />
+        <SettingsSheet v-if="!bare" />
       </div>
     </header>
 
     <main class="kid-main">
       <!-- the village page brings its own side column (goal and shop) -->
-      <RouterView v-if="onVillage" />
+      <RouterView v-if="onVillage || bare" />
       <div v-else class="kid-cols">
         <div class="kid-col-main"><RouterView /></div>
         <aside class="kid-col-side kid-desktop-only">
@@ -72,10 +74,10 @@ const game = computed(() =>
       </div>
     </main>
 
-    <footer class="kid-foot">© Mateusz Woźniak - {{ year }}</footer>
+    <footer v-if="!bare" class="kid-foot">© Mateusz Woźniak - {{ year }}</footer>
 
     <!-- phone tab bar; outside the sticky header so it stays pinned -->
-    <nav class="kid-tabs" aria-label="Main">
+    <nav v-if="!bare" class="kid-tabs" aria-label="Main">
       <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
         <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}
         <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>

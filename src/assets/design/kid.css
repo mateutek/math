@@ -437,6 +437,41 @@
   background: var(--k-card); border: 1px solid var(--k-card-border); border-radius: var(--k-card-radius);
 }
 .kid-panel h2 { margin: 0; font-size: 16px; font-weight: 800; }
+
+/* ============================================================================
+   CLASS PICKER (src/pages/ClassPicker.vue)
+   There is no desktop board for this screen, so wide viewports keep the same
+   phone column, centred (see .kid-page.bare .kid-main).
+   ============================================================================ */
+.kid-picker { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+.kid-picker .intro { display: flex; flex-direction: column; gap: 6px; }
+.kid-picker h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.kid-picker .intro p { margin: 0; font-size: 14.5px; line-height: 1.4; color: var(--muted-foreground); }
+.kid-picker .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.kid-picker .cls {
+  min-height: 92px; padding: 6px 4px; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border-radius: 18px; border: 2px solid var(--k-card-border);
+  background: var(--k-card); color: var(--foreground);
+  font-family: inherit; cursor: pointer; transition: border-color .14s ease, background .14s ease;
+}
+.kid-picker .cls .num { font-family: var(--font-mono); font-size: 30px; font-weight: 700; line-height: 1; }
+.kid-picker .cls .word { font-size: 17px; font-weight: 800; line-height: 1.3; }
+.kid-picker .cls .word.sm { font-size: 12px; font-weight: 700; }
+.kid-picker .cls .cap { font-size: 11.5px; font-weight: 600; color: var(--muted-foreground); }
+.kid-picker .cls.on { border-color: var(--k-brand); background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
+.kid-picker .cls.on .cap { color: inherit; }
+.kid-picker .cls:disabled { cursor: default; opacity: .55; }
+.kid-picker .cls .soon { font-size: 10px; font-weight: 700; text-transform: lowercase; color: var(--muted-foreground); }
+.kid-picker .cls:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+.kid-picker .practice { border-radius: 22px; padding: 16px 18px; gap: 10px; }
+.kid-picker .practice h2 { font-size: 15px; }
+.kid-picker .practice .rows {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center; row-gap: 8px; column-gap: 10px; font-size: 14px;
+}
+.kid-picker .practice .sym { font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
+.kid-picker .go { margin-top: auto; flex: none; }
 @media (min-width: 1024px) {
   .kid-panel { padding: 22px; }
   .kid-blist { padding: 18px 22px; }
@@ -623,6 +658,10 @@
 }
 .kid-tabs .kid-tab { flex: 1; min-height: 48px; border-radius: var(--k-btn-radius); }
 .kid-page { padding-bottom: 76px; } /* room for the fixed tab bar */
+/* routes with meta.bare (the class picker) drop the tab bar and the side column,
+   so nothing below has to make room for them */
+.kid-page.bare { padding-bottom: 0; }
+.kid-page.bare .kid-main { max-width: 560px; }
 
 /* from 768px: tabs move into the header */
 @media (min-width: 768px) {

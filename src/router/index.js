@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Village from '@/pages/Village.vue'
-import { classConfig } from '@/store/settings'
+import settings, { classConfig } from '@/store/settings'
 import { gameOffered } from '@/data/classes'
 
 const routes = [
@@ -8,6 +8,14 @@ const routes = [
     path: '/',
     name: 'village',
     component: Village,
+  },
+  {
+    path: '/klasa',
+    name: 'classPicker',
+    // `bare` strips the app chrome down to the logo: no counters, no tabs,
+    // no side column, the way the ClassPicker board draws it
+    meta: { bare: true },
+    component: () => import('@/pages/ClassPicker.vue'),
   },
   {
     path: '/graj',
@@ -85,6 +93,8 @@ const router = createRouter({
 // Route names double as game ids, so this also catches a game the class has no
 // operation for, such as /mnozenie in class 1.
 router.beforeEach((to) => {
+  // first run: nothing works until a class is picked
+  if (settings.schoolClass === null && to.name !== 'classPicker') return { name: 'classPicker' }
   if (!gameOffered(to.name, classConfig.value)) return '/graj'
 })
 
