@@ -22,6 +22,7 @@ function pick(n) {
   <GameCard
     :round="round"
     base="/gry/najwieksza"
+    :title="t('biggest')"
     color="var(--k-op-div2)"
     :ranges="['1-50', '1-200', '1-1000']"
     timed

@@ -38,7 +38,9 @@ function check() {
   <GameCard
     :round="round"
     base="/gry/brakujaca"
+    :title="t('missing')"
     color="var(--k-brand)"
+    ink="#1f4fc4"
     :ranges="['+ −', '+ − ×', '+ − × ÷']"
     timed
   >

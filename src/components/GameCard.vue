@@ -11,7 +11,11 @@ import { t } from '@/i18n'
 defineProps({
   round: { type: Object, required: true },
   base: { type: String, required: true },
+  // shown from 1024px only; the phone boards have no game title
+  title: { type: String, default: '' },
   color: { type: String, default: 'var(--k-brand)' },
+  // darker shade of `color`, used where the card colour fails contrast on white
+  ink: { type: String, default: '' },
   ranges: { type: Array, default: () => ['', '', ''] },
   timed: { type: Boolean, default: false },
 })
@@ -23,7 +27,7 @@ const timerDurations = [30, 20, 15]
   <div
     class="kid-card"
     :class="{ correct: round.flash === 'green', wrong: round.flash === 'red' }"
-    :style="{ borderColor: color, borderWidth: '2px', '--k-display-op': color }"
+    :style="{ borderColor: color, borderWidth: '2px', '--k-display-op': color, '--k-ink': ink || color }"
   >
     <Celebration v-if="round.flash === 'green'" :key="round.cheer" />
 
@@ -31,6 +35,7 @@ const timerDurations = [30, 20, 15]
       <RouterLink to="/graj" class="kid-back" :aria-label="t('back')">
         <ArrowLeft :size="20" />
       </RouterLink>
+      <h1 v-if="title" class="kid-h1 kid-wide-only">{{ title }}</h1>
       <div class="kid-score">
         <span class="num">{{ round.score }} / {{ round.total }}</span>
         <span class="cap">{{ t('points') }}</span>
@@ -60,15 +65,14 @@ const timerDurations = [30, 20, 15]
 
     <slot />
 
-    <div style="display: flex; justify-content: center">
+    <div class="kid-strikes-row">
       <WrongAnswers :wrong="round.strikes" />
-    </div>
-
-    <div class="kid-actions">
-      <button class="kid-btn kid-btn-ghost" @click="round.newTask()">
-        <RefreshCw :size="18" /> {{ t('newBtn') }}
-      </button>
-      <slot name="action" />
+      <div class="kid-actions">
+        <button class="kid-btn kid-btn-ghost" @click="round.newTask()">
+          <RefreshCw :size="18" /> {{ t('newBtn') }}
+        </button>
+        <slot name="action" />
+      </div>
     </div>
   </div>
 </template>

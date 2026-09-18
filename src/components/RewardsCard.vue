@@ -1,19 +1,41 @@
 <script setup>
+import { computed } from 'vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
-import { t } from '@/i18n'
+import { t, tp } from '@/i18n'
 
-defineProps({
+// a flawless board pays this many coins (see useRound.correct)
+const CLEAN_BOARD_COINS = 3
+
+const props = defineProps({
   pays: { type: Array, required: true },
+  // a correct answer pays as many units as the level number
+  level: { type: Number, default: 1 },
 })
+
+const rows = computed(() => [
+  ...props.pays.map((kind) => ({
+    kind,
+    op: t(`ops_${kind}`),
+    text: tp(`mat_${kind}`, props.level),
+  })),
+  {
+    kind: 'coins',
+    op: t('noMistake'),
+    plain: true,
+    text: tp('coinsPerBoard', CLEAN_BOARD_COINS),
+  },
+])
 </script>
 
 <template>
   <section class="kid-panel kid-rewards" :aria-label="t('rewardTitle')">
     <h2>{{ t('rewardTitle') }}</h2>
     <ul>
-      <li v-for="kind in pays" :key="kind"><MaterialIcon :kind="kind" /> {{ t(kind) }}</li>
+      <li v-for="row in rows" :key="row.kind">
+        <span class="op" :class="{ txt: row.plain }">{{ row.op }}</span>
+        <MaterialIcon :kind="row.kind" />
+        {{ row.text }}
+      </li>
     </ul>
-    <p>{{ t('rewardLevel') }}</p>
-    <p><MaterialIcon kind="coins" :size="16" /> {{ t('rewardCoins') }}</p>
   </section>
 </template>

@@ -41,6 +41,7 @@ function pickResult(value) {
   <GameCard
     :round="round"
     base="/gry/kafelki"
+    :title="t('tiles')"
     color="var(--k-op-mul)"
     :ranges="['+ −', '+ − ×', '+ − × ÷']"
   >
@@ -58,6 +59,7 @@ function pickResult(value) {
         {{ e.text }}
       </button>
     </div>
+    <div class="kid-split" aria-hidden="true"></div>
     <div class="kid-tiles six">
       <button
         v-for="r in results"

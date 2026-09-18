@@ -28,6 +28,7 @@ function pick(n) {
   <GameCard
     :round="round"
     base="/gry/rosnaco"
+    :title="t('ascending')"
     color="var(--k-op-div2)"
     :ranges="['1-50', '1-200', '1-1000']"
     timed

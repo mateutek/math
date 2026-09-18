@@ -22,6 +22,7 @@ function pick(sign) {
   <GameCard
     :round="round"
     base="/gry/porownaj"
+    :title="t('compare')"
     color="var(--k-op-div2)"
     :ranges="['7 ? 9', '3 + 4 ? 9', '3 + 4 ? 2 × 5']"
     timed

@@ -24,7 +24,15 @@ function pick(o) {
 </script>
 
 <template>
-  <GameCard :round="round" base="/gry/domino" color="var(--k-op-add)" :ranges="['2-6', '2-9', '2-12']" timed>
+  <GameCard
+    :round="round"
+    base="/gry/domino"
+    :title="t('domino')"
+    color="var(--k-op-add)"
+    ink="#15803d"
+    :ranges="['2-6', '2-9', '2-12']"
+    timed
+  >
     <p class="kid-prompt">{{ t('dominoPrompt') }}</p>
     <div class="kid-eq">
       <span>{{ task.a }}</span><span class="op">+</span><span>{{ task.b }}</span>
