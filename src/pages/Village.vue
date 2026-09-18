@@ -47,6 +47,15 @@ function select(plot) {
   if (!plot.tier) return
   selected.value = selected.value === plot.id ? null : plot.id
 }
+
+// role="button" on an SVG group gets no built-in keyboard behaviour, so give
+// it a real button's: Enter and Space both activate. keydown, not keyup,
+// because Space scrolls the page on keydown and that is what must be
+// prevented; ignore auto-repeat so a held key does not toggle back and forth.
+function onPlotKey(event, plot) {
+  if (event.repeat) return
+  select(plot)
+}
 </script>
 
 <template>
@@ -75,7 +84,8 @@ function select(plot) {
           :aria-label="t('b_' + p.id)"
           :aria-pressed="p.tier ? selected === p.id : undefined"
           @click="select(p)"
-          @keyup.enter="select(p)"
+          @keydown.enter.prevent="onPlotKey($event, p)"
+          @keydown.space.prevent="onPlotKey($event, p)"
         >
           <IsoBuilding
             :id="p.id"
