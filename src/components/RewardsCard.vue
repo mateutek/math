@@ -1,10 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
+import { CLEAN_BOARD_COINS } from '@/composables/useRound'
 import { t, tp } from '@/i18n'
-
-// a flawless board pays this many coins (see useRound.correct)
-const CLEAN_BOARD_COINS = 3
 
 const props = defineProps({
   pays: { type: Array, required: true },

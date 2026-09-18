@@ -2,6 +2,10 @@ import { ref, computed, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { reward, recordStreak } from '@/store/village'
 
+// A board finished without a mistake, and every tenth correct answer in a row,
+// pays this many coins. RewardsCard shows the number, so it lives here.
+export const CLEAN_BOARD_COINS = 3
+
 // Round state shared by the new games. `next(level)` builds a fresh task and
 // runs once right away, so the caller must declare its task refs first.
 export function useRound(game, next) {
@@ -31,7 +35,7 @@ export function useRound(game, next) {
     flash.value = 'green'
     reward(material, level.value)
     if (streak.value % 5 === 0) reward('coins', 1)
-    if (flawless || streak.value % 10 === 0) reward('coins', 3)
+    if (flawless || streak.value % 10 === 0) reward('coins', CLEAN_BOARD_COINS)
     recordStreak(game, streak.value)
     clearTimeout(flashTimeout)
     flashTimeout = setTimeout(() => {
