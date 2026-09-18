@@ -29,7 +29,7 @@ function pick(o) {
     base="/gry/domino"
     :title="t('domino')"
     color="var(--k-op-add)"
-    ink="#15803d"
+    ink="var(--k-ink-add, #15803d)"
     :ranges="['2-6', '2-9', '2-12']"
     timed
   >

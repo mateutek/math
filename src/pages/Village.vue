@@ -8,13 +8,34 @@ import ShopCard from '@/components/ShopCard.vue'
 import BuildingList from '@/components/BuildingList.vue'
 import Celebration from '@/components/Celebration.vue'
 import village, { next } from '@/store/village'
+import settings from '@/store/settings'
 import { BUILDINGS } from '@/data/buildings'
 import { t, tp } from '@/i18n'
 
 const SIZE = 6
 const PATH_ROW = 3
 const POND = ['4,0', '5,0', '5,1']
-const FILL = { grass: '#a5d98a', grass2: '#9ad07e', path: '#ead9ac', pond: '#86c8ee' }
+// day values as the var() fallback; kid.css swaps them for the night board's
+const FILL = {
+  grass: 'var(--k-grass, #a5d98a)',
+  grass2: 'var(--k-grass2, #9ad07e)',
+  path: 'var(--k-path, #ead9ac)',
+  pond: 'var(--k-pond, #86c8ee)',
+}
+
+// the night sky, straight off NightVillage. Only the four with a `tw` twinkle.
+const STARS = [
+  { x: -270, y: -34, r: 1.6, tw: '3.2s' },
+  { x: -192, y: -42, r: 1.2, o: 0.8 },
+  { x: -160, y: -8, r: 1.5, tw: '4s', twd: '1s' },
+  { x: -262, y: 38, r: 1.2, o: 0.7 },
+  { x: -118, y: -40, r: 1.3, o: 0.8 },
+  { x: 150, y: -40, r: 1.5, tw: '3.6s', twd: '.6s' },
+  { x: 206, y: -16, r: 1.2, o: 0.8 },
+  { x: 262, y: -38, r: 1.7, o: 0.9 },
+  { x: 238, y: 26, r: 1.2, o: 0.7 },
+  { x: 282, y: 66, r: 1.4, tw: '4.4s', twd: '1.6s' },
+]
 
 const place = ([col, row]) => `translate(${(col - row) * 48} ${(col + row) * 24})`
 
@@ -36,8 +57,9 @@ for (let row = 0; row < SIZE; row++) {
 const selected = ref(null)
 const cheer = ref(0)
 
-// The two boards crop the map differently: the phone one shows less sky, and a
-// viewBox cannot be set from CSS.
+// The boards crop the map differently: the phone one shows less sky, except at
+// night, where it opens up to make room for the moon and the stars. A viewBox
+// cannot be set from CSS, so this is the one place the theme is read in JS.
 const WIDE = window.matchMedia('(min-width: 1024px)')
 const wide = ref(WIDE.matches)
 const onWide = (event) => (wide.value = event.matches)
@@ -83,13 +105,30 @@ function onPlotKey(event, plot) {
 
       <svg
         class="kid-map"
-        :viewBox="wide ? '-296 -52 592 360' : '-296 -16 592 324'"
+        :viewBox="wide || settings.night ? '-296 -52 592 360' : '-296 -16 592 324'"
         role="img"
         :aria-label="t('yourVillage')"
       >
+        <!-- night sky: a crescent bitten out of a full moon, then the stars -->
+        <template v-if="settings.night">
+          <circle cx="-236" cy="-6" r="17" fill="#f4e9c1" />
+          <circle cx="-228" cy="-12" r="15" fill="var(--k-page)" />
+          <circle
+            v-for="(s, i) in STARS"
+            :key="i"
+            class="kid-star"
+            :cx="s.x"
+            :cy="s.y"
+            :r="s.r"
+            :opacity="s.o"
+            fill="#f1efe8"
+            :style="{ '--tw': s.tw, '--twd': s.twd }"
+          />
+        </template>
+
         <!-- earth edge under the front two sides of the map -->
-        <polygon points="-288,144 0,288 0,302 -288,158" fill="#b58a5a" />
-        <polygon points="0,288 288,144 288,158 0,302" fill="#9c7448" />
+        <polygon points="-288,144 0,288 0,302 -288,158" fill="var(--k-edge, #b58a5a)" />
+        <polygon points="0,288 288,144 288,158 0,302" fill="var(--k-edge2, #9c7448)" />
         <g v-for="tile in ground" :key="tile.key" :transform="tile.at">
           <polygon points="0,0 48,24 0,48 -48,24" :fill="tile.fill" />
         </g>

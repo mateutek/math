@@ -116,7 +116,7 @@ onMounted(() => {
   <div
     class="kid-card"
     :class="{ correct: cardColor === 'green', wrong: cardColor === 'red' }"
-    :style="{ '--k-display-op': '#6366f1', borderColor: 'var(--k-op-mul)', borderWidth: '2px' }"
+    :style="{ '--k-display-op': 'var(--k-op-mul)', borderColor: 'var(--k-op-mul)', borderWidth: '2px' }"
   >
     <Celebration v-if="cardColor === 'green'" :key="cheer" />
 

@@ -40,7 +40,7 @@ function check() {
     base="/gry/brakujaca"
     :title="t('missing')"
     color="var(--k-brand)"
-    ink="#1f4fc4"
+    ink="var(--k-ink-missing, #1f4fc4)"
     :ranges="['+ −', '+ − ×', '+ − × ÷']"
     timed
   >

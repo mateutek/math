@@ -38,7 +38,8 @@ const DominoIcon = icon(() => [
 
 // Every playable page, grouped for the Play grid. `id` doubles as the i18n key
 // for the name and as the bestStreak key in the village save. `ink` is the
-// darker text shade of `color`: the operation colours fail contrast on white.
+// readable text shade of `color`: the operation colours fail contrast on white.
+// Day value in the fallback, night override in kid.css.
 export const GROUPS = [
   {
     key: 'grpOps',
@@ -46,12 +47,12 @@ export const GROUPS = [
     // how many cards the group's row holds on the wide layout
     cols: 6,
     games: [
-      { id: 'addition', symbol: '+', color: 'var(--k-op-add)', ink: '#15803d', route: '/dodawanie', pays: ['wood'] },
-      { id: 'subtraction', symbol: '−', color: 'var(--k-op-sub)', ink: '#b45309', route: '/odejmowanie', pays: ['wood'] },
-      { id: 'multiply', symbol: '×', color: 'var(--k-op-mul)', ink: '#4f46e5', route: '/mnozenie', pays: ['stone'] },
-      { id: 'divide', symbol: '÷', color: 'var(--k-op-div)', ink: '#be185d', route: '/dzielenie', pays: ['stone'] },
-      { id: 'divide2', symbol: '÷', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/dzielenie2', pays: ['stone'] },
-      { id: 'missing', short: 'missingShort', symbol: '?', color: 'var(--k-brand)', ink: '#1f4fc4', route: '/gry/brakujaca', pays: ['wood', 'stone'] },
+      { id: 'addition', symbol: '+', color: 'var(--k-op-add)', ink: 'var(--k-ink-add, #15803d)', route: '/dodawanie', pays: ['wood'] },
+      { id: 'subtraction', symbol: '−', color: 'var(--k-op-sub)', ink: 'var(--k-ink-sub, #b45309)', route: '/odejmowanie', pays: ['wood'] },
+      { id: 'multiply', symbol: '×', color: 'var(--k-op-mul)', ink: 'var(--k-ink-mul, #4f46e5)', route: '/mnozenie', pays: ['stone'] },
+      { id: 'divide', symbol: '÷', color: 'var(--k-op-div)', ink: 'var(--k-ink-div, #be185d)', route: '/dzielenie', pays: ['stone'] },
+      { id: 'divide2', symbol: '÷', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/dzielenie2', pays: ['stone'] },
+      { id: 'missing', short: 'missingShort', symbol: '?', color: 'var(--k-brand)', ink: 'var(--k-ink-missing, #1f4fc4)', route: '/gry/brakujaca', pays: ['wood', 'stone'] },
     ],
   },
   {
@@ -59,8 +60,8 @@ export const GROUPS = [
     pays: ['wood', 'stone'],
     cols: 2,
     games: [
-      { id: 'tiles', icon: TilesIcon, color: 'var(--k-op-mul)', ink: '#4f46e5', route: '/gry/kafelki', pays: ['wood', 'stone'] },
-      { id: 'domino', icon: DominoIcon, color: 'var(--k-op-add)', ink: '#15803d', route: '/gry/domino', pays: ['wood'] },
+      { id: 'tiles', icon: TilesIcon, color: 'var(--k-op-mul)', ink: 'var(--k-ink-mul, #4f46e5)', route: '/gry/kafelki', pays: ['wood', 'stone'] },
+      { id: 'domino', icon: DominoIcon, color: 'var(--k-op-add)', ink: 'var(--k-ink-add, #15803d)', route: '/gry/domino', pays: ['wood'] },
     ],
   },
   {
@@ -68,9 +69,9 @@ export const GROUPS = [
     pays: ['food'],
     cols: 3,
     games: [
-      { id: 'compare', symbol: '<', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/gry/porownaj', pays: ['food'] },
-      { id: 'biggest', symbol: '↑', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/gry/najwieksza', pays: ['food'] },
-      { id: 'ascending', symbol: '123', color: 'var(--k-op-div2)', ink: '#0f766e', route: '/gry/rosnaco', pays: ['food'] },
+      { id: 'compare', symbol: '<', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/gry/porownaj', pays: ['food'] },
+      { id: 'biggest', symbol: '↑', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/gry/najwieksza', pays: ['food'] },
+      { id: 'ascending', symbol: '123', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/gry/rosnaco', pays: ['food'] },
     ],
   },
 ]

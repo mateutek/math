@@ -4,9 +4,21 @@ defineProps({
   size: { type: Number, default: 18 },
 })
 
-// the material's own colour, with a darker stroke so it reads on white
-const FILL = { wood: '#e2b98a', stone: '#c9d0da', food: '#f3d868', coins: '#f8cf6a' }
-const STROKE = { wood: '#9a5a26', stone: '#5f6878', food: '#8a6a00', coins: '#a66a00' }
+// The material's own colour, with a darker stroke so it reads on white. Day
+// values live here as the var() fallback; kid.css overrides them at night,
+// where the icon flips over to a dark body with a light outline.
+const FILL = {
+  wood: 'var(--k-mat-wood, #e2b98a)',
+  stone: 'var(--k-mat-stone, #c9d0da)',
+  food: 'var(--k-mat-food, #f3d868)',
+  coins: 'var(--k-mat-coins, #f8cf6a)',
+}
+const STROKE = {
+  wood: 'var(--k-mat-wood-line, #9a5a26)',
+  stone: 'var(--k-mat-stone-line, #5f6878)',
+  food: 'var(--k-mat-food-line, #8a6a00)',
+  coins: 'var(--k-mat-coins-line, #a66a00)',
+}
 </script>
 
 <template>
