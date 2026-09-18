@@ -27,10 +27,7 @@ const needed = (kind) => (next.value?.cost[kind] ?? 0) > village.materials[kind]
         <ArrowRight :size="16" class="arrow" />
         <MaterialIcon :kind="kind" />{{ SHOP_RATE }}
       </span>
-      <span class="name">
-        {{ t('shop_' + kind) }}
-        <span v-if="needed(kind)" class="kid-badge">{{ t('needed') }}</span>
-      </span>
+      <span class="name">{{ t('shop_' + kind) }}</span>
       <button
         class="kid-btn kid-shop-btn"
         :class="needed(kind) ? 'kid-btn-primary' : 'kid-btn-ghost'"

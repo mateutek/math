@@ -526,8 +526,7 @@
 .kid-shop-row { display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .kid-shop-row .rate { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
 .kid-shop-row .arrow { color: var(--muted-foreground); }
-.kid-shop-row .name { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 14px; font-weight: 700; }
-.kid-shop-row .kid-badge { padding: 2px 7px; font-size: 10.5px; }
+.kid-shop-row .name { font-size: 14px; font-weight: 700; }
 @media (min-width: 1024px) { .kid-shop { padding: 20px 22px; gap: 12px; } }
 .kid-shop-btn { margin-left: auto; height: 44px; padding: 0 16px; border-radius: 14px; font-size: 14px; }
 .kid-shop-btn:disabled { opacity: .45; pointer-events: none; }
