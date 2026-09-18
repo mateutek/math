@@ -23,7 +23,7 @@
   html,
   body {
     margin: 0;
-    background: #f6f4ee; /* warm cream page background */
+    background: var(--k-body, #f6f4ee); /* warm cream by day, ink by night */
   }
   body {
     font-family: var(--font-sans);
