@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="/favicon.ico">
     <title>Matematyka</title>
+    <!-- set the theme before the first paint so night never flashes day -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (t !== 'day' && t !== 'night') {
+                t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day';
+            }
+            document.documentElement.dataset.theme = t;
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
