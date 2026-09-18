@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core'
-import { SlidersHorizontal, Timer, Copy } from 'lucide-vue-next'
+import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon } from 'lucide-vue-next'
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
@@ -28,6 +28,12 @@ function onLoad() {
 function onReset() {
   if (window.confirm(t('confirmReset'))) reset()
 }
+
+const themes = [
+  { value: 'auto', label: 'themeAuto', icon: Monitor },
+  { value: 'day', label: 'themeDay', icon: Sun },
+  { value: 'night', label: 'themeNight', icon: Moon },
+]
 </script>
 
 <template>
@@ -47,6 +53,22 @@ function onReset() {
           <button :class="{ on: settings.lang === 'pl' }" :aria-pressed="settings.lang === 'pl'" @click="settings.lang = 'pl'">PL</button>
           <button :class="{ on: settings.lang === 'en' }" :aria-pressed="settings.lang === 'en'" @click="settings.lang = 'en'">EN</button>
         </div>
+      </div>
+
+      <div class="kid-set col theme">
+        <span id="theme-label" class="kid-set-label">{{ t('theme') }}</span>
+        <div class="kid-theme" role="group" aria-labelledby="theme-label">
+          <button
+            v-for="option in themes"
+            :key="option.value"
+            :class="{ on: settings.theme === option.value }"
+            :aria-pressed="settings.theme === option.value"
+            @click="settings.theme = option.value"
+          >
+            <component :is="option.icon" :size="16" :stroke-width="2.2" />{{ t(option.label) }}
+          </button>
+        </div>
+        <p class="kid-theme-hint">{{ t('themeHint') }}</p>
       </div>
 
       <div class="kid-set">
