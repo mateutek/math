@@ -4,7 +4,11 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
 import village, { reward, reset, next } from '@/store/village'
+import settings from '@/store/settings'
 import { MATERIALS } from '@/data/buildings'
+import { CLASSES } from '@/data/classes'
+
+const playable = CLASSES.filter((c) => c.available)
 
 const KEY = 'dev-panel-open'
 const read = () => {
@@ -57,7 +61,20 @@ function resetAll() {
           +{{ n }}
         </button>
       </div>
+      <div class="dev-row">
+        <span class="dev-name">class</span>
+        <button
+          v-for="c in playable"
+          :key="c.id"
+          type="button"
+          :class="{ on: settings.schoolClass === c.id }"
+          @click="settings.schoolClass = c.id"
+        >
+          {{ c.id === 0 ? 'Z' : c.id }}
+        </button>
+      </div>
       <div class="dev-acts">
+        <button type="button" @click="settings.schoolClass = null">Forget class</button>
         <button type="button" :disabled="!next" @click="fundGoal">
           Fund next goal{{ next ? ` (${next.id} ${next.tier})` : '' }}
         </button>
@@ -155,6 +172,7 @@ function resetAll() {
 .dev-row button { flex: 1; }
 
 .dev-panel button:hover:not(:disabled) { border-color: var(--k-brand, #7c3aed); }
+.dev-panel button.on { border-color: var(--k-brand, #7c3aed); font-weight: 700; }
 .dev-panel button:disabled { opacity: 0.4; cursor: default; }
 .dev-root :focus-visible { outline: 2px solid var(--k-brand, #7c3aed); outline-offset: 1px; }
 </style>
