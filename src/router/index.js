@@ -7,6 +7,8 @@ import { gameOffered } from '@/data/classes'
 const Equation = () => import('@/pages/Equation.vue')
 // likewise the five topic games of classes 4 to 8
 const Topic = () => import('@/pages/Topic.vue')
+// the theory tab: an index, the multiplication table and one article per slug
+const Theory = () => import('@/pages/Theory.vue')
 
 const routes = [
   {
@@ -87,6 +89,10 @@ const routes = [
   { path: '/tematy/procenty', name: 'percents', component: Topic },
   { path: '/tematy/potegi', name: 'powers', component: Topic },
   { path: '/tematy/pitagoras', name: 'pythagoras', component: Topic },
+  // meta.full: theory brings its own rail, so App.vue renders it without the
+  // side column. Static paths go above the dynamic one in the tasks that add
+  // them, so /teoria/tabliczka never matches :slug.
+  { path: '/teoria', name: 'theory', component: Theory, meta: { full: true } },
   {
     path: '/:pathMatch(.*)*',
     redirect: '/',

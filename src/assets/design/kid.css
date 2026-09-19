@@ -762,19 +762,23 @@
   transition: color .25s ease;
 }
 .kid-tab.active { color: var(--k-brand-fg); }
-/* The active tab's blue is one pill that slides between the two tabs. Both navs
-   are a two-column grid, so the tabs are equal and the pill is one column wide:
-   it sits in column one and moves over by its own width plus the gap. */
-.kid-tabs, .kid-nav-top { --tab-gap: 8px; grid-template-columns: 1fr 1fr; gap: var(--tab-gap); }
 .kid-tab-pill {
   grid-area: 1 / 1; border-radius: var(--k-btn-radius); background: var(--k-brand);
   transition: transform .3s cubic-bezier(.3, 1.3, .6, 1);
 }
+/* The active tab's blue is one pill that slides between the three tabs. Both
+   navs are a three-column grid, so the tabs are equal and the pill is one
+   column wide: it starts in column one and moves over by its own width plus
+   the gap, once or twice. */
+.kid-tabs, .kid-nav-top { --tab-gap: 8px; grid-template-columns: repeat(3, 1fr); gap: var(--tab-gap); }
 .kid-tab-pill.second { transform: translateX(calc(100% + var(--tab-gap))); }
-/* the tabs share row one with the pill, so each names its column: left to
-   itself, auto-placement would step round the pill and push them one along */
-.kid-tab { grid-row: 1; grid-column: 1; }
-.kid-tab ~ .kid-tab { grid-column: 2; }
+.kid-tab-pill.third { transform: translateX(calc(200% + 2 * var(--tab-gap))); }
+/* the tabs share row one with the pill, so each names its column: the pill is
+   a span, so nth-of-type counts only the links */
+.kid-tab { grid-row: 1; }
+a.kid-tab:nth-of-type(1) { grid-column: 1; }
+a.kid-tab:nth-of-type(2) { grid-column: 2; }
+a.kid-tab:nth-of-type(3) { grid-column: 3; }
 .kid-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--k-accent); animation: iso-pulse 1.2s ease-in-out infinite; }
 
 /* phone: fixed bottom bar */
@@ -868,6 +872,23 @@
 .kid-danger { background: var(--k-danger-bg); color: var(--k-error); }
 
 @media (prefers-reduced-motion: reduce) { .kid-dot { animation: none; } }
+
+/* ============================================================================
+   THEORY (src/pages/Theory.vue, TheoryArticle.vue, TheoryTable.vue and the
+   components they share). No night board was drawn for these screens, so every
+   colour here is a token and night comes for free.
+   ============================================================================ */
+.kid-theory { display: flex; flex-direction: column; gap: 16px; }
+.kid-theory > .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+/* .kid-btn-primary carries flex: 1 for the game action row, which would stretch
+   the article CTA; the goal and shop cards pin it the same way */
+.kid-theory .kid-btn { flex: none; margin-top: auto; text-decoration: none; }
+.kid-tlead { margin: 0; font-size: 14px; line-height: 1.4; color: var(--muted-foreground); }
+.kid-thead { display: flex; align-items: center; gap: 10px; }
+.kid-thead .kid-h1 { min-width: 0; }
+.kid-thead .back { width: 44px; height: 44px; flex: none; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: var(--muted-foreground); }
+.kid-thead .back:hover { background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
+.kid-thead .kid-class-pill { flex: none; }
 
 /* ============================================================================
    BREAKPOINT UTILITIES - last in the file on purpose: they only ever hide, and
