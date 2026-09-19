@@ -7,10 +7,6 @@
 // every class after it keeps the earlier ones, as school does.
 export const TOPICS = ['fractions', 'decimals', 'percents', 'powers', 'pythagoras']
 
-// Classes whose topic has its game. Rises one class per step while 4 to 8 are
-// being built, and goes away when it reaches 8.
-const READY = 7
-
 // `max`       biggest number + and - and the number games work with
 // `mulMax`    biggest product x and / work with; 0 means the class has neither
 // `pay`       materials a correct answer pays
@@ -38,8 +34,8 @@ export const CLASSES = [
   cls(2, 100, 50, 2, 20),
   cls(3, 1000, 100, 3, 15),
   // 4 to 8 keep class 3's numbers for the whole-number games and add a topic
-  // each (see TOPICS). A class past READY is still shown greyed out.
-  ...[4, 5, 6, 7, 8].map((id) => cls(id, 1000, 100, 3, 15, id <= READY)),
+  // each (see TOPICS)
+  ...[4, 5, 6, 7, 8].map((id) => cls(id, 1000, 100, 3, 15)),
 ]
 
 // what the app falls back to before a class has been picked (the router sends

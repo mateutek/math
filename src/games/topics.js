@@ -281,7 +281,38 @@ function powers(level) {
 }
 
 // ---------------------------------------------------------------------------
-const GENERATORS = { fractions, decimals, percents, powers }
+// Class 8: Pythagoras. Whole-number triples only, so every answer is whole.
+// ---------------------------------------------------------------------------
+const EASY_TRIPLES = [[3, 4, 5], [6, 8, 10], [5, 12, 13]]
+const MID_TRIPLES = [...EASY_TRIPLES, [9, 12, 15], [12, 16, 20], [10, 24, 26], [8, 15, 17]]
+const TRIPLES = { 1: EASY_TRIPLES, 2: MID_TRIPLES, 3: [...MID_TRIPLES, [15, 20, 25], [7, 24, 25], [9, 40, 41]] }
+
+function pythagoras(level) {
+  let [a, b, c] = one(TRIPLES[level])
+  if (rnd(0, 1)) [a, b] = [b, a]
+
+  // two in three tasks ask for a side; the hard level may hide a leg
+  if (rnd(0, 2)) {
+    const hide = level === 3 ? one(['a', 'b', 'c']) : 'c'
+    const sides = { a, b, c }
+    return number([{ triangle: { ...sides, [hide]: '?' } }], sides[hide])
+  }
+
+  // Right-angled or not: a true triple, or one whose hypotenuse is one off,
+  // which no whole-number triangle with those legs can be. "tak" always comes
+  // first: a yes/no pair reads wrong shuffled, so this does not go through pick().
+  const real = rnd(0, 1) === 1
+  return {
+    kind: 'pick',
+    prompt: 'topicPickRight',
+    parts: [{ triangle: { a, b, c: real ? c : c + one([-1, 1]) } }],
+    options: [[{ t: 'yes' }], [{ t: 'no' }]],
+    answer: real ? 0 : 1,
+  }
+}
+
+// ---------------------------------------------------------------------------
+const GENERATORS = { fractions, decimals, percents, powers, pythagoras }
 
 export function topicTask(topic, level) {
   if (!GENERATORS[topic] || !LEVELS.includes(level)) {

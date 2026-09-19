@@ -7,8 +7,8 @@ import { CLASSES, TOPICS, gameOffered } from '../data/classes.js'
 import { LEVELS, topicTask, parseAnswer, sameNumber } from './topics.js'
 
 const RUNS = 2000
-// topics whose generator exists yet; grows with the plan, ends as TOPICS
-const BUILT = ['fractions', 'decimals', 'percents', 'powers']
+// topics whose generator exists yet
+const BUILT = TOPICS
 
 const isObject = (x) => x !== null && typeof x === 'object'
 const children = (x) => (Array.isArray(x) ? x : isObject(x) ? Object.values(x) : [])
@@ -134,6 +134,11 @@ const LEVEL_RULES = {
     if (level !== 1) return
     const pows = [...task.parts, ...(task.options ?? []).flat()].filter((p) => isObject(p) && p.pow)
     for (const p of pows) assert.equal(p.pow[1], 2, 'level 1 is squares only')
+  },
+
+  // below the hard level the unknown is always the hypotenuse
+  pythagoras(task, level) {
+    if (task.kind === 'number' && level < 3) assert.equal(task.parts[0].triangle.c, '?')
   },
 }
 
