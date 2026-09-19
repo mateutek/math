@@ -80,6 +80,8 @@ export const GROUPS = [
     key: 'grpTopics',
     pays: [],
     cols: 5,
+    // five cards need the whole row on desktop, not half of it
+    wide: true,
     games: [
       { id: 'fractions', symbol: '½', color: 'var(--k-op-sub)', ink: 'var(--k-ink-sub, #b45309)', route: '/tematy/ulamki', pays: [] },
       { id: 'decimals', symbol: '0,5', color: 'var(--k-op-add)', ink: 'var(--k-ink-add, #15803d)', route: '/tematy/dziesietne', pays: [] },

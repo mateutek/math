@@ -39,7 +39,7 @@ function caption(id) {
     <!-- the phone board starts straight at the first group -->
     <h1 class="kid-h1 kid-wide-only">{{ t('playTitle') }}</h1>
     <ClassChip />
-    <section v-for="group in groups" :key="group.key" class="kid-group">
+    <section v-for="group in groups" :key="group.key" class="kid-group" :class="{ wide: group.wide }">
       <h2>
         {{ t(group.key) }}
         <MaterialIcon v-for="k in group.pays" :key="k" :kind="k" :size="16" />

@@ -724,6 +724,7 @@
   .kid-play { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 22px 28px; }
   .kid-play > .kid-h1 { grid-column: 1; align-self: center; }
   .kid-play > .kid-group:first-of-type { grid-column: 1 / -1; }
+  .kid-play > .kid-group.wide { grid-column: 1 / -1; }
   .kid-play > .kid-class-cap { grid-column: 2; justify-self: end; align-self: center; }
   .kid-group h2 { font-size: 16px; }
   .kid-group h2 .kid-badge { margin-left: 0; }
