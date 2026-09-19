@@ -21,9 +21,10 @@ export function useEarnings() {
     earned[kind] += amount
   }
 
-  // `streak` already counts this answer
-  function payAnswer(material, streak, flawless = false) {
-    pay(material, classConfig.value.pay)
+  // `streak` already counts this answer. `times` multiplies the class pay: the
+  // topic games pass their level, so a harder level is worth more.
+  function payAnswer(material, streak, flawless = false, times = 1) {
+    pay(material, classConfig.value.pay * times)
     if (streak % STARS_PER_COIN === 0) pay('coins', 1)
     if (flawless || streak % 10 === 0) pay('coins', CLEAN_BOARD_COINS)
   }
@@ -50,11 +51,11 @@ export function useRound(game, next) {
     next(classConfig.value)
   }
 
-  function correct(material, flawless = false) {
+  function correct(material, flawless = false, times = 1) {
     streak.value += 1
     cheer.value += 1
     flash.value = 'green'
-    payAnswer(material, streak.value, flawless)
+    payAnswer(material, streak.value, flawless, times)
     recordStreak(game, classConfig.value.id, streak.value)
     clearTimeout(flashTimeout)
     flashTimeout = setTimeout(() => {
@@ -70,14 +71,14 @@ export function useRound(game, next) {
     if (strikes.value < 3) timerKey.value += 1
   }
 
-  watch(
-    classConfig,
-    () => {
-      streak.value = 0
-      newTask()
-    },
-    { immediate: true },
-  )
+  // a different kind of task from here on (a new class, a new level): the
+  // streak belonged to the old one
+  function restart() {
+    streak.value = 0
+    newTask()
+  }
 
-  return reactive({ cfg: classConfig, earned, streak, strikes, flash, cheer, timerKey, newTask, correct, wrong })
+  watch(classConfig, restart, { immediate: true })
+
+  return reactive({ cfg: classConfig, earned, streak, strikes, flash, cheer, timerKey, newTask, restart, correct, wrong })
 }

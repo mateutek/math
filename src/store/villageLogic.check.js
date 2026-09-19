@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
-import { SHOP_RATE } from '../data/buildings.js'
+import { BUILDINGS, SHOP_RATE } from '../data/buildings.js'
 import {
   fresh, applyReward, applyBuild, applyTrade, nextBuilding, goalFor, touchDay, encode, decode,
+  neededMaterial,
 } from './villageLogic.js'
 
 // 1. reward adds the right material, ignores unknown kinds and bad amounts
@@ -70,5 +71,18 @@ d = touchDay(d, '2026-09-18')
 assert.equal(d.dayStreak, 2)
 d = touchDay(d, '2026-09-25')
 assert.equal(d.dayStreak, 1)
+
+// neededMaterial: what the next unbuilt building is shortest of. The first
+// building is the hut (5 wood), the third the farm (8 wood, 4 food).
+assert.equal(neededMaterial(fresh()), 'wood')
+const twoBuilt = { ...fresh(), buildings: [{ id: 'hut', tier: 1 }, { id: 'well', tier: 1 }] }
+assert.equal(neededMaterial({ ...twoBuilt, materials: { wood: 8, stone: 0, food: 0, coins: 0 } }), 'food')
+assert.equal(neededMaterial({ ...twoBuilt, materials: { wood: 1, stone: 0, food: 3, coins: 0 } }), 'wood')
+// nothing missing, and a finished village, both fall back to wood
+assert.equal(neededMaterial({ ...twoBuilt, materials: { wood: 99, stone: 99, food: 99, coins: 0 } }), 'wood')
+assert.equal(
+  neededMaterial({ ...fresh(), buildings: BUILDINGS.map((d) => ({ id: d.id, tier: 1 })) }),
+  'wood',
+)
 
 console.log('villageLogic: all checks passed')

@@ -69,6 +69,20 @@ export function nextBuilding(state) {
   return def ? goalFor(state, def.id) : null
 }
 
+// Which of the three building materials the next unbuilt building is shortest
+// of; wood when nothing is missing or the village is done. The topic games pay
+// this. Coins are never the answer: they stay the reward for accuracy.
+export function neededMaterial(state) {
+  const cost = nextBuilding(state)?.cost ?? {}
+  let best = 'wood'
+  let gap = 0
+  for (const kind of ['wood', 'stone', 'food']) {
+    const short = (cost[kind] ?? 0) - state.materials[kind]
+    if (short > gap) [best, gap] = [kind, short]
+  }
+  return best
+}
+
 export function applyBuild(state, id) {
   const goal = goalFor(state, id)
   if (!goal || !canAfford(state, goal.cost)) return null

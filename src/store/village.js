@@ -61,5 +61,6 @@ export const next = computed(() => logic.nextBuilding(village))
 export const affordable = computed(
   () => !!next.value && logic.canAfford(village, next.value.cost),
 )
+export const needed = computed(() => logic.neededMaterial(village))
 
 export default village
