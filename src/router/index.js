@@ -5,6 +5,8 @@ import { gameOffered } from '@/data/classes'
 
 // the five equation games are one page; the route name tells it which
 const Equation = () => import('@/pages/Equation.vue')
+// likewise the five topic games of classes 4 to 8
+const Topic = () => import('@/pages/Topic.vue')
 
 const routes = [
   {
@@ -80,6 +82,11 @@ const routes = [
     name: 'missing',
     component: () => import('@/pages/games/Missing.vue'),
   },
+  { path: '/tematy/ulamki', name: 'fractions', component: Topic },
+  { path: '/tematy/dziesietne', name: 'decimals', component: Topic },
+  { path: '/tematy/procenty', name: 'percents', component: Topic },
+  { path: '/tematy/potegi', name: 'powers', component: Topic },
+  { path: '/tematy/pitagoras', name: 'pythagoras', component: Topic },
   {
     path: '/:pathMatch(.*)*',
     redirect: '/',

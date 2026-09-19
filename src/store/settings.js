@@ -1,5 +1,5 @@
 import { reactive, computed, watch } from 'vue'
-import { CLASSES, configFor } from '@/data/classes'
+import { CLASSES, TOPICS, configFor } from '@/data/classes'
 
 const stored = localStorage.getItem('timerEnabled')
 const storedLang = localStorage.getItem('lang')
@@ -7,6 +7,18 @@ const storedTheme = localStorage.getItem('theme')
 // note: not Number(), which would read a missing entry as Zerowka (class 0)
 const storedClass = CLASSES.find((c) => String(c.id) === localStorage.getItem('schoolClass'))
 const dark = window.matchMedia('(prefers-color-scheme: dark)')
+
+// the difficulty the kid last chose per topic game. Anything unreadable, an
+// unknown topic or a level outside 1..3 falls back to the easy level.
+function loadTopicLevels() {
+  let raw = {}
+  try {
+    raw = JSON.parse(localStorage.getItem('topicLevel')) ?? {}
+  } catch {
+    // a corrupt entry: start every topic on easy
+  }
+  return Object.fromEntries(TOPICS.map((k) => [k, [1, 2, 3].includes(raw[k]) ? raw[k] : 1]))
+}
 
 const settings = reactive({
   // 0 is Zerowka and 1..8 the school classes; null until one has been picked,
@@ -20,6 +32,7 @@ const settings = reactive({
   mapRotation: [0, 1, 2, 3].includes(Number(localStorage.getItem('mapRotation')))
     ? Number(localStorage.getItem('mapRotation'))
     : 0,
+  topicLevel: loadTopicLevels(),
   // the resolved theme. Everything visual reads the CSS variables under
   // <html data-theme>; this flag is only for the few things CSS cannot set,
   // such as the map viewBox and the night-only sky.
@@ -55,6 +68,14 @@ watch(
   (value) => {
     localStorage.setItem('mapRotation', String(value))
   },
+)
+
+watch(
+  () => settings.topicLevel,
+  (value) => {
+    localStorage.setItem('topicLevel', JSON.stringify(value))
+  },
+  { deep: true },
 )
 
 watch(

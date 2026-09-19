@@ -74,6 +74,20 @@ export const GROUPS = [
       { id: 'ascending', symbol: '123', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/gry/rosnaco', pays: ['food'] },
     ],
   },
+  {
+    // classes 4 to 8. No fixed material: a topic pays whatever the village
+    // needs next (see neededMaterial), so `pays` is empty all the way down.
+    key: 'grpTopics',
+    pays: [],
+    cols: 5,
+    games: [
+      { id: 'fractions', symbol: '½', color: 'var(--k-op-sub)', ink: 'var(--k-ink-sub, #b45309)', route: '/tematy/ulamki', pays: [] },
+      { id: 'decimals', symbol: '0,5', color: 'var(--k-op-add)', ink: 'var(--k-ink-add, #15803d)', route: '/tematy/dziesietne', pays: [] },
+      { id: 'percents', symbol: '%', color: 'var(--k-op-div)', ink: 'var(--k-ink-div, #be185d)', route: '/tematy/procenty', pays: [] },
+      { id: 'powers', symbol: 'x²', color: 'var(--k-op-mul)', ink: 'var(--k-ink-mul, #4f46e5)', route: '/tematy/potegi', pays: [] },
+      { id: 'pythagoras', symbol: '△', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/tematy/pitagoras', pays: [] },
+    ],
+  },
 ]
 
 export const GAMES = GROUPS.flatMap((group) => group.games)
