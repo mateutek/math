@@ -8,7 +8,7 @@ import { LEVELS, topicTask, parseAnswer, sameNumber } from './topics.js'
 
 const RUNS = 2000
 // topics whose generator exists yet; grows with the plan, ends as TOPICS
-const BUILT = ['fractions']
+const BUILT = ['fractions', 'decimals']
 
 const isObject = (x) => x !== null && typeof x === 'object'
 const children = (x) => (Array.isArray(x) ? x : isObject(x) ? Object.values(x) : [])
@@ -106,6 +106,15 @@ const LEVEL_RULES = {
   fractions(task, level) {
     const top = { 1: 6 * 3, 2: 10 * 5, 3: 12 * 6 }[level]
     for (const d of denominators(task.parts)) assert.ok(d === '?' || d <= top, `denominator ${d} past ${top}`)
+  },
+
+  // one decimal place below level 3, two at it, in everything shown and asked
+  decimals(task, level) {
+    const places = level === 3 ? 100 : 10
+    const shown = [...task.parts, ...(task.options ?? []).flat(), task.kind === 'number' ? task.answer : 0]
+    for (const n of shown.filter((p) => typeof p === 'number')) {
+      assert.ok(Math.abs(n * places - Math.round(n * places)) < 1e-9, `${n} has too many places for L${level}`)
+    }
   },
 }
 

@@ -9,7 +9,7 @@ export const TOPICS = ['fractions', 'decimals', 'percents', 'powers', 'pythagora
 
 // Classes whose topic has its game. Rises one class per step while 4 to 8 are
 // being built, and goes away when it reaches 8.
-const READY = 4
+const READY = 5
 
 // `max`       biggest number + and - and the number games work with
 // `mulMax`    biggest product x and / work with; 0 means the class has neither

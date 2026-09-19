@@ -124,7 +124,66 @@ function fractions(level) {
 }
 
 // ---------------------------------------------------------------------------
-const GENERATORS = { fractions }
+// Class 5: decimals. Everything is counted in hundredths until it is shown.
+// ---------------------------------------------------------------------------
+const dec = (hundredths) => hundredths / 100
+const decOpt = (h) => ({ parts: [dec(h)], value: dec(h) })
+
+// an operand, in hundredths: tenths below 1, tenths below 10, hundredths below 10
+function decOperand(level) {
+  if (level === 1) return rnd(1, 9) * 10
+  if (level === 2) return rnd(1, 99) * 10
+  return rnd(1, 999)
+}
+
+// denominators that land on a level's number of decimal places
+const DEC_DENOMS = { 1: [10], 2: [2, 5, 10], 3: [4, 20, 25, 50, 100] }
+
+function decimals(level) {
+  const kind = one(['add', 'sub', 'times', 'fromFrac', 'pickBiggest'])
+
+  if (kind === 'add') {
+    const a = decOperand(level)
+    const b = decOperand(level)
+    return number([dec(a), '+', dec(b), '=', '?'], dec(a + b))
+  }
+
+  if (kind === 'sub') {
+    const x = decOperand(level)
+    const y = decOperand(level)
+    const [hi, lo] = x > y ? [x, y] : [y, x]
+    return number([dec(hi), '−', dec(lo), '=', '?'], dec(hi - lo))
+  }
+
+  if (kind === 'times') {
+    const a = decOperand(level)
+    const k = rnd(2, 9)
+    return number([dec(a), '×', k, '=', '?'], dec(a * k))
+  }
+
+  if (kind === 'fromFrac') {
+    const d = one(DEC_DENOMS[level])
+    const n = rnd(1, d - 1)
+    return number([{ frac: [n, d] }, '=', '?'], dec((n * 100) / d))
+  }
+
+  // pickBiggest. Level 1 compares tenths from anywhere below 1. Above it the
+  // three sit close to one shared number, in tenths at level 2 and hundredths
+  // at level 3, so the places have to be read, not just the first digit.
+  let options
+  if (level === 1) {
+    options = distinct(3, () => decOpt(rnd(1, 9) * 10))
+  } else {
+    const step = level === 2 ? 10 : 1
+    const base = (level === 2 ? rnd(10, 89) : rnd(10, 98)) * 10
+    options = distinct(3, () => decOpt(base + rnd(-9, 9) * step))
+  }
+  const right = biggest(options)
+  return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+}
+
+// ---------------------------------------------------------------------------
+const GENERATORS = { fractions, decimals }
 
 export function topicTask(topic, level) {
   if (!GENERATORS[topic] || !LEVELS.includes(level)) {
