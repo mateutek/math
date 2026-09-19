@@ -3,6 +3,14 @@
 // change here moves the whole app at once.
 // Pure data and pure functions, no Vue: generators.check.js runs under node.
 
+// The topics of classes 4 to 8, in school order. Class 4 meets the first, and
+// every class after it keeps the earlier ones, as school does.
+export const TOPICS = ['fractions', 'decimals', 'percents', 'powers', 'pythagoras']
+
+// Classes whose topic has its game. Rises one class per step while 4 to 8 are
+// being built, and goes away when it reaches 8.
+const READY = 4
+
 // `max`       biggest number + and - and the number games work with
 // `mulMax`    biggest product x and / work with; 0 means the class has neither
 // `pay`       materials a correct answer pays
@@ -20,6 +28,8 @@ const cls = (id, max, mulMax, pay, seconds, available = true) => ({
   dominoMax: Math.min(max, 12),
   // i18n key of the one-line caption under the class on the picker
   cap: `cls_cap_${id}`,
+  // topic games offered to the class: none up to class 3, then one more a year
+  topics: TOPICS.slice(0, Math.max(0, id - 3)),
 })
 
 export const CLASSES = [
@@ -27,9 +37,9 @@ export const CLASSES = [
   cls(1, 20, 0, 1, 30),
   cls(2, 100, 50, 2, 20),
   cls(3, 1000, 100, 3, 15),
-  // 4 to 8 name topics (ulamki, dziesietne, procenty, potegi, Pitagoras) the app
-  // has no games for yet: the picker shows them, greyed out and unpickable.
-  ...[4, 5, 6, 7, 8].map((id) => cls(id, 1000, 100, 3, 15, false)),
+  // 4 to 8 keep class 3's numbers for the whole-number games and add a topic
+  // each (see TOPICS). A class past READY is still shown greyed out.
+  ...[4, 5, 6, 7, 8].map((id) => cls(id, 1000, 100, 3, 15, id <= READY)),
 ]
 
 // what the app falls back to before a class has been picked (the router sends
@@ -69,9 +79,11 @@ export function gameOps(id, cfg) {
   return op === 'class' ? cfg.ops.join(' ') : op
 }
 
-// A game built on an operator the class has not met is not offered at all.
-// Anything not in the table (an unknown route name) is always offered.
+// A game built on an operator the class has not met is not offered at all, and
+// a topic only to a class that has reached it. Anything not in either table (an
+// unknown route name) is always offered.
 export function gameOffered(id, cfg) {
+  if (TOPICS.includes(id)) return cfg.topics.includes(id)
   const op = GAMES[id]?.op
   return !op || op === 'class' || cfg.ops.includes(op)
 }
