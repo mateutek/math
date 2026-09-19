@@ -8,7 +8,7 @@ import { LEVELS, topicTask, parseAnswer, sameNumber } from './topics.js'
 
 const RUNS = 2000
 // topics whose generator exists yet; grows with the plan, ends as TOPICS
-const BUILT = ['fractions', 'decimals', 'percents']
+const BUILT = ['fractions', 'decimals', 'percents', 'powers']
 
 const isObject = (x) => x !== null && typeof x === 'object'
 const children = (x) => (Array.isArray(x) ? x : isObject(x) ? Object.values(x) : [])
@@ -127,6 +127,13 @@ const LEVEL_RULES = {
     for (const p of shown) {
       assert.ok(allowed ? allowed.includes(p) : p % 5 === 0 && p > 0 && p < 100, `${p}% is not a level ${level} percentage`)
     }
+  },
+
+  // the easy level is squares only
+  powers(task, level) {
+    if (level !== 1) return
+    const pows = [...task.parts, ...(task.options ?? []).flat()].filter((p) => isObject(p) && p.pow)
+    for (const p of pows) assert.equal(p.pow[1], 2, 'level 1 is squares only')
   },
 }
 

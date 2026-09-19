@@ -224,7 +224,64 @@ function percents(level) {
 }
 
 // ---------------------------------------------------------------------------
-const GENERATORS = { fractions, decimals, percents }
+// Class 7: powers and roots
+// ---------------------------------------------------------------------------
+const POWER_KINDS = {
+  1: ['square', 'pickBiggest'],
+  2: ['square', 'cube', 'root', 'sumSquares', 'pickBiggest'],
+  3: ['pow2', 'pow10', 'root', 'sumSquares', 'rule', 'pickBiggest'],
+}
+
+const powOpt = (b, e) => ({ parts: [{ pow: [b, e] }], value: b ** e })
+const power = (b, e) => number([{ pow: [b, e] }, '=', '?'], b ** e)
+
+function powers(level) {
+  const kind = one(POWER_KINDS[level])
+  const top = level === 1 ? 10 : 15 // the biggest base that gets squared
+
+  if (kind === 'square') return power(rnd(1, top), 2)
+  if (kind === 'cube') return power(rnd(1, 5), 3)
+  if (kind === 'pow2') return power(2, rnd(2, 10))
+  if (kind === 'pow10') return power(10, rnd(2, 6))
+
+  if (kind === 'root') {
+    const b = rnd(2, top)
+    return number([{ root: b * b }, '=', '?'], b)
+  }
+
+  if (kind === 'sumSquares') {
+    const a = rnd(1, 10)
+    const b = rnd(1, 10)
+    return number([{ pow: [a, 2] }, '+', { pow: [b, 2] }, '=', '?'], a * a + b * b)
+  }
+
+  if (kind === 'rule') {
+    // same base: the exponents add
+    const b = rnd(2, 9)
+    const m = rnd(2, 5)
+    const n = rnd(2, 5)
+    return number([{ pow: [b, m] }, '·', { pow: [b, n] }, '=', { pow: [b, '?'] }], m + n)
+  }
+
+  // pickBiggest. Three squares on the easy level; above it a power against its
+  // mirror, 2^5 or 5^2, skipping the pairs that tie (2^4 and 4^2, or a = b).
+  let options
+  if (level === 1) {
+    options = distinct(3, () => powOpt(rnd(1, 10), 2))
+  } else {
+    const hi = level === 2 ? 5 : 6
+    do {
+      const a = rnd(2, hi)
+      const b = rnd(2, hi)
+      options = [powOpt(a, b), powOpt(b, a)]
+    } while (options[0].value === options[1].value)
+  }
+  const right = biggest(options)
+  return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+}
+
+// ---------------------------------------------------------------------------
+const GENERATORS = { fractions, decimals, percents, powers }
 
 export function topicTask(topic, level) {
   if (!GENERATORS[topic] || !LEVELS.includes(level)) {
