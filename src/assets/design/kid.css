@@ -156,6 +156,21 @@
    box is one character wide, so the numbers either side never move */
 .kid-eq .ans.slot { display: inline-block; width: 1ch; text-align: center; }
 
+/* topic tasks (src/components/MathParts.vue): a stacked fraction, a root with
+   its bar, a translated word between numbers, and the Pythagoras triangle */
+.kid-frac { display: inline-flex; flex-direction: column; align-items: center; font-size: .62em; line-height: 1.05; }
+.kid-frac > span:first-child { padding: 0 .25em .1em; border-bottom: .09em solid var(--foreground); }
+.kid-frac > span:last-child { padding-top: .1em; }
+.kid-eq sup { font-size: .55em; line-height: 0; vertical-align: super; }
+.kid-sqrt > span { margin-left: .04em; padding: 0 .1em; border-top: .08em solid currentColor; }
+.kid-eq .word { font-family: var(--font-sans); font-size: .5em; font-weight: 700; color: var(--muted-foreground); }
+.kid-tri { height: 3.4em; width: auto; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; }
+.kid-tri text { fill: currentColor; stroke: none; font: 700 16px var(--font-mono); }
+.kid-tri text.ans { fill: var(--muted-foreground); }
+.kid-tri text.reveal { fill: var(--k-wrong); }
+/* inside an answer tile the fraction keeps the tile's own size */
+.kid-tile .kid-frac { font-size: .95em; }
+
 /* strike dots: plain circles, filled red once used */
 .kid-strikes { display: flex; justify-content: center; gap: 8px; }
 .kid-strikes .dot { width: 12px; height: 12px; border-radius: 999px; background: var(--k-card-border); }
