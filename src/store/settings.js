@@ -16,6 +16,10 @@ const settings = reactive({
   lang: storedLang === 'en' || storedLang === 'pl' ? storedLang : 'pl',
   // 'auto' follows the device, 'day' and 'night' force one
   theme: ['auto', 'day', 'night'].includes(storedTheme) ? storedTheme : 'auto',
+  // quarter turns clockwise applied to the village map, 0..3
+  mapRotation: [0, 1, 2, 3].includes(Number(localStorage.getItem('mapRotation')))
+    ? Number(localStorage.getItem('mapRotation'))
+    : 0,
   // the resolved theme. Everything visual reads the CSS variables under
   // <html data-theme>; this flag is only for the few things CSS cannot set,
   // such as the map viewBox and the night-only sky.
@@ -43,6 +47,13 @@ watch(
   () => settings.timerEnabled,
   (value) => {
     localStorage.setItem('timerEnabled', JSON.stringify(value))
+  },
+)
+
+watch(
+  () => settings.mapRotation,
+  (value) => {
+    localStorage.setItem('mapRotation', String(value))
   },
 )
 

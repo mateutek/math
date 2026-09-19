@@ -1,7 +1,7 @@
 <script setup>
 import { computed, defineAsyncComponent } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
-import { Infinity as InfinityIcon, Home, Gamepad2 } from 'lucide-vue-next'
+import { Home, Gamepad2 } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
 import NextGoal from '@/components/NextGoal.vue'
@@ -41,11 +41,12 @@ const game = computed(() =>
   <div class="kid-page" :class="{ bare }">
     <header class="kid-header">
       <div class="kid-header-in">
-        <span class="kid-mark"><InfinityIcon :size="22" /></span>
+        <span class="kid-mark"><img :src="'/logo-mark.svg'" width="34" height="34" alt="" /></span>
         <span class="kid-wordmark">Math <span class="en">{{ t('subtitle') }}</span></span>
 
         <!-- from 768px the tabs live here; below that see the fixed bar -->
         <nav v-if="!bare" class="kid-nav-top" aria-label="Main">
+          <span class="kid-tab-pill" :class="{ second: !onVillage }" aria-hidden="true"></span>
           <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
             <component :is="tab.icon" :size="18" /> {{ t(tab.key) }}
             <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
@@ -66,7 +67,9 @@ const game = computed(() =>
       <!-- the village page brings its own side column (goal and shop) -->
       <RouterView v-if="onVillage || bare" />
       <div v-else class="kid-cols">
-        <div class="kid-col-main"><RouterView /></div>
+        <!-- keyed: the equation games share one page component, and each needs
+             its own instance, not a patched copy of the last one -->
+        <div class="kid-col-main"><RouterView :key="route.name" /></div>
         <aside class="kid-col-side kid-desktop-only">
           <NextGoal />
           <RewardsCard v-if="game" :pays="game.pays" :pay="classConfig.pay" />
@@ -74,10 +77,11 @@ const game = computed(() =>
       </div>
     </main>
 
-    <footer v-if="!bare" class="kid-foot">© Mateusz Woźniak - {{ year }}</footer>
+    <footer v-if="!bare" class="kid-foot">© Conrivo - {{ year }}</footer>
 
     <!-- phone tab bar; outside the sticky header so it stays pinned -->
     <nav v-if="!bare" class="kid-tabs" aria-label="Main">
+      <span class="kid-tab-pill" :class="{ second: !onVillage }" aria-hidden="true"></span>
       <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
         <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}
         <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>

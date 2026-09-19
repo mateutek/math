@@ -3,8 +3,9 @@ import pluginVue from 'eslint-plugin-vue'
 
 export default [
   {
-    // .claude holds agent worktrees, which carry their own dist/ output
-    ignores: ['dist/**', 'node_modules/**', '.claude/**'],
+    // .claude holds agent worktrees, which carry their own dist/ output;
+    // docs holds reference code that is not part of the app
+    ignores: ['dist/**', 'node_modules/**', '.claude/**', 'docs/**'],
   },
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],

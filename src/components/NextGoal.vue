@@ -3,9 +3,9 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Flame } from 'lucide-vue-next'
 import MaterialIcon from '@/components/MaterialIcon.vue'
-import IsoBuilding from '@/components/IsoBuilding.vue'
 import village, { build, next } from '@/store/village'
 import { goalFor, canAfford } from '@/store/villageLogic'
+import { artFile } from '@/data/villageMap'
 import { t, tp } from '@/i18n'
 
 const props = defineProps({
@@ -25,6 +25,11 @@ const bars = computed(() =>
   }),
 )
 
+// the goal's own sprite; CSS fits it into the card's 72 x 69 art box
+const art = computed(
+  () => `${import.meta.env.BASE_URL}village/${artFile(goal.value.id, goal.value.tier)}`,
+)
+
 // the hint names one shortfall: the material the goal lacks most of
 const short = computed(() =>
   bars.value.filter((b) => !b.full).sort((a, b) => b.need - b.have - (a.need - a.have))[0],
@@ -40,9 +45,9 @@ function onBuild() {
     <span class="kid-eyebrow">{{ t('nextGoal') }}</span>
     <template v-if="goal">
       <div class="kid-goal-head">
-        <svg v-if="!canBuild" class="art" viewBox="-36 -36 72 80" aria-hidden="true">
-          <IsoBuilding :id="goal.id" :tier="goal.tier" ghost next />
-        </svg>
+        <span v-if="!canBuild" class="art" aria-hidden="true">
+          <img :src="art" alt="" draggable="false" decoding="async" />
+        </span>
         <div class="txt">
           <h2>{{ t('b_' + goal.id) }}</h2>
           <span class="sub">{{ t('tier') }} {{ goal.tier }}</span>

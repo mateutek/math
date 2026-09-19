@@ -47,10 +47,10 @@
 .kid-top { display: flex; align-items: center; gap: 12px; }
 .kid-mark {
   width: 34px; height: 34px; border-radius: 11px; flex: none;
-  background: var(--k-brand); color: var(--k-brand-fg);
   display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
 }
-.kid-mark svg { width: 20px; height: 20px; }
+.kid-mark img { width: 100%; height: 100%; display: block; }
 .kid-wordmark { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
 .kid-wordmark .en { font-weight: 600; font-size: 12px; color: var(--muted-foreground); letter-spacing: 0; margin-left: 2px; }
 
@@ -95,13 +95,28 @@
 @keyframes kid-pop   { 0%{transform:scale(1)} 35%{transform:scale(1.025)} 100%{transform:scale(1)} }
 @keyframes kid-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
 
-/* status row: back, score, stars. From 1024px the game title joins it and the
-   stars and score move to the right together. */
-.kid-status { display: flex; align-items: center; gap: 10px; }
+/* While the on-screen keyboard is up GameCard pins the card to what is left of
+   the screen (it sets top and height), above the header and the tab bar, and
+   everything packs tighter so the field and both buttons stay in sight. */
+.kid-card.kb {
+  position: fixed; left: 0; right: 0; z-index: 30; flex: none;
+  padding: 10px 14px; gap: 8px; border-radius: 0; box-shadow: none;
+}
+.kid-card.kb .kid-eq, .kid-card.kb .kid-eq.sm { font-size: clamp(24px, 8vw, 40px); }
+.kid-card.kb .kid-prompt, .kid-card.kb .kid-field-label { display: none; }
+.kid-card.kb .kid-input, .kid-card.kb .kid-btn { height: 46px; }
+
+/* status row: what this sitting earned, the timer, the stars. From 1024px the
+   game title joins it and the stars and the tally move to the right together.
+   The left padding clears the close button in the card's corner. */
+.kid-status { display: flex; align-items: center; gap: 10px; min-height: 28px; padding-left: 28px; }
 .kid-status .kid-h1 { font-size: 24px; }
 .kid-score { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
 .kid-score .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 24px; color: var(--k-brand); white-space: nowrap; line-height: 1.05; }
 .kid-score .cap { font-size: 11.5px; font-weight: 600; color: var(--muted-foreground); white-space: nowrap; }
+/* the tally: a number and its material icon, side by side, per thing earned */
+.kid-earned { display: flex; align-items: center; gap: 10px; font-size: 20px; }
+.kid-earned > span { display: inline-flex; align-items: center; gap: 3px; }
 .kid-streak { margin-left: auto; display: flex; align-items: center; gap: 4px; }
 .kid-streak .star { color: var(--k-card-border); transition: color .2s ease, transform .2s ease; }
 @media (min-width: 1024px) {
@@ -128,14 +143,18 @@
 /* equation */
 .kid-eq {
   flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
-  gap: 16px; flex-wrap: wrap;
+  /* one line, always: sized so "1000 − 999 = ?" still fits a 320px phone */
+  gap: .28em; white-space: nowrap;
   font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em; line-height: 1;
-  font-size: clamp(40px, 16.4vw, 72px);
+  font-size: clamp(26px, 9.5vw, 72px);
 }
 .kid-eq .op { color: var(--k-ink, var(--k-display-op)); }
 .kid-eq .ans { color: var(--muted-foreground); min-width: 1ch; }
 .kid-eq .ans.reveal { color: var(--k-wrong); }
+/* a one-sign slot (Compare): whatever stands in it - "?", "<", "=", ">" - the
+   box is one character wide, so the numbers either side never move */
+.kid-eq .ans.slot { display: inline-block; width: 1ch; text-align: center; }
 
 /* strike dots: plain circles, filled red once used */
 .kid-strikes { display: flex; justify-content: center; gap: 8px; }
@@ -223,6 +242,9 @@
   --k-card-border: #e8e4dc; --k-card-radius: 26px; --k-card-shadow: var(--shadow-lg);
   --k-border-w: 1px; --k-btn-radius: 16px; --k-btn-lift: 0px;
   --k-display-op: #2f6bed; --k-wrong: #dc2626;
+  /* the kid-cheer toast's fill: a darker shade than --success (green-600,
+     #16a34a) because white text on that green is only 3.3:1, below AA */
+  --k-correct: #15803d;
   --k-op-add: #22c55e; --k-op-sub: #f59e0b; --k-op-mul: #6366f1; --k-op-div: #ec4899; --k-op-div2: #14b8a6;
   /* surfaces and inks that are not simply a card or the page */
   --k-track: #efece4; --k-done: #15803d; --k-bone: #fbfaf6; --k-tile-rest: var(--k-page);
@@ -234,13 +256,18 @@
   --k-tile-mix: 14%; --k-mix-base: #ffffff;
   /* the design's muted ink; the shadcn default is a cooler grey */
   --muted-foreground: #55657e;
+  /* village map: the sprites are warm daylight art, so day filters nothing */
+  --k-map-filter: none;
+  --k-map-glow: drop-shadow(0 0 1.5px #ffffff) drop-shadow(0 0 4px var(--k-brand));
+  --k-chip-built-bg: #dcfce7; --k-chip-built-fg: #15803d;
+  --k-chip-plan-bg: #efece4;
 }
 
 /* ---- NIGHT -----------------------------------------------------------------
    Every night value below is read off the night design boards (NightVillage,
    NightSettings, NightDesktopVillage, NightDesktopTiles). Day values stay where
    they were: the chrome ones just above, the drawn art ones as var() fallbacks
-   inside IsoBuilding.vue, Village.vue and MaterialIcon.vue.
+   inside MaterialIcon.vue.
    ---------------------------------------------------------------------------- */
 :root[data-theme="night"] {
   --foreground: #f1efe8;
@@ -257,37 +284,22 @@
   --k-brand-soft: #1c2745; --k-brand-deep: #8fb0ff;
   --k-brand-line: #8fb0ff; --k-brand-bar: #4f86ff; --k-brand-on-soft: #a9c1ff;
   --k-op-mul: #7c80f5; --k-wrong: #f0524f;
+  /* --k-done (#34c46a) is too light for white toast text (2.3:1); this holds
+     AA (7.1:1) while staying clearly green against the dark card */
+  --k-correct: #166534;
   --muted-foreground: #9aa3b5;
   --k-track: #2a2e3d; --k-done: #34c46a; --k-bone: #1b1e2a; --k-tile-rest: #151823;
   --k-seg-bg: var(--k-page);
   --k-fire: #f2b84b; --k-purse: #f2b84b; --k-error: #ff9a9a; --k-danger-bg: #3a1d20;
   --k-tile-mix: 18%; --k-mix-base: #12141c;
 
-  /* map ground and the earth edge under it */
-  --k-grass: #2f5a45; --k-grass2: #2a523f; --k-path: #6a6048; --k-pond: #1f4e73;
-  --k-edge: #3b2e22; --k-edge2: #30251b;
-  /* building shading, smoke and the pulse of the next plot */
-  --k-shade: .25; --k-shade2: .33; --k-pulse: .4; --k-smoke: .55;
-  --k-smoke-fill: #cfd6e6; --k-ghost-mix: 85%;
-  /* windows are lit after dark, with a soft glow behind them */
-  --k-door: #2a190e; --k-window: #ffd76a; --k-glow: .16;
-  --k-pole: #261b12; --k-flag: #762a24;
-  /* the four buildings the night boards show */
-  --b-hut-w: #8a7150; --b-hut-r: #5e2d21;
-  --b-well-w: #5f636d; --b-well-r: #2b6a94;
-  --b-farm-w: #553a22; --b-farm-r: #7d6f28;
-  --b-bakery-w: #8c8064; --b-bakery-r: #522b18;
-  /* no board shows the other eight, so they take the same darkening the four
-     above measure out: in OKLCH, L_night = 0.724 * L_day - 0.065, chroma * 0.62,
-     hue kept. That formula reproduces all eight board colours to within ~2/255. */
-  --b-school-w: #845a30; --b-school-r: #391f43;
-  --b-mill-w: #837f75; --b-mill-r: #422818;
-  --b-market-w: #897539; --b-market-r: #762a24;
-  --b-library-w: #707782; --b-library-r: #192a42;
-  --b-tower-w: #6c6e72; --b-tower-r: #51545a;
-  --b-bridge-w: #4d331d; --b-bridge-r: #6b5237;
-  --b-townhall-w: #898780; --b-townhall-r: #12337a;
-  --b-castle-w: #696b70; --b-castle-r: #494d55;
+  /* Village map after dark. The sprites are not re-coloured: one filter on the
+     map, exactly as NightVillage draws it, plus the sky behind it. */
+  --k-map-filter: brightness(.62) saturate(.7) hue-rotate(-8deg);
+  --k-map-glow: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 5px #8fb0ff);
+  --k-chip-built-bg: #163826; --k-chip-built-fg: #86efac;
+  --k-chip-plan-bg: #262a38;
+  --k-star: #f1efe8; --k-moon: #f4e9c1;
   /* The material icons no longer flip after dark: NightVillage and
      NightDesktopTiles draw them in exactly the day colours, so these repeat the
      day values rather than leaving the tokens untokened. */
@@ -359,6 +371,8 @@
 
 /* in full-app mode the root is not a fixed artboard — let it size to content */
 .kid-page .kid-main .kid-card { min-height: 460px; }
+/* ...except beside the keyboard, where it is exactly as tall as what is left */
+.kid-page .kid-main .kid-card.kb { min-height: 0; }
 
 /* the phone boards have no footer: the tab bar is the last thing on screen */
 .kid-foot { display: none; text-align: center; color: var(--muted-foreground); font-size: 12.5px;
@@ -370,9 +384,11 @@
 /* ============================================================================
    NEW GAMES - shared board pieces used by src/pages/games/*.vue
    ============================================================================ */
+/* closes the game: an X tucked into the card's top left corner */
 .kid-back {
-  display: inline-flex; align-items: center; justify-content: center; flex: none;
-  width: 44px; height: 44px; margin: -8px 0 -8px -8px; border-radius: 999px;
+  position: absolute; top: 4px; left: 4px; z-index: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 999px;
   color: var(--muted-foreground); transition: background .15s ease, color .15s ease;
 }
 .kid-back:hover { background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
@@ -474,39 +490,119 @@
 .kid-badge { padding: 3px 9px; border-radius: 999px; background: var(--k-accent); color: #3b2600; font-size: 11px; font-weight: 800; white-space: nowrap; }
 
 /* ============================================================================
-   VILLAGE - iso map (src/pages/Village.vue, src/components/IsoBuilding.vue)
+   VILLAGE - sprite map (src/pages/Village.vue, src/components/VillageMap.vue)
    ============================================================================ */
 .kid-village { position: relative; }
 .kid-village-head { display: flex; align-items: baseline; gap: 14px; }
 .kid-village-head .count { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--muted-foreground); }
 .kid-village-hint { margin: 0; text-align: center; font-size: 13px; color: var(--muted-foreground); }
-.kid-map { display: block; width: 100%; height: auto; }
+.kid-map { position: relative; width: 100%; }
 /* the phone board bleeds the map to both screen edges, cards stay inset */
 @media (max-width: 1023px) { .kid-map { width: calc(100% + 40px); margin-left: -20px; } }
 @media (min-width: 1024px) {
   .kid-village-head .count { margin-left: 0; font-size: 14px; }
   .kid-village-hint { text-align: left; font-size: 14px; }
 }
-.iso-b .shade { fill: #000; opacity: var(--k-shade, .14); }
-.iso-b .shade2 { fill: #000; opacity: var(--k-shade2, .28); }
-/* lit-window glow: night only, so it is invisible until --k-glow says otherwise */
-.iso-glow { opacity: var(--k-glow, 0); }
-/* night sky. Only the stars that carry a --tw duration twinkle. */
-.kid-star { animation: iso-twinkle var(--tw, 0s) ease-in-out var(--twd, 0s) infinite; }
-.iso-b.built { cursor: pointer; }
-.iso-b.sel polygon { stroke: var(--k-brand-line); stroke-width: 2; }
-.iso-b.ghost polygon {
-  fill: transparent; stroke: var(--muted-foreground); stroke-width: 1.5;
-  stroke-dasharray: 4 4; opacity: .4;
+/* 592 x 360 is the map's logical canvas; both design embeds are that shape */
+.kid-map-vp {
+  aspect-ratio: 592 / 412; /* the window onto the land, not the land's own shape */
+  overflow: auto; scrollbar-width: none;
+  overscroll-behavior: contain; touch-action: auto;
 }
-.iso-b.ghost.next polygon { fill: color-mix(in srgb, var(--k-brand-soft) var(--k-ghost-mix, 70%), transparent); stroke: var(--k-brand-line); stroke-width: 2; stroke-dasharray: 5 4; opacity: 1; }
-.iso-b.ghost.next { animation: iso-pulse 1.6s ease-in-out infinite; }
-.iso-smoke { fill: var(--k-smoke-fill, #fff); opacity: 0; animation: iso-smoke 3s ease-out infinite; }
-.iso-flag { transform-box: fill-box; transform-origin: left center; animation: iso-flag 1.2s ease-in-out infinite alternate; }
-@keyframes iso-pulse { 50% { opacity: var(--k-pulse, .35); } }
-@keyframes iso-smoke { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: var(--k-smoke, .85); } 100% { opacity: 0; transform: translateY(-22px); } }
-@keyframes iso-twinkle { 50% { opacity: .25; } }
-@keyframes iso-flag { from { transform: scaleX(1); } to { transform: scaleX(.7); } }
+.kid-map-vp::-webkit-scrollbar { display: none; }
+/* zoomed in the map pans; at 1x it must not swallow the page's own scroll */
+.kid-map-vp.pannable { touch-action: pan-x pan-y; cursor: grab; }
+.kid-map-world { position: relative; filter: var(--k-map-filter, none); }
+.kid-map-art img {
+  position: absolute; user-select: none; pointer-events: none;
+  /* smooth-shaded 3D art that is only ever downscaled: never pixelated */
+  image-rendering: auto;
+}
+.kid-map-art img.plan { opacity: .5; }
+.kid-map-art img.next { animation: kid-map-pulse 1.6s ease-in-out infinite; }
+.kid-map-art img.lit { filter: var(--k-map-glow); }
+@keyframes kid-map-pulse { 50% { opacity: .5; } }
+.kid-map-diamond { position: absolute; overflow: visible; pointer-events: none; }
+.kid-map-diamond .fill {
+  fill: var(--k-brand-line); fill-opacity: .28;
+  stroke: #fff; stroke-width: 2.2; stroke-linejoin: round;
+}
+.kid-map-diamond .rim { fill: none; stroke: var(--k-brand-line); stroke-width: 1.2; stroke-linejoin: round; }
+.kid-map-labels { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.kid-map-labels li {
+  position: absolute; transform: translate(-50%, -100%); padding: 2px 7px; border-radius: 999px;
+  background: color-mix(in srgb, var(--k-card) 80%, transparent); color: var(--muted-foreground);
+  font-size: 11px; font-weight: 700; white-space: nowrap; pointer-events: none;
+}
+.kid-map-labels li.built { background: var(--k-card); color: var(--foreground); }
+.kid-map-pin {
+  position: absolute; transform: translate(-50%, -100%); padding: 3px 9px; border-radius: 999px;
+  background: var(--k-brand); color: var(--k-brand-fg); font-size: 11.5px; font-weight: 800;
+  white-space: nowrap; box-shadow: 0 2px 6px rgb(11 16 32 / 25%); pointer-events: none;
+}
+.kid-map-hits { position: absolute; inset: 0; }
+.kid-map-hits button {
+  position: absolute; padding: 0; border: none; border-radius: 10px;
+  background: transparent; cursor: pointer;
+  /* only the slabs below take pointer events, so the button's own bounding box
+     - which is just the focus ring - never covers the plot next door */
+  pointer-events: none;
+}
+.kid-map-hits button i { position: absolute; pointer-events: auto; }
+.kid-map-hits button:focus-visible { outline: 3px solid var(--k-brand-line); outline-offset: 0; }
+.kid-map-card {
+  position: absolute; left: 8px; top: 8px; width: min(250px, calc(100% - 16px));
+  box-sizing: border-box; padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px;
+  border-radius: 16px; background: var(--k-card); border: 1px solid var(--k-card-border);
+  box-shadow: 0 6px 18px rgb(11 16 32 / 18%);
+}
+.kid-map-card .head { display: flex; align-items: center; gap: 8px; }
+.kid-map-card .txt { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0; }
+.kid-map-card h3 { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.15; }
+.kid-map-card .chip {
+  align-self: flex-start; padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 800;
+}
+.kid-map-card .chip.built { background: var(--k-chip-built-bg); color: var(--k-chip-built-fg); }
+.kid-map-card .chip.next { background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
+.kid-map-card .chip.plan { background: var(--k-chip-plan-bg); color: var(--muted-foreground); }
+.kid-map-card .close {
+  width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 12px;
+  background: transparent; color: var(--muted-foreground);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.kid-map-card p { margin: 0; font-size: 13px; line-height: 1.35; color: var(--muted-foreground); }
+.kid-map-card .kid-btn { height: 44px; flex: none; }
+.kid-map-pill {
+  position: absolute; right: 8px; bottom: 8px; display: flex; align-items: center; gap: 2px;
+  padding: 2px; border-radius: 14px; background: var(--k-card);
+  border: 1px solid var(--k-card-border); box-shadow: 0 2px 8px rgb(11 16 32 / 12%);
+}
+/* the rotate control is the zoom pill's sibling, same metrics and tokens */
+.kid-map-pill.rotate { right: auto; left: 8px; }
+.kid-map-pill.screen { bottom: auto; top: 8px; }
+/* Full screen: above the sticky header and the tab bar (both z-index 20). It
+   needs its own paint, because a fullscreen element sits on a black backdrop. */
+.kid-map.full {
+  position: fixed; inset: 0; z-index: 30; width: auto; margin: 0; background: var(--k-page);
+}
+.kid-map.full .kid-map-vp { aspect-ratio: auto; height: 100%; }
+.kid-map-pill button {
+  width: 44px; height: 44px; border: none; border-radius: 12px; background: transparent;
+  color: var(--foreground); display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.kid-map-pill button:disabled { opacity: .35; cursor: default; }
+.kid-map-pill .n { min-width: 40px; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--muted-foreground); }
+/* night sky, drawn behind the map. Only every third star twinkles. */
+.kid-map-sky { position: absolute; inset: 0; pointer-events: none; }
+.kid-map-sky .star { position: absolute; border-radius: 999px; background: var(--k-star, #f1efe8); opacity: .8; }
+.kid-map-sky .star.tw { animation: kid-map-twinkle 3.6s ease-in-out var(--twd, 0s) infinite; }
+.kid-map-sky .moon {
+  position: absolute; left: 12%; top: 14px; width: 26px; height: 26px; border-radius: 999px;
+  box-shadow: -7px 4px 0 0 var(--k-moon, #f4e9c1);
+}
+@keyframes kid-map-twinkle { 50% { opacity: .25; } }
 
 /* ============================================================================
    GOAL CARD, SHOP, BUILDING LIST
@@ -516,8 +612,9 @@
 .kid-eyebrow { display: none; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--k-brand-deep); }
 .kid-goal-head { display: flex; align-items: baseline; gap: 10px; }
 .kid-goal-head .txt { display: flex; align-items: baseline; gap: 10px; }
-.kid-goal-head .art { width: 72px; height: 66px; flex: none; }
-.kid-goal-head .art .iso-b { animation: none; }
+/* the goal's own sprite, fitted into the design's 72 x 69 box */
+.kid-goal-head .art { width: 72px; height: 69px; flex: none; }
+.kid-goal-head .art img { width: 100%; height: 100%; object-fit: contain; user-select: none; }
 .kid-goal-head h2 { font-size: 18px; letter-spacing: -0.02em; }
 .kid-goal-head .sub { font-size: 13px; font-weight: 600; color: var(--muted-foreground); }
 /* side-column variant (game pages): ghost art next to a stacked name */
@@ -569,7 +666,8 @@
 .kid-blist li.next .dot { background: transparent; border: 2px solid var(--k-brand-line); }
 
 @media (prefers-reduced-motion: reduce) {
-  .iso-smoke, .iso-flag, .iso-b.ghost.next, .kid-star { animation: none; }
+  .kid-map-art img.next, .kid-map-sky .star.tw { animation: none; }
+  .kid-tab-pill { transition: none; }
   .kid-bar .fill, .kid-picker .cls { transition: none; }
 }
 
@@ -633,19 +731,32 @@
 .kid-tab {
   position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
   color: var(--muted-foreground); font-weight: 800; font-size: 15px; text-decoration: none;
-  transition: background .15s ease, color .15s ease;
+  transition: color .25s ease;
 }
-.kid-tab.active { background: var(--k-brand); color: var(--k-brand-fg); }
+.kid-tab.active { color: var(--k-brand-fg); }
+/* The active tab's blue is one pill that slides between the two tabs. Both navs
+   are a two-column grid, so the tabs are equal and the pill is one column wide:
+   it sits in column one and moves over by its own width plus the gap. */
+.kid-tabs, .kid-nav-top { --tab-gap: 8px; grid-template-columns: 1fr 1fr; gap: var(--tab-gap); }
+.kid-tab-pill {
+  grid-area: 1 / 1; border-radius: var(--k-btn-radius); background: var(--k-brand);
+  transition: transform .3s cubic-bezier(.3, 1.3, .6, 1);
+}
+.kid-tab-pill.second { transform: translateX(calc(100% + var(--tab-gap))); }
+/* the tabs share row one with the pill, so each names its column: left to
+   itself, auto-placement would step round the pill and push them one along */
+.kid-tab { grid-row: 1; grid-column: 1; }
+.kid-tab ~ .kid-tab { grid-column: 2; }
 .kid-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--k-accent); animation: iso-pulse 1.2s ease-in-out infinite; }
 
 /* phone: fixed bottom bar */
 .kid-nav-top { display: none; }
 .kid-tabs {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  display: flex; gap: 8px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom));
+  display: grid; padding: 8px 16px calc(12px + env(safe-area-inset-bottom));
   background: var(--k-card); border-top: 1px solid var(--k-card-border);
 }
-.kid-tabs .kid-tab { flex: 1; min-height: 48px; border-radius: var(--k-btn-radius); }
+.kid-tabs .kid-tab { min-height: 48px; border-radius: var(--k-btn-radius); }
 .kid-page { padding-bottom: 76px; } /* room for the fixed tab bar */
 /* routes with meta.bare (the class picker) drop the tab bar and the side column,
    so nothing below has to make room for them */
@@ -656,7 +767,8 @@
 @media (min-width: 768px) {
   .kid-tabs { display: none; }
   .kid-page { padding-bottom: 0; }
-  .kid-nav-top { display: flex; gap: 6px; margin-left: 24px; }
+  .kid-nav-top { display: grid; --tab-gap: 6px; margin-left: 24px; }
+  .kid-nav-top .kid-tab-pill { border-radius: 14px; }
   .kid-nav-top .kid-tab { height: 44px; padding: 0 18px; border-radius: 14px; }
 }
 
@@ -666,7 +778,6 @@
   .kid-header-in { max-width: 1160px; height: 72px; padding: 0 20px; gap: 12px; }
   .kid-main { max-width: 1160px; padding-top: 28px; }
   .kid-mark { width: 38px; height: 38px; border-radius: 12px; }
-  .kid-mark svg { width: 22px; height: 22px; }
   .kid-header .kid-wordmark { font-size: 21px; }
   .kid-header .kid-wordmark .en { font-size: 13px; }
   .kid-nav-top { margin-left: 36px; }

@@ -3,9 +3,10 @@
 // here are plain English and deliberately not run through t().
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
-import village, { reward, reset, next } from '@/store/village'
+import village, { build, reward, reset, next } from '@/store/village'
+import { goalFor } from '@/store/villageLogic'
 import settings from '@/store/settings'
-import { MATERIALS } from '@/data/buildings'
+import { BUILDINGS, MATERIALS } from '@/data/buildings'
 import { CLASSES } from '@/data/classes'
 
 const playable = CLASSES.filter((c) => c.available)
@@ -45,6 +46,21 @@ function fundGoal() {
   }
 }
 
+// build and upgrade everything to the top tier, so the whole map can be eyeballed
+function maxAll() {
+  for (let tier = 1; tier <= 3; tier++) {
+    for (const def of BUILDINGS) {
+      const goal = goalFor(village, def.id)
+      if (!goal) continue
+      for (const [kind, need] of Object.entries(goal.cost)) {
+        const missing = need - village.materials[kind]
+        if (missing > 0) reward(kind, missing)
+      }
+      build(def.id)
+    }
+  }
+}
+
 function resetAll() {
   if (window.confirm('Reset the whole village?')) reset()
 }
@@ -77,6 +93,10 @@ function resetAll() {
         <button type="button" @click="settings.schoolClass = null">Forget class</button>
         <button type="button" :disabled="!next" @click="fundGoal">
           Fund next goal{{ next ? ` (${next.id} ${next.tier})` : '' }}
+        </button>
+        <button type="button" @click="maxAll">Build + max all</button>
+        <button type="button" @click="settings.mapRotation = (settings.mapRotation + 1) % 4">
+          Rotate map ({{ settings.mapRotation }})
         </button>
         <button type="button" @click="resetAll">Reset village</button>
       </div>
