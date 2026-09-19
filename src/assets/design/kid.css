@@ -171,6 +171,17 @@
 /* inside an answer tile the fraction keeps the tile's own size */
 .kid-tile .kid-frac { font-size: .95em; }
 
+/* difficulty chips on a topic game; --k-ink is the readable shade of its colour */
+.kid-levels { display: flex; justify-content: center; gap: 6px; }
+.kid-levels button {
+  min-height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  border: 2px solid var(--k-card-border); background: var(--k-card); color: var(--muted-foreground);
+  font: 800 13px var(--font-sans); transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.kid-levels button[aria-pressed="true"] { background: var(--k-ink); border-color: transparent; color: #fff; }
+/* beside the on-screen keyboard every row counts: the level is already chosen */
+.kid-card.kb .kid-levels { display: none; }
+
 /* strike dots: plain circles, filled red once used */
 .kid-strikes { display: flex; justify-content: center; gap: 8px; }
 .kid-strikes .dot { width: 12px; height: 12px; border-radius: 999px; background: var(--k-card-border); }

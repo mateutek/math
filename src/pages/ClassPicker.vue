@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ArrowRight } from 'lucide-vue-next'
 import settings from '@/store/settings'
 import { CLASSES, configFor } from '@/data/classes'
+import { GAMES } from '@/data/games'
 import { t, tp } from '@/i18n'
 
 const router = useRouter()
@@ -24,6 +25,10 @@ const practice = computed(() => [
     : []),
   { sym: '< >', ink: 'var(--k-ink-div2, #0f766e)', text: tp('practiceCompare', cfg.value.max) },
   { sym: '?', ink: 'var(--k-ink-missing, #1f4fc4)', text: tp('practiceMissing', cfg.value.max) },
+  ...cfg.value.topics.map((id) => {
+    const game = GAMES.find((g) => g.id === id)
+    return { sym: game.symbol, ink: game.ink, text: t('practice_' + id) }
+  }),
 ])
 
 function start() {

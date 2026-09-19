@@ -4,27 +4,31 @@ import { RouterLink } from 'vue-router'
 import ClassChip from '@/components/ClassChip.vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
 import village, { next, streakKey } from '@/store/village'
-import { classConfig } from '@/store/settings'
+import settings, { classConfig } from '@/store/settings'
 import { GROUPS } from '@/data/games'
-import { gameMax, gameOffered } from '@/data/classes'
+import { TOPICS, gameMax, gameOffered } from '@/data/classes'
 import { t, tp } from '@/i18n'
 
 // true when the next building still lacks a material this group can earn
 const needed = (pays) =>
   pays.some((k) => (next.value?.cost[k] ?? 0) > village.materials[k])
 
-// a class that has not met an operation is not shown the games built on it
+// a class that has not met an operation or a topic is not shown the games built
+// on it, and a group left with none (Tematy below class 4) is not shown at all
 const groups = computed(() =>
   GROUPS.map((group) => ({
     ...group,
     games: group.games.filter((game) => gameOffered(game.id, classConfig.value)),
-  })),
+  })).filter((group) => group.games.length),
 )
 
-// "do 100 · rekord 14": the range always, the record only once there is one
+// "do 100 · rekord 14": the range always, the record only once there is one.
+// A topic has no range; it shows the level the kid last chose.
 function caption(id) {
   const cfg = classConfig.value
-  const range = tp(id === 'domino' ? 'rangeSums' : 'rangeTo', gameMax(id, cfg))
+  const range = TOPICS.includes(id)
+    ? t('lvl' + settings.topicLevel[id])
+    : tp(id === 'domino' ? 'rangeSums' : 'rangeTo', gameMax(id, cfg))
   const best = village.bestStreak[streakKey(id, cfg.id)]
   return best ? `${range} · ${tp('bestShort', best)}` : range
 }

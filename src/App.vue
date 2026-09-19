@@ -7,8 +7,8 @@ import MaterialIcon from '@/components/MaterialIcon.vue'
 import NextGoal from '@/components/NextGoal.vue'
 import RewardsCard from '@/components/RewardsCard.vue'
 import SettingsSheet from '@/components/SettingsSheet.vue'
-import village, { affordable } from '@/store/village'
-import { classConfig } from '@/store/settings'
+import village, { affordable, needed } from '@/store/village'
+import settings, { classConfig } from '@/store/settings'
 import { MATERIALS } from '@/data/buildings'
 import { GAMES } from '@/data/games'
 import { t } from '@/i18n'
@@ -72,7 +72,14 @@ const game = computed(() =>
         <div class="kid-col-main"><RouterView :key="route.name" /></div>
         <aside class="kid-col-side kid-desktop-only">
           <NextGoal />
-          <RewardsCard v-if="game" :pays="game.pays" :pay="classConfig.pay" />
+          <!-- a topic has no material of its own: it pays what the village
+               needs, times the level the kid is playing at -->
+          <RewardsCard
+            v-if="game"
+            :pays="game.pays.length ? game.pays : [needed]"
+            :pay="classConfig.pay * (settings.topicLevel[game.id] ?? 1)"
+            :topic="!game.pays.length"
+          />
         </aside>
       </div>
     </main>
