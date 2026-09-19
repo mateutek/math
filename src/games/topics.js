@@ -277,7 +277,7 @@ function powers(level) {
     } while (options[0].value === options[1].value)
   }
   const right = biggest(options)
-  return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+  return pick(options.length === 2 ? 'topicPickBigger' : 'topicPickBiggest', [], right, options.filter((o) => o !== right))
 }
 
 // ---------------------------------------------------------------------------

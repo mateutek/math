@@ -96,7 +96,8 @@ function checkTask(task, where) {
     assert.equal(equal.length, 1, `${where}: ${equal.length} options equal the target`)
     assert.ok(Math.abs(values[task.answer] - target) < 1e-9, `${where}: wrong option marked right`)
   } else {
-    assert.equal(task.prompt, 'topicPickBiggest', where)
+    // "biggest" of three or four, "bigger" of two
+    assert.equal(task.prompt, task.options.length === 2 ? 'topicPickBigger' : 'topicPickBiggest', where)
     assert.equal(values[task.answer], Math.max(...values), `${where}: the biggest is not marked right`)
   }
 }
@@ -120,6 +121,12 @@ const LEVEL_RULES = {
   // a typed percent task only uses the level's own percentages
   percents(task, level) {
     if (task.kind !== 'number') return
+    // fromFrac (n/d = ?%) is levelled by its denominator, not by the percentage list
+    if (isObject(task.parts[0]) && task.parts[0].frac) {
+      const denoms = { 1: [2, 4, 10], 2: [2, 4, 5, 10, 20], 3: [4, 5, 20, 25, 50] }[level]
+      assert.ok(denoms.includes(task.parts[0].frac[1]), `denominator ${task.parts[0].frac[1]} is not a level ${level} denominator`)
+      return
+    }
     const allowed = { 1: [10, 25, 50, 100], 2: [10, 20, 30, 40, 50, 60, 70, 80, 90, 25, 75] }[level]
     const shown = task.parts.filter((p) => isObject(p) && p.pct !== undefined && p.pct !== '?').map((p) => p.pct)
     const first = task.parts[0]

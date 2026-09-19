@@ -36,10 +36,11 @@ function setLevel(n) {
   round.restart()
 }
 
-// A right answer pays what the village needs most, times the level.
+// A right answer pays what the village needs most. The level multiplies it
+// only on a first try: after a miss a two-tile pick is a sure thing.
 function settle(right) {
   if (right) {
-    round.correct(needed.value, false, level.value)
+    round.correct(needed.value, false, round.strikes ? 1 : level.value)
     round.newTask()
   } else {
     round.wrong()

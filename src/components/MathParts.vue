@@ -21,11 +21,11 @@ const sides = (s) => `a = ${show(s.a)}, b = ${show(s.b)}, c = ${show(s.c)}`
     <span v-if="typeof p === 'number' || p === '?'" :class="slot(p)">{{ show(p) }}</span>
     <span v-else-if="typeof p === 'string'" :class="{ op: p !== '=' }">{{ p }}</span>
     <span v-else-if="p.t" class="word">{{ t(p.t) }}</span>
-    <span v-else-if="p.frac" class="kid-frac">
+    <span v-else-if="p.frac" class="kid-frac" role="img" :aria-label="show(p.frac[0]) + '/' + show(p.frac[1])">
       <span :class="slot(p.frac[0])">{{ show(p.frac[0]) }}</span>
       <span :class="slot(p.frac[1])">{{ show(p.frac[1]) }}</span>
     </span>
-    <span v-else-if="p.pow">{{ show(p.pow[0]) }}<sup :class="slot(p.pow[1])">{{ show(p.pow[1]) }}</sup></span>
+    <span v-else-if="p.pow" role="img" :aria-label="show(p.pow[0]) + '^' + show(p.pow[1])">{{ show(p.pow[0]) }}<sup :class="slot(p.pow[1])">{{ show(p.pow[1]) }}</sup></span>
     <span v-else-if="p.root !== undefined" class="kid-sqrt">√<span>{{ show(p.root) }}</span></span>
     <span v-else-if="p.pct !== undefined"><span :class="slot(p.pct)">{{ show(p.pct) }}</span>%</span>
     <!-- not to scale: one fixed right triangle, legs a and b, hypotenuse c -->
