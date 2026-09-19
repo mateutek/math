@@ -346,6 +346,8 @@
   background: var(--k-page);
   border-bottom: 1px solid var(--k-card-border);
 }
+/* temporary: the work-in-progress strip above the header (App.vue) */
+.kid-wip { margin: 0; padding: 6px 16px; text-align: center; font: 800 12.5px var(--font-sans); letter-spacing: .02em; background: #f8cf6a; color: #3b2a05; }
 .kid-header-in {
   max-width: 620px; margin: 0 auto; height: 64px; padding: 0 8px 0 20px;
   display: flex; align-items: center; gap: 8px;

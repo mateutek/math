@@ -39,6 +39,9 @@ const game = computed(() =>
 
 <template>
   <div class="kid-page" :class="{ bare }">
+    <!-- up while the branch is being tested on production; delete with its
+         string and its CSS rule when the release is done -->
+    <p class="kid-wip" role="status">{{ t('wip') }}</p>
     <header class="kid-header">
       <div class="kid-header-in">
         <span class="kid-mark"><img :src="'/logo-mark.svg'" width="34" height="34" alt="" /></span>

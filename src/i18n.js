@@ -5,6 +5,7 @@ import settings from '@/store/settings'
 export const messages = {
   pl: {
     subtitle: 'matematyka',
+    wip: 'Wersja testowa - prace trwają',
     earned: 'Zdobyte',
     answer: 'Wynik',
     whole: 'Całość',
@@ -188,6 +189,7 @@ export const messages = {
   },
   en: {
     subtitle: 'mathematics',
+    wip: 'Test version - work in progress',
     earned: 'Earned',
     answer: 'Your answer',
     whole: 'Whole',
