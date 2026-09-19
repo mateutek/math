@@ -51,8 +51,8 @@
   overflow: hidden;
 }
 .kid-mark img { width: 100%; height: 100%; display: block; }
-.kid-wordmark { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
-.kid-wordmark .en { font-weight: 600; font-size: 12px; color: var(--muted-foreground); letter-spacing: 0; margin-left: 2px; }
+.kid-wordmark { font-weight: 800; font-size: 19px; letter-spacing: -.03em; }
+.kid-wordmark .b { color: var(--k-brand-line); }
 
 /* ---- operation chips ------------------------------------------------------ */
 .kid-ops { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
@@ -352,8 +352,7 @@
   max-width: 620px; margin: 0 auto; height: 64px; padding: 0 8px 0 20px;
   display: flex; align-items: center; gap: 8px;
 }
-.kid-header .kid-wordmark { font-size: 19px; display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
-.kid-header .kid-wordmark .en { margin-left: 0; }
+.kid-header .kid-wordmark { font-size: 19px; white-space: nowrap; }
 .kid-zegar {
   display: flex; align-items: center; gap: 8px;
   font-size: 14px; font-weight: 700; color: var(--foreground); user-select: none;
@@ -391,8 +390,6 @@
   transition: background .15s ease, color .15s ease; }
 .kid-theme button.on { background: var(--k-brand); color: var(--k-brand-fg); }
 .kid-theme-hint { margin: 0; font-size: 12.5px; color: var(--muted-foreground); }
-@media (max-width: 540px) { .kid-header .kid-wordmark .en { display: none; } }
-
 .kid-main { flex: 1; width: 100%; max-width: 560px; margin: 0 auto; padding: 16px 20px 8px;
   display: flex; flex-direction: column; gap: 16px; }
 
@@ -810,8 +807,7 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
   .kid-header-in { max-width: 1160px; height: 72px; padding: 0 20px; gap: 12px; }
   .kid-main { max-width: 1160px; padding-top: 28px; }
   .kid-mark { width: 38px; height: 38px; border-radius: 12px; }
-  .kid-header .kid-wordmark { font-size: 21px; }
-  .kid-header .kid-wordmark .en { font-size: 13px; }
+  .kid-header .kid-wordmark { font-size: 20px; }
   .kid-nav-top { margin-left: 36px; }
   .kid-mats { gap: 8px; font-size: 15px; }
   .kid-mat { height: 40px; padding: 0 12px; gap: 6px; border-radius: 999px; background: var(--k-card); border: 1px solid var(--k-card-border); }

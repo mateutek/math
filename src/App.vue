@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, watchEffect } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
 import { Home, Gamepad2, BookOpen } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
@@ -42,6 +42,13 @@ const pill = computed(() => (onVillage.value ? '' : onTheory.value ? 'third' : '
 const game = computed(() =>
   GAMES.find((g) => route.path === g.route || route.path.startsWith(`${g.route}/`)),
 )
+
+// "Liczbowo · Wioska": the name, then the tab the kid is on. Follows the language.
+watchEffect(() => {
+  const tab = tabs.value.find((x) => x.active)
+  const name = t('appNameA') + t('appNameB')
+  document.title = tab ? `${name} · ${t(tab.key)}` : name
+})
 </script>
 
 <template>
@@ -52,7 +59,7 @@ const game = computed(() =>
     <header class="kid-header">
       <div class="kid-header-in">
         <span class="kid-mark"><img :src="'/logo-mark.svg'" width="34" height="34" alt="" /></span>
-        <span class="kid-wordmark">Math <span class="en">{{ t('subtitle') }}</span></span>
+        <span class="kid-wordmark">{{ t('appNameA') }}<span class="b">{{ t('appNameB') }}</span></span>
 
         <!-- from 768px the tabs live here; below that see the fixed bar -->
         <nav v-if="!bare" class="kid-nav-top" aria-label="Main">

@@ -4,7 +4,9 @@ import settings from '@/store/settings'
 // reactive, so any template calling t() re-renders when the language changes.
 export const messages = {
   pl: {
-    subtitle: 'matematyka',
+    appNameA: 'Liczb',
+    appNameB: 'owo',
+    tagline: 'Matematyka, która buduje wioskę',
     wip: 'Wersja testowa - prace trwają',
     earned: 'Zdobyte',
     answer: 'Wynik',
@@ -191,7 +193,9 @@ export const messages = {
     b_castle: 'Zamek',
   },
   en: {
-    subtitle: 'mathematics',
+    appNameA: 'Sum',
+    appNameB: 'bury',
+    tagline: 'Maths that builds a village',
     wip: 'Test version - work in progress',
     earned: 'Earned',
     answer: 'Your answer',
