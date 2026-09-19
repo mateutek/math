@@ -7,7 +7,9 @@ import { t } from '@/i18n'
 
 const exprs = ref([])
 const results = ref([])
-const picked = ref(null)
+// one tile may be held on each side, picked in either order
+const picked = ref(null) // an expression
+const pickedValue = ref(null) // a result
 const done = ref(new Set())
 const clean = ref(true)
 
@@ -16,15 +18,29 @@ const round = useRound('tiles', (cfg) => {
   exprs.value = board.exprs
   results.value = board.results
   picked.value = null
+  pickedValue.value = null
   done.value = new Set()
   clean.value = true
   return board.exprs.length // one point per pair
 })
 
+// tapping a held tile again lets go of it; the second side settles the pair
+function pickExpr(e) {
+  picked.value = picked.value === e ? null : e
+  settle()
+}
+
 function pickResult(value) {
+  pickedValue.value = pickedValue.value === value ? null : value
+  settle()
+}
+
+function settle() {
   const e = picked.value
-  if (!e || round.strikes === 3) return
+  const value = pickedValue.value
+  if (!e || value === null || round.strikes === 3) return
   picked.value = null
+  pickedValue.value = null
   if (e.result !== value) {
     clean.value = false
     return round.wrong()
@@ -52,7 +68,7 @@ function pickResult(value) {
         :class="{ on: picked === e, done: done.has(e.result) }"
         :aria-pressed="picked === e"
         :disabled="done.has(e.result) || round.strikes === 3"
-        @click="picked = e"
+        @click="pickExpr(e)"
       >
         {{ e.text }}
       </button>
@@ -63,8 +79,9 @@ function pickResult(value) {
         v-for="r in results"
         :key="r"
         class="kid-tile res"
-        :class="{ done: done.has(r) }"
-        :disabled="done.has(r) || !picked || round.strikes === 3"
+        :class="{ on: pickedValue === r, done: done.has(r) }"
+        :aria-pressed="pickedValue === r"
+        :disabled="done.has(r) || round.strikes === 3"
         @click="pickResult(r)"
       >
         {{ r }}

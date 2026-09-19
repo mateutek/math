@@ -1,9 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { Star } from 'lucide-vue-next'
+import { STARS_PER_COIN as FULL_STREAK_STARS } from '@/composables/useRound'
 import { tp } from '@/i18n'
-
-const FULL_STREAK_STARS = 5
 
 const props = defineProps({
   streak: {
@@ -16,7 +15,12 @@ const props = defineProps({
   },
 })
 
-const filled = computed(() => Math.min(props.streak, FULL_STREAK_STARS))
+// A full row is spent on a coin: it shows while the win still flashes, then
+// the row starts again from empty.
+const filled = computed(() => {
+  const left = props.streak % FULL_STREAK_STARS
+  return left === 0 && props.streak > 0 && props.justWon ? FULL_STREAK_STARS : left
+})
 </script>
 
 <template>

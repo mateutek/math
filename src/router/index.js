@@ -3,6 +3,9 @@ import Village from '@/pages/Village.vue'
 import settings, { classConfig } from '@/store/settings'
 import { gameOffered } from '@/data/classes'
 
+// the five equation games are one page; the route name tells it which
+const Equation = () => import('@/pages/Equation.vue')
+
 const routes = [
   {
     path: '/',
@@ -25,27 +28,27 @@ const routes = [
   {
     path: '/dodawanie/:level?',
     name: 'addition',
-    component: () => import('@/pages/Addition.vue'),
+    component: Equation,
   },
   {
     path: '/odejmowanie/:level?',
     name: 'subtraction',
-    component: () => import('@/pages/Subtraction.vue'),
+    component: Equation,
   },
   {
     path: '/dzielenie/:level?',
     name: 'divide',
-    component: () => import('@/pages/Divide.vue'),
+    component: Equation,
   },
   {
     path: '/dzielenie2/:level?',
     name: 'divide2',
-    component: () => import('@/pages/Divide_2.vue'),
+    component: Equation,
   },
   {
     path: '/mnozenie/:level?',
     name: 'multiply',
-    component: () => import('@/pages/Multiply.vue'),
+    component: Equation,
   },
   {
     path: '/gry/domino/:level?',

@@ -1,17 +1,41 @@
 import { ref, watch, reactive } from 'vue'
 import { classConfig } from '@/store/settings'
 import { reward, recordStreak } from '@/store/village'
+import { MATERIALS } from '@/data/buildings'
 
 // A board finished without a mistake, and every tenth correct answer in a row,
 // pays this many coins. RewardsCard shows the number, so it lives here.
 export const CLEAN_BOARD_COINS = 3
 
+// Five right in a row fill the star row, and a full row turns into one coin.
+export const STARS_PER_COIN = 5
+
+// The one place a correct answer is paid, for the boards and the equation pages
+// alike, and the tally of what this sitting has earned so far (the status row
+// shows it). The tally starts again when the page is opened again.
+export function useEarnings() {
+  const earned = reactive(Object.fromEntries(MATERIALS.map((k) => [k, 0])))
+
+  function pay(kind, amount) {
+    reward(kind, amount)
+    earned[kind] += amount
+  }
+
+  // `streak` already counts this answer
+  function payAnswer(material, streak, flawless = false) {
+    pay(material, classConfig.value.pay)
+    if (streak % STARS_PER_COIN === 0) pay('coins', 1)
+    if (flawless || streak % 10 === 0) pay('coins', CLEAN_BOARD_COINS)
+  }
+
+  return { earned, payAnswer }
+}
+
 // Round state shared by the new games. `next(cfg)` builds a fresh task from the
 // class config and runs once right away, so the caller must declare its task
 // refs first.
 export function useRound(game, next) {
-  const score = ref(0)
-  const total = ref(0)
+  const { earned, payAnswer } = useEarnings()
   const streak = ref(0)
   const strikes = ref(0)
   const flash = ref('')
@@ -23,17 +47,14 @@ export function useRound(game, next) {
     strikes.value = 0
     if (flash.value === 'red') flash.value = ''
     timerKey.value += 1
-    total.value += next(classConfig.value) ?? 1
+    next(classConfig.value)
   }
 
   function correct(material, flawless = false) {
-    score.value += 1
     streak.value += 1
     cheer.value += 1
     flash.value = 'green'
-    reward(material, classConfig.value.pay)
-    if (streak.value % 5 === 0) reward('coins', 1)
-    if (flawless || streak.value % 10 === 0) reward('coins', CLEAN_BOARD_COINS)
+    payAnswer(material, streak.value, flawless)
     recordStreak(game, classConfig.value.id, streak.value)
     clearTimeout(flashTimeout)
     flashTimeout = setTimeout(() => {
@@ -52,13 +73,11 @@ export function useRound(game, next) {
   watch(
     classConfig,
     () => {
-      score.value = 0
-      total.value = 0
       streak.value = 0
       newTask()
     },
     { immediate: true },
   )
 
-  return reactive({ cfg: classConfig, score, total, streak, strikes, flash, cheer, timerKey, newTask, correct, wrong })
+  return reactive({ cfg: classConfig, earned, streak, strikes, flash, cheer, timerKey, newTask, correct, wrong })
 }

@@ -16,6 +16,8 @@ const rows = computed(() => [
     op: t(`ops_${kind}`),
     text: tp(`mat_${kind}`, props.pay),
   })),
+  // a full star row turns into a coin
+  { kind: 'coins', op: '5 ★', plain: true, text: tp('mat_coins', 1) },
   {
     kind: 'coins',
     op: t('noMistake'),
@@ -29,7 +31,7 @@ const rows = computed(() => [
   <section class="kid-panel kid-rewards" :aria-label="t('rewardTitle')">
     <h2>{{ t('rewardTitle') }}</h2>
     <ul>
-      <li v-for="row in rows" :key="row.kind">
+      <li v-for="row in rows" :key="row.op">
         <span class="op" :class="{ txt: row.plain }">{{ row.op }}</span>
         <MaterialIcon :kind="row.kind" />
         {{ row.text }}
