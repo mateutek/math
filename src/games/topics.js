@@ -183,7 +183,48 @@ function decimals(level) {
 }
 
 // ---------------------------------------------------------------------------
-const GENERATORS = { fractions, decimals }
+// Class 6: percents
+// ---------------------------------------------------------------------------
+const PCTS = {
+  1: [10, 25, 50, 100],
+  2: [10, 20, 30, 40, 50, 60, 70, 80, 90, 25, 75],
+  3: Array.from({ length: 19 }, (_, i) => (i + 1) * 5), // 5, 10 ... 95
+}
+// denominators whose fractions are whole percentages
+const PCT_DENOMS = { 1: [2, 4, 10], 2: [2, 4, 5, 10, 20], 3: [4, 5, 20, 25, 50] }
+
+const pctOpt = (p) => ({ parts: [{ pct: p }], value: p / 100 })
+
+function percents(level) {
+  const kind = one(['of', 'which', 'fromFrac', 'pickEqual'])
+  const p = one(PCTS[level])
+
+  if (kind === 'of' || kind === 'which') {
+    // the base is a multiple of whatever makes p% of it a whole number
+    const base = (100 / gcd(p, 100)) * rnd(1, 10)
+    const part = (p * base) / 100
+    return kind === 'of'
+      ? number([{ pct: p }, OF, base, '=', '?'], part)
+      : number([{ pct: '?' }, OF, base, '=', part], p)
+  }
+
+  if (kind === 'fromFrac') {
+    const d = one(PCT_DENOMS[level])
+    const n = rnd(1, d - 1)
+    return number([{ frac: [n, d] }, '=', { pct: '?' }], (n * 100) / d)
+  }
+
+  // pickEqual: a decimal, and which percentage it is. The wrong ones are the
+  // slips kids make: a place off, the complement, a near miss.
+  const slips = [p / 10, p * 10, 100 - p, p + 5, p + 10, p * 2]
+  const wrongs = shuffle([...new Set(slips.filter((q) => Number.isInteger(q) && q > 0 && q !== p))])
+    .slice(0, 3)
+    .map(pctOpt)
+  return pick('topicPickEqual', [p / 100], pctOpt(p), wrongs)
+}
+
+// ---------------------------------------------------------------------------
+const GENERATORS = { fractions, decimals, percents }
 
 export function topicTask(topic, level) {
   if (!GENERATORS[topic] || !LEVELS.includes(level)) {

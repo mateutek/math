@@ -8,7 +8,7 @@ import { LEVELS, topicTask, parseAnswer, sameNumber } from './topics.js'
 
 const RUNS = 2000
 // topics whose generator exists yet; grows with the plan, ends as TOPICS
-const BUILT = ['fractions', 'decimals']
+const BUILT = ['fractions', 'decimals', 'percents']
 
 const isObject = (x) => x !== null && typeof x === 'object'
 const children = (x) => (Array.isArray(x) ? x : isObject(x) ? Object.values(x) : [])
@@ -114,6 +114,18 @@ const LEVEL_RULES = {
     const shown = [...task.parts, ...(task.options ?? []).flat(), task.kind === 'number' ? task.answer : 0]
     for (const n of shown.filter((p) => typeof p === 'number')) {
       assert.ok(Math.abs(n * places - Math.round(n * places)) < 1e-9, `${n} has too many places for L${level}`)
+    }
+  },
+
+  // a typed percent task only uses the level's own percentages
+  percents(task, level) {
+    if (task.kind !== 'number') return
+    const allowed = { 1: [10, 25, 50, 100], 2: [10, 20, 30, 40, 50, 60, 70, 80, 90, 25, 75] }[level]
+    const shown = task.parts.filter((p) => isObject(p) && p.pct !== undefined && p.pct !== '?').map((p) => p.pct)
+    const first = task.parts[0]
+    if (isObject(first) && first.pct === '?') shown.push(task.answer)
+    for (const p of shown) {
+      assert.ok(allowed ? allowed.includes(p) : p % 5 === 0 && p > 0 && p < 100, `${p}% is not a level ${level} percentage`)
     }
   },
 }
