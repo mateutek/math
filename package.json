@@ -11,7 +11,7 @@
     "sprites": "node scripts/villageSprites.mjs",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites",
-    "check": "node scripts/villageSprites.mjs && node src/store/villageLogic.check.js && node src/data/villageMap.check.js && node src/games/generators.check.js && node src/games/topics.check.js"
+    "check": "node scripts/villageSprites.mjs && node src/store/villageLogic.check.js && node src/data/villageMap.check.js && node src/games/generators.check.js && node src/games/mathParts.check.js && node src/games/topics.check.js"
   },
   "engines": {
     "node": "^24.13.0"

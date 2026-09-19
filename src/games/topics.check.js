@@ -1,10 +1,11 @@
 // Self-check for the topic generators. Runs under plain node:
 //   node src/games/topics.check.js
-// The evaluator below knows nothing about how a task was made: it fills the
-// answer into the '?' and checks that the equation on screen is true.
+// The evaluator in ./mathParts.js knows nothing about how a task was made: it
+// fills the answer into the '?' and checks that the equation on screen is true.
 import assert from 'node:assert/strict'
 import { CLASSES, TOPICS, gameOffered } from '../data/classes.js'
 import { LEVELS, topicTask, parseAnswer, sameNumber } from './topics.js'
+import { tokenValue, holds, isTriple } from './mathParts.js'
 
 const RUNS = 2000
 // topics whose generator exists yet
@@ -18,44 +19,6 @@ const fill = (x, v) =>
     : Array.isArray(x) ? x.map((y) => fill(y, v))
       : isObject(x) ? Object.fromEntries(Object.entries(x).map(([k, y]) => [k, fill(y, v)]))
         : x
-
-function tokenValue(p) {
-  if (typeof p === 'number') return p
-  if (p.frac) return p.frac[0] / p.frac[1]
-  if (p.pow) return p.pow[0] ** p.pow[1]
-  if (p.root !== undefined) return Math.sqrt(p.root)
-  if (p.pct !== undefined) return p.pct / 100
-  throw new Error(`no value for ${JSON.stringify(p)}`)
-}
-
-const APPLY = {
-  '+': (a, b) => a + b,
-  '−': (a, b) => a - b,
-  '×': (a, b) => a * b,
-  '·': (a, b) => a * b,
-}
-
-// one side of an equation, left to right; no task has more than one operator a
-// side. "of" (3/4 z 20, 25% z 80) is a multiplication.
-function side(tokens) {
-  let acc = null
-  let op = null
-  for (const p of tokens) {
-    if (typeof p === 'string') op = p
-    else if (p.t) op = '×'
-    else acc = acc === null ? tokenValue(p) : APPLY[op](acc, tokenValue(p))
-  }
-  return acc
-}
-
-const isTriple = ({ a, b, c }) => a * a + b * b === c * c
-
-function holds(parts) {
-  if (parts[0].triangle) return isTriple(parts[0].triangle)
-  const eq = parts.indexOf('=')
-  assert.ok(eq > 0, `no "=" in ${JSON.stringify(parts)}`)
-  return Math.abs(side(parts.slice(0, eq)) - side(parts.slice(eq + 1))) < 1e-9
-}
 
 const denominators = (x) =>
   isObject(x) && !Array.isArray(x) && x.frac ? [x.frac[1]] : children(x).flatMap(denominators)
