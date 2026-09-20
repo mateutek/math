@@ -95,6 +95,10 @@ const routes = [
   { path: '/teoria', name: 'theory', component: Theory, meta: { full: true } },
   { path: '/teoria/tabliczka', name: 'theoryTable', component: () => import('@/pages/TheoryTable.vue'), meta: { full: true } },
   { path: '/teoria/:slug', name: 'theoryArticle', component: () => import('@/pages/TheoryArticle.vue'), meta: { full: true } },
+  // GET /en and /pl only ever switch the language (see the guard below); they
+  // need their own route so the catch-all does not redirect them first
+  { path: '/en', name: 'langEn' },
+  { path: '/pl', name: 'langPl' },
   {
     path: '/:pathMatch(.*)*',
     redirect: '/',
@@ -111,6 +115,12 @@ const router = createRouter({
 // Route names double as game ids, so this also catches a game the class has no
 // operation for, such as /mnozenie in class 1.
 router.beforeEach((to) => {
+  // /en and /pl set the language and continue to '/'; replace so Back never
+  // lands the visitor back on this URL
+  if (to.name === 'langEn' || to.name === 'langPl') {
+    settings.lang = to.name === 'langEn' ? 'en' : 'pl'
+    return { path: '/', replace: true }
+  }
   // first run: nothing works until a class is picked
   if (settings.schoolClass === null && to.name !== 'classPicker') return { name: 'classPicker' }
   if (!gameOffered(to.name, classConfig.value)) return '/graj'

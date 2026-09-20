@@ -7,6 +7,7 @@ import MaterialIcon from '@/components/MaterialIcon.vue'
 import NextGoal from '@/components/NextGoal.vue'
 import RewardsCard from '@/components/RewardsCard.vue'
 import SettingsSheet from '@/components/SettingsSheet.vue'
+import LangSwitch from '@/components/LangSwitch.vue'
 import village, { affordable, needed } from '@/store/village'
 import settings, { classConfig } from '@/store/settings'
 import { MATERIALS } from '@/data/buildings'
@@ -77,6 +78,9 @@ watchEffect(() => {
           </span>
         </RouterLink>
         <SettingsSheet v-if="!bare" />
+        <!-- the bare header (class picker) hides the settings sheet, so this is
+             the only place a first-run visitor can change the language -->
+        <div v-if="bare" class="kid-right"><LangSwitch /></div>
       </div>
     </header>
 

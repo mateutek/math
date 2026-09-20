@@ -9,6 +9,7 @@ import {
 import settings, { classConfig } from '@/store/settings'
 import { exportSave, checkSave, importSave, reset } from '@/store/village'
 import { t, tp } from '@/i18n'
+import LangSwitch from '@/components/LangSwitch.vue'
 
 // "Klasa 2", or "Zerówka" for the pre-school class
 const className = computed(() =>
@@ -55,10 +56,7 @@ const themes = [
 
       <div class="kid-set">
         <span class="kid-set-label">{{ t('language') }}</span>
-        <div class="kid-lang" role="group" :aria-label="t('language')">
-          <button :class="{ on: settings.lang === 'pl' }" :aria-pressed="settings.lang === 'pl'" @click="settings.lang = 'pl'">PL</button>
-          <button :class="{ on: settings.lang === 'en' }" :aria-pressed="settings.lang === 'en'" @click="settings.lang = 'en'">EN</button>
-        </div>
+        <LangSwitch />
       </div>
 
       <RouterLink to="/klasa" class="kid-set kid-set-link">
