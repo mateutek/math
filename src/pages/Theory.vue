@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ChevronRight } from 'lucide-vue-next'
+import TimesTable from '@/components/TimesTable.vue'
+import TheoryNav from '@/components/TheoryNav.vue'
 import { shelves } from '@/data/theory'
 import { classConfig } from '@/store/settings'
 import { t, tp } from '@/i18n'
@@ -27,7 +29,7 @@ const LIT = new Set([2, 5, 6, 8, 9, 12, 17])
 
 <template>
   <div class="kid-theory kid-tnav">
-    <!-- the desktop landing (the rail plus the table) arrives in a later task -->
+    <TheoryNav />
     <div class="col kid-phone-only">
       <div class="kid-thead">
         <h1 class="kid-h1">{{ t('theory') }}</h1>
@@ -65,6 +67,10 @@ const LIT = new Set([2, 5, 6, 8, 9, 12, 17])
           </RouterLink>
         </div>
       </section>
+    </div>
+
+    <div class="col kid-wide-only">
+      <TimesTable />
     </div>
   </div>
 </template>

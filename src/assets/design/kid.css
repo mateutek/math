@@ -943,11 +943,39 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
 .kid-texp .fact .val { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; }
 .kid-tip { margin: 0; padding: 12px 14px; display: flex; align-items: flex-start; gap: 8px; border-radius: 14px; background: color-mix(in oklab, var(--k-accent) 18%, var(--k-mix-base)); color: var(--k-fire); font-size: 13.5px; line-height: 1.45; }
 .kid-tip svg { flex: none; }
+/* Desktop: a 300px rail of every article, content to its right. The rail is a
+   .kid-desktop-only aside, so below 1024px none of this applies. */
+@media (min-width: 1024px) {
+  .kid-tnav { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; align-items: start; }
+  .kid-tnav > aside { flex-direction: column; gap: 8px; }
+  .kid-tnav > .col { gap: 16px; }
+  .kid-trow { min-height: 56px; border-width: 1.5px; border-radius: 16px; }
+  .kid-trow .tile { width: 38px; height: 38px; border-radius: 11px; font-size: 18px; }
+  .kid-trow .name { font-size: 14px; }
+  .kid-trow .ex { font-size: 11.5px; }
+  .kid-trow.on { background: var(--k-brand-soft); border-color: var(--k-brand); }
+  .kid-theory .kid-panel { padding: 22px; border-radius: 24px; }
+  .kid-tcols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+  .kid-ttab { padding: 12px; gap: 3px; border-radius: 24px; box-shadow: var(--k-card-shadow); }
+  .kid-ttab .row { gap: 3px; }
+  .kid-ttab button, .kid-ttab .corner { height: 44px; border-radius: 10px; font-size: 16px; }
+  .kid-ttab .flat, .kid-ttab .diag { background: var(--k-page); }
+  .kid-texp { padding: 22px; gap: 14px; }
+  .kid-texp .kid-eq.sm { font-size: 40px; letter-spacing: -0.03em; }
+  .kid-texp .kid-btn { height: 52px; }
+  /* the rail replaces it here, but .kid-thead .back (0-2-0) outranks
+     .kid-phone-only (0-1-0) at any width; this rule matches that specificity
+     and wins on source order, at the same breakpoint the rail appears */
+  .kid-thead .back { display: none; }
+}
 
 /* ============================================================================
    BREAKPOINT UTILITIES - last in the file on purpose: they only ever hide, and
-   hiding has to win over whatever display the element's own class sets.
+   hiding has to win over whatever display the element's own class sets. Theory's
+   two landing columns are both `.kid-theory > .col`, which shares its
+   specificity with the plain-class rules below, so the child-combinator variants
+   are repeated here too, at the same specificity, still last, so they still win.
    ============================================================================ */
-@media (max-width: 1023px) { .kid-wide-only { display: none; } }
-@media (min-width: 1024px) { .kid-phone-only { display: none; } }
+@media (max-width: 1023px) { .kid-wide-only, .kid-theory > .kid-wide-only { display: none; } }
+@media (min-width: 1024px) { .kid-phone-only, .kid-theory > .kid-phone-only { display: none; } }
 

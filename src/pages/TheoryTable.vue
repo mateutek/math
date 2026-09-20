@@ -2,11 +2,13 @@
 import { RouterLink } from 'vue-router'
 import { ArrowLeft } from 'lucide-vue-next'
 import TimesTable from '@/components/TimesTable.vue'
+import TheoryNav from '@/components/TheoryNav.vue'
 import { t } from '@/i18n'
 </script>
 
 <template>
   <div class="kid-theory kid-tnav">
+    <TheoryNav />
     <div class="col">
       <div class="kid-thead">
         <RouterLink to="/teoria" class="back kid-phone-only" :aria-label="t('back')">

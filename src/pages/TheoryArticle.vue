@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onBeforeMount } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
 import MathParts from '@/components/MathParts.vue'
+import TheoryNav from '@/components/TheoryNav.vue'
 import { articleBySlug } from '@/data/theory'
 import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
@@ -14,9 +15,12 @@ const router = useRouter()
 
 const article = computed(() => articleBySlug(String(route.params.slug)))
 
-// a hand-typed URL is the only way to reach a slug that is not an article
-onBeforeMount(() => {
+// the rail reuses this instance across articles (same route name), so a
+// hand-typed unknown slug must redirect on every change, not only on mount;
+// and the reader is scrolled back to the top of the new article
+watchEffect(() => {
   if (!article.value) router.replace('/teoria')
+  else window.scrollTo(0, 0)
 })
 
 // A class-2 kid reading ahead about fractions gets the article, but not a
@@ -33,6 +37,7 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
 
 <template>
   <div v-if="article" class="kid-theory kid-tnav">
+    <TheoryNav />
     <div class="col">
       <div class="kid-thead">
         <RouterLink to="/teoria" class="back kid-phone-only" :aria-label="t('back')">
