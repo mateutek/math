@@ -45,10 +45,13 @@ const game = computed(() =>
 )
 
 // "Liczbowo · Wioska": the name, then the tab the kid is on. Follows the language.
+// document.documentElement.lang keeps screen readers on the right voice and
+// keeps /en's lang="en" true once the app takes over from the built HTML.
 watchEffect(() => {
   const tab = bare.value ? null : tabs.value.find((x) => x.active)
   const name = t('appNameA') + t('appNameB')
   document.title = tab ? `${name} · ${t(tab.key)}` : name
+  document.documentElement.lang = settings.lang
 })
 </script>
 

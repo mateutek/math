@@ -2,6 +2,41 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { execFile } from 'node:child_process'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+
+// Link previews come from crawlers that fetch HTML and never run the app, so
+// /en needs its own file with the English head. Everything else in it is the
+// same page: the router sees /en, sets the language and moves on to /.
+// Each swap must hit, or the build fails: a reworded Polish head would
+// otherwise ship a Polish /en without anyone noticing.
+const EN_HEAD = [
+  ['<html lang="pl">', '<html lang="en">'],
+  ['<title>Liczbowo</title>', '<title>Sumbury</title>'],
+  ['name="description" content="Matematyka, która buduje wioskę"', 'name="description" content="Maths that builds a village"'],
+  ['property="og:title" content="Liczbowo"', 'property="og:title" content="Sumbury"'],
+  ['property="og:description" content="Matematyka, która buduje wioskę"', 'property="og:description" content="Maths that builds a village"'],
+  ["We're sorry but Liczbowo doesn't work properly", "We're sorry but Sumbury doesn't work properly"],
+]
+
+function englishHead() {
+  let outDir
+  return {
+    name: 'english-head',
+    apply: 'build',
+    configResolved(config) {
+      outDir = config.build.outDir
+    },
+    closeBundle() {
+      let html = readFileSync(`${outDir}/index.html`, 'utf8')
+      for (const [from, to] of EN_HEAD) {
+        if (!html.includes(from)) throw new Error(`english-head: "${from}" is not in index.html`)
+        html = html.replace(from, to)
+      }
+      mkdirSync(`${outDir}/en`, { recursive: true })
+      writeFileSync(`${outDir}/en/index.html`, html)
+    },
+  }
+}
 
 // The village designer renders straight into public/village/buildings while
 // the dev server runs. Re-fold its JSON into src/data/villageSprites.json when
@@ -22,7 +57,7 @@ function villageSprites() {
 }
 
 export default defineConfig({
-  plugins: [vue(), villageSprites()],
+  plugins: [vue(), villageSprites(), englishHead()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
