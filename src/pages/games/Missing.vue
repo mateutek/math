@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { Check } from 'lucide-vue-next'
 import GameCard from '@/components/GameCard.vue'
 import { useRound } from '@/composables/useRound'
@@ -22,9 +22,13 @@ const round = useRound('missing', (cfg) => {
 const shown = (side) =>
   task.value.hide !== side ? task.value[side] : round.strikes === 3 ? task.value.answer : '?'
 
+function isRight() {
+  return parseInt(answer.value) === task.value.answer
+}
+
 function check() {
   if (answer.value === '' || round.strikes === 3) return
-  if (parseInt(answer.value) === task.value.answer) {
+  if (isRight()) {
     round.correct(task.value.material)
     round.newTask()
   } else {
@@ -32,6 +36,15 @@ function check() {
     focusAnswer()
   }
 }
+
+// a right value is taken the moment it is typed, no Enter needed; an empty
+// field (the reset for a new task, or a slip of the finger) is never right
+watch(answer, () => {
+  if (round.strikes < 3 && answer.value !== '' && isRight()) {
+    round.correct(task.value.material)
+    round.newTask()
+  }
+})
 </script>
 
 <template>

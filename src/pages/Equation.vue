@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { Check } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
@@ -40,12 +40,14 @@ const round = useRound(game.id, (cfg) => {
   focusAnswer()
 })
 
+function isRight() {
+  return parseInt(answer.value) === task.value.result && (!withRest || parseInt(rest.value) === task.value.rest)
+}
+
 function check() {
   // an empty field is a slip of the finger, not a wrong answer
   if (round.strikes === 3 || answer.value === '') return
-  const right =
-    parseInt(answer.value) === task.value.result && (!withRest || parseInt(rest.value) === task.value.rest)
-  if (right) {
+  if (isRight()) {
     round.correct(game.pays[0])
     round.newTask()
   } else {
@@ -53,6 +55,15 @@ function check() {
     focusAnswer()
   }
 }
+
+// a right value is taken the moment it is typed, no Enter needed; an empty
+// field (the reset for a new task, or a slip of the finger) is never right
+watch([answer, rest], () => {
+  if (round.strikes < 3 && answer.value !== '' && isRight()) {
+    round.correct(game.pays[0])
+    round.newTask()
+  }
+})
 </script>
 
 <template>

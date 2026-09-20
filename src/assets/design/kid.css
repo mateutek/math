@@ -103,7 +103,8 @@
   padding: 10px 14px; gap: 8px; border-radius: 0; box-shadow: none;
 }
 .kid-card.kb .kid-eq, .kid-card.kb .kid-eq.sm { font-size: clamp(24px, 8vw, 40px); }
-.kid-card.kb .kid-prompt, .kid-card.kb .kid-field-label { display: none; }
+.kid-card.kb .kid-prompt { display: none; }
+.kid-card.kb .kid-field-label { margin-bottom: 2px; }
 .kid-card.kb .kid-input, .kid-card.kb .kid-btn { height: 46px; }
 
 /* status row: what this sitting earned, the timer, the stars. From 1024px the

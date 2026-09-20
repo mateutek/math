@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { Check } from 'lucide-vue-next'
 import GameCard from '@/components/GameCard.vue'
@@ -48,16 +48,29 @@ function settle(right) {
   }
 }
 
+function isRight(value) {
+  return sameNumber(value, task.value.answer)
+}
+
 function check() {
   if (round.strikes === 3) return
   const value = parseAnswer(answer.value)
   // empty, or not a number at all: a slip of the finger, not a wrong answer
-  if (value !== null) settle(sameNumber(value, task.value.answer))
+  if (value !== null) settle(isRight(value))
 }
 
 function pickOption(i) {
   if (round.strikes < 3) settle(i === task.value.answer)
 }
+
+// a right value is taken the moment it is typed, no Enter needed; an empty
+// field (the reset for a new task, or a slip of the finger) is never right
+watch(answer, () => {
+  if (round.strikes < 3 && task.value.kind === 'number' && answer.value !== '') {
+    const value = parseAnswer(answer.value)
+    if (value !== null && isRight(value)) settle(true)
+  }
+})
 </script>
 
 <template>
