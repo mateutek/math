@@ -45,7 +45,7 @@ const game = computed(() =>
 
 // "Liczbowo · Wioska": the name, then the tab the kid is on. Follows the language.
 watchEffect(() => {
-  const tab = tabs.value.find((x) => x.active)
+  const tab = bare.value ? null : tabs.value.find((x) => x.active)
   const name = t('appNameA') + t('appNameB')
   document.title = tab ? `${name} · ${t(tab.key)}` : name
 })

@@ -751,7 +751,9 @@
   background: transparent; color: var(--muted-foreground); cursor: pointer;
 }
 .kid-gear:hover { background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
-@media (max-width: 380px) { .kid-header .kid-wordmark { display: none; } .kid-mats { gap: 7px; font-size: 13px; } }
+/* Liczbowo is wider than the old wordmark, and a 4-digit counter pushes the
+   row past 390px with the wordmark still showing; 380 was too low a ceiling */
+@media (max-width: 430px) { .kid-header .kid-wordmark { display: none; } .kid-mats { gap: 7px; font-size: 13px; } }
 
 .kid-tab {
   position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -799,6 +801,10 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
   .kid-nav-top { display: grid; --tab-gap: 6px; margin-left: 24px; }
   .kid-nav-top .kid-tab-pill { border-radius: 14px; }
   .kid-nav-top .kid-tab { height: 44px; padding: 0 18px; border-radius: 14px; }
+  /* the 620px cap was for phone width only: from here the row holds three
+     tabs plus the counters, so give it the same ceiling as the 1024px rule
+     below and let kid-mats' margin-left: auto push the counters to the edge */
+  .kid-header-in { max-width: 1160px; }
 }
 
 /* from 1024px: wide two-column page. The 20px side padding sits inside the
@@ -967,6 +973,9 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
      .kid-phone-only (0-1-0) at any width; this rule matches that specificity
      and wins on source order, at the same breakpoint the rail appears */
   .kid-thead .back { display: none; }
+  /* same trap: .kid-tcols .pick (0-2-0) outranks .kid-phone-only (0-1-0), so
+     the phone chip picker keeps showing on desktop; match its specificity */
+  .kid-tcols .pick { display: none; }
 }
 
 /* ============================================================================

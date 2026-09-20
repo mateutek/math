@@ -87,12 +87,12 @@ export const ARTICLES = [
   {
     id: 'order',
     slug: 'kolejnosc',
-    cls: 2,
+    cls: 3,
     group: 'grpNumbers',
     symbol: '( )',
     color: 'var(--k-brand)',
     ink: 'var(--k-ink-missing, #1f4fc4)',
-    practise: '/gry/kafelki',
+    practise: null,
     cards: [
       { h: 'th_order_h1', parts: [2, '+', 3, '×', 4, '=', 2, '+', 12, '=', 14], notes: ['th_order_n1'] },
       { h: 'th_order_h2', parts: ['(', 2, '+', 3, ')', '×', 4, '=', 5, '×', 4, '=', 20], notes: ['th_order_n2'] },
@@ -192,7 +192,7 @@ export const ARTICLES = [
       {
         h: 'th_pythagoras_h1',
         // the drawing names the sides; it is not an equation to check
-        parts: [{ triangle: { a: 3, b: 4, c: 5 } }],
+        parts: [{ triangle: { a: 'a', b: 'b', c: 'c' } }],
         verify: false,
         notes: ['th_pythagoras_n1'],
       },
