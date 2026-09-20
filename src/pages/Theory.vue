@@ -11,6 +11,14 @@ const className = computed(() =>
   classConfig.value.id === 0 ? t('classZero') : tp('classLabel', classConfig.value.id),
 )
 
+// one list of sections so the row markup exists once: the kid's own groups,
+// then "Na później" last, only when there is anything above the kid's class
+const sections = computed(() => {
+  const list = shelf.value.groups.map((g) => ({ key: g.key, articles: g.articles, later: false }))
+  if (shelf.value.later.length) list.push({ key: 'theoryLater', articles: shelf.value.later, later: true })
+  return list
+})
+
 // the board's decoration: the first four rows of the table, with row 2 and
 // column 3 lit and their crossing (the 6, index 7) picked out
 const MINI = [1, 2, 3, 4, 5, 2, 4, 6, 8, 10, 3, 6, 9, 12, 15, 4, 8, 12, 16, 20]
@@ -37,11 +45,11 @@ const LIT = new Set([2, 5, 6, 8, 9, 12, 17])
         </span>
       </RouterLink>
 
-      <section v-for="group in shelf.groups" :key="group.key" class="kid-tsec">
-        <h2>{{ t(group.key) }}</h2>
+      <section v-for="section in sections" :key="section.key" class="kid-tsec">
+        <h2>{{ t(section.key) }}</h2>
         <div class="kid-tlist">
           <RouterLink
-            v-for="a in group.articles"
+            v-for="a in section.articles"
             :key="a.id"
             :to="'/teoria/' + a.slug"
             class="kid-trow"
@@ -52,27 +60,7 @@ const LIT = new Set([2, 5, 6, 8, 9, 12, 17])
               <span class="name">{{ t('th_' + a.id) }}</span>
               <span class="ex">{{ t('th_' + a.id + '_ex') }}</span>
             </span>
-            <ChevronRight class="chev" :size="16" aria-hidden="true" />
-          </RouterLink>
-        </div>
-      </section>
-
-      <section v-if="shelf.later.length" class="kid-tsec">
-        <h2>{{ t('theoryLater') }}</h2>
-        <div class="kid-tlist">
-          <RouterLink
-            v-for="a in shelf.later"
-            :key="a.id"
-            :to="'/teoria/' + a.slug"
-            class="kid-trow"
-            :style="{ '--g': a.color, '--ink': a.ink }"
-          >
-            <span class="tile" aria-hidden="true">{{ a.symbol }}</span>
-            <span class="txt">
-              <span class="name">{{ t('th_' + a.id) }}</span>
-              <span class="ex">{{ t('th_' + a.id + '_ex') }}</span>
-            </span>
-            <span class="pill">{{ tp('classShort', a.cls) }}</span>
+            <span v-if="section.later" class="pill">{{ tp('classShort', a.cls) }}</span>
             <ChevronRight class="chev" :size="16" aria-hidden="true" />
           </RouterLink>
         </div>
