@@ -910,6 +910,39 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
 .kid-striprows { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px 10px; }
 .kid-striprows .lab { display: flex; justify-content: center; font-family: var(--font-mono); font-weight: 700; font-size: 26px; line-height: 1; }
 .kid-striprows .kid-strip > span { height: 24px; }
+.kid-thero { padding: 16px 18px; display: flex; align-items: center; gap: 14px; border-radius: 22px; background: var(--k-brand); color: var(--k-brand-fg); text-decoration: none; box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--k-brand) 25%, transparent); }
+.kid-thero:focus-visible { outline: 3px solid var(--k-brand-deep); outline-offset: 3px; }
+.kid-thero .txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.kid-thero .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in oklab, var(--k-brand-fg) 80%, var(--k-brand)); }
+.kid-thero .name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.kid-thero .sub { font-size: 13px; color: color-mix(in oklab, var(--k-brand-fg) 80%, var(--k-brand)); }
+.kid-thero .mini { flex: none; display: grid; grid-template-columns: repeat(5, 22px); gap: 2px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; }
+.kid-thero .mini > span { height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 4px; color: color-mix(in oklab, var(--k-brand-fg) 80%, var(--k-brand)); }
+.kid-thero .mini > span.on { background: color-mix(in srgb, var(--k-brand-fg) 18%, transparent); color: var(--k-brand-fg); }
+.kid-thero .mini > span.pick { background: var(--k-brand-deep); color: var(--k-brand-fg); }
+.kid-tcols { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.kid-tcols > .tab { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.kid-tcols .pick { display: flex; flex-direction: column; gap: 8px; }
+.kid-tpick { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted-foreground); }
+.kid-ttab { padding: 8px; display: flex; flex-direction: column; gap: 1px; border-radius: 18px; background: var(--k-card); border: 1px solid var(--k-card-border); }
+.kid-ttab .row { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 1px; }
+.kid-ttab button, .kid-ttab .corner { height: 26px; padding: 0; display: flex; align-items: center; justify-content: center; border: none; border-radius: 6px; background: transparent; color: var(--foreground); font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+.kid-ttab .corner { color: var(--muted-foreground); cursor: default; }
+.kid-ttab .head { color: var(--k-brand-on-soft); font-weight: 800; }
+.kid-ttab .diag { background: var(--k-page); }
+.kid-ttab .line { background: var(--k-brand-soft); color: var(--k-brand-on-soft); font-weight: 700; }
+.kid-ttab .on { background: var(--k-brand); color: var(--k-brand-fg); font-weight: 800; }
+.kid-ttab button:focus-visible { outline: 2px solid var(--k-brand); outline-offset: 1px; z-index: 1; }
+.kid-tchips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.kid-tchips button { height: 44px; border-radius: 12px; border: 2px solid var(--k-card-border); background: var(--k-card); color: var(--foreground); font-family: var(--font-mono); font-size: 17px; font-weight: 700; cursor: pointer; }
+.kid-tchips button[aria-pressed="true"] { background: var(--k-brand); border-color: var(--k-brand); color: var(--k-brand-fg); }
+.kid-tchips button:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+.kid-texp .kid-eyebrow { display: block; }
+.kid-texp .fact { display: flex; flex-direction: column; gap: 2px; }
+.kid-texp .fact .lab { font-size: 13px; font-weight: 700; color: var(--muted-foreground); }
+.kid-texp .fact .val { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; }
+.kid-tip { margin: 0; padding: 12px 14px; display: flex; align-items: flex-start; gap: 8px; border-radius: 14px; background: color-mix(in oklab, var(--k-accent) 18%, var(--k-mix-base)); color: var(--k-fire); font-size: 13.5px; line-height: 1.45; }
+.kid-tip svg { flex: none; }
 
 /* ============================================================================
    BREAKPOINT UTILITIES - last in the file on purpose: they only ever hide, and

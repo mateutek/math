@@ -10,6 +10,11 @@ const shelf = computed(() => shelves(classConfig.value.id))
 const className = computed(() =>
   classConfig.value.id === 0 ? t('classZero') : tp('classLabel', classConfig.value.id),
 )
+
+// the board's decoration: the first four rows of the table, with row 2 and
+// column 3 lit and their crossing (the 6, index 7) picked out
+const MINI = [1, 2, 3, 4, 5, 2, 4, 6, 8, 10, 3, 6, 9, 12, 15, 4, 8, 12, 16, 20]
+const LIT = new Set([2, 5, 6, 8, 9, 12, 17])
 </script>
 
 <template>
@@ -21,6 +26,16 @@ const className = computed(() =>
         <span class="kid-class-pill">{{ className }}</span>
       </div>
       <p class="kid-tlead">{{ t('theoryLead') }}</p>
+      <RouterLink to="/teoria/tabliczka" class="kid-thero">
+        <span class="txt">
+          <span class="eyebrow">{{ t('theoryHelper') }}</span>
+          <span class="name">{{ t('theoryTable') }}</span>
+          <span class="sub">{{ t('theoryTableSub') }}</span>
+        </span>
+        <span class="mini" aria-hidden="true">
+          <span v-for="(n, i) in MINI" :key="i" :class="{ on: LIT.has(i), pick: i === 7 }">{{ n }}</span>
+        </span>
+      </RouterLink>
 
       <section v-for="group in shelf.groups" :key="group.key" class="kid-tsec">
         <h2>{{ t(group.key) }}</h2>

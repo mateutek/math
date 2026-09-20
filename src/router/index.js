@@ -93,6 +93,7 @@ const routes = [
   // side column. Static paths go above the dynamic one in the tasks that add
   // them, so /teoria/tabliczka never matches :slug.
   { path: '/teoria', name: 'theory', component: Theory, meta: { full: true } },
+  { path: '/teoria/tabliczka', name: 'theoryTable', component: () => import('@/pages/TheoryTable.vue'), meta: { full: true } },
   { path: '/teoria/:slug', name: 'theoryArticle', component: () => import('@/pages/TheoryArticle.vue'), meta: { full: true } },
   {
     path: '/:pathMatch(.*)*',
