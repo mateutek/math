@@ -9,6 +9,9 @@
 // equation (a lone fraction, or the symbolic a² + b² = c²).
 export const THEORY_GROUPS = ['grpOps', 'grpNumbers', 'grpTopics']
 
+// the multiplication rows that keep a trick tip under the table
+export const TRICK_ROWS = [1, 6, 9, 10]
+
 // the word token MathParts draws as "z" / "of"; the evaluator multiplies by it
 const OF = { t: 'of' }
 

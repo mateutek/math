@@ -7,11 +7,15 @@ import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
 import { classConfig } from '@/store/settings'
 import { t, tp } from '@/i18n'
+import { TRICK_ROWS } from '@/data/theory'
 
 // the desktop board's default pick
 const a = ref(7)
 const b = ref(8)
 const NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+// rows easy enough that their trick is worth showing even when picked as the
+// other factor (so 7 x 10 reads the times-10 trick, not nothing)
+const EASY = [1, 10]
 
 // desktop picks a cell, the phone chips pick a row; one component covers both
 function pick(row, col) {
@@ -19,14 +23,33 @@ function pick(row, col) {
   b.value = col
 }
 
-// on = the picked cell, line = its row and column, diag = the square numbers
+// on = the picked cell, twin = the swapped pair (b x a), line = its row and
+// column, diag = the square numbers
 function cellClass(row, col) {
   if (row === a.value && col === b.value) return 'on'
+  if (row === b.value && col === a.value && a.value !== b.value) return 'twin'
   if (row === a.value || col === b.value) return 'line'
   return row === col ? 'diag' : 'flat'
 }
 
 const product = computed(() => a.value * b.value)
+// which row's trick to tell, and which number to feed it: swap to the easier
+// row when the picked row has no tip of its own, otherwise use the pick as is
+const trickPick = computed(() => {
+  if (EASY.includes(b.value) && !EASY.includes(a.value)) return { row: b.value, n: a.value, swapped: true }
+  if (TRICK_ROWS.includes(a.value)) return { row: a.value, n: b.value, swapped: false }
+  return null
+})
+// the numbers a trick sentence may use: the fed number, the product, and the
+// stepping stones on the way to it (five times, ten times)
+const trick = computed(() => {
+  const pick = trickPick.value
+  if (!pick) return null
+  const { row, n, swapped } = pick
+  const vars = { b: n, p: a.value * b.value, f: 5 * n, t: 10 * n }
+  const sentence = tp('th_trick' + row, n, vars)
+  return swapped ? `${tp('th_trickSwap', a.value, { a: a.value, b: b.value })} ${sentence}` : sentence
+})
 const repeated = computed(() => Array.from({ length: a.value }, () => b.value))
 // the table teaches multiplying, so its button goes where that is practised
 const practise = computed(() => {
@@ -46,7 +69,7 @@ const practise = computed(() => {
             :key="'h' + c"
             type="button"
             class="head"
-            :class="{ on: c === b }"
+            :class="{ on: c === b, twin: c === a && a !== b }"
             :aria-pressed="c === b"
             @click="pick(a, c)"
           >{{ c }}</button>
@@ -55,7 +78,7 @@ const practise = computed(() => {
           <button
             type="button"
             class="head"
-            :class="{ on: r === a }"
+            :class="{ on: r === a, twin: r === b && a !== b }"
             :aria-pressed="r === a"
             @click="pick(r, b)"
           >{{ r }}</button>
@@ -96,7 +119,7 @@ const practise = computed(() => {
         <span class="lab">{{ t('theorySwap') }}</span>
         <span class="val">{{ b }} × {{ a }} = {{ product }}</span>
       </div>
-      <p class="kid-tip"><Lightbulb :size="18" aria-hidden="true" />{{ t('th_trick' + a) }}</p>
+      <p v-if="trick" class="kid-tip"><Lightbulb :size="18" aria-hidden="true" />{{ trick }}</p>
       <RouterLink v-if="practise" :to="practise" class="kid-btn kid-btn-primary">
         {{ t('th_mulAdd_cta') }}
       </RouterLink>

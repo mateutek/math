@@ -936,8 +936,10 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
 .kid-ttab button, .kid-ttab .corner { height: 26px; padding: 0; display: flex; align-items: center; justify-content: center; border: none; border-radius: 6px; background: transparent; color: var(--foreground); font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
 .kid-ttab .corner { color: var(--muted-foreground); cursor: default; }
 .kid-ttab .head { color: var(--k-brand-on-soft); font-weight: 800; }
+.kid-ttab .head.twin { color: var(--k-ink-sub, #b45309); }
 .kid-ttab .diag { background: var(--k-page); }
 .kid-ttab .line { background: var(--k-brand-soft); color: var(--k-brand-on-soft); font-weight: 700; }
+.kid-ttab .twin:not(.head) { background: color-mix(in oklab, var(--k-op-sub) var(--k-tile-mix), var(--k-mix-base)); color: var(--k-ink-sub, #b45309); font-weight: 700; border: 2px solid var(--k-op-sub); }
 .kid-ttab .on { background: var(--k-brand); color: var(--k-brand-fg); font-weight: 800; }
 .kid-ttab button:focus-visible { outline: 2px solid var(--k-brand); outline-offset: 1px; z-index: 1; }
 .kid-tchips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
