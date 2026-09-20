@@ -885,6 +885,31 @@ a.kid-tab:nth-of-type(3) { grid-column: 3; }
 .kid-thead .back { width: 44px; height: 44px; flex: none; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: var(--muted-foreground); }
 .kid-thead .back:hover { background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
 .kid-thead .kid-class-pill { flex: none; }
+.kid-tsec { display: flex; flex-direction: column; gap: 8px; }
+.kid-tsec h2 { margin: 0; font-size: 15px; font-weight: 800; }
+.kid-tlist { display: flex; flex-direction: column; gap: 8px; }
+.kid-trow { min-height: 64px; padding: 10px 12px; display: flex; align-items: center; gap: 12px; border-radius: 18px; background: var(--k-card); border: 1px solid var(--k-card-border); color: var(--foreground); text-decoration: none; transition: border-color .15s ease, background .15s ease; }
+.kid-trow:hover { border-color: var(--k-brand); }
+.kid-trow:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+.kid-trow .tile { width: 42px; height: 42px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: color-mix(in oklab, var(--g) var(--k-tile-mix), var(--k-mix-base)); color: var(--ink); font-family: var(--font-mono); font-size: 20px; font-weight: 700; }
+.kid-trow .txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kid-trow .name { font-size: 14.5px; font-weight: 800; }
+.kid-trow .ex { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kid-trow .pill { flex: none; padding: 2px 8px; border-radius: 999px; background: var(--k-track); color: var(--muted-foreground); font-size: 11px; font-weight: 800; white-space: nowrap; }
+.kid-trow .chev { flex: none; color: var(--muted-foreground); }
+/* an article card: .kid-panel with the board's softer radius and its own paragraphs */
+.kid-theory .kid-panel { padding: 16px 18px; gap: 12px; border-radius: 20px; }
+.kid-theory .kid-panel h2 { font-size: 15px; }
+.kid-theory .kid-panel p { margin: 0; font-size: 13.5px; line-height: 1.4; color: var(--muted-foreground); }
+.kid-theory .kid-panel p b { color: var(--foreground); }
+.kid-theory .kid-eq.sm { flex: none; justify-content: center; }
+/* n of d parts, filled in the article's own colour */
+.kid-strip { display: flex; gap: 4px; width: 100%; }
+.kid-strip > span { flex: 1 1 0; height: 34px; border-radius: 8px; background: var(--k-track); }
+.kid-strip > span.on { background: var(--g, var(--k-brand)); }
+.kid-striprows { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px 10px; }
+.kid-striprows .lab { display: flex; justify-content: center; font-family: var(--font-mono); font-weight: 700; font-size: 26px; line-height: 1; }
+.kid-striprows .kid-strip > span { height: 24px; }
 
 /* ============================================================================
    BREAKPOINT UTILITIES - last in the file on purpose: they only ever hide, and
