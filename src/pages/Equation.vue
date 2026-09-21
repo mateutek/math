@@ -46,7 +46,7 @@ function isRight() {
 
 function check() {
   // an empty field is a slip of the finger, not a wrong answer
-  if (round.strikes === 3 || answer.value === '') return
+  if (round.out || answer.value === '') return
   if (isRight()) {
     round.correct(game.pays[0])
     round.newTask()
@@ -59,7 +59,7 @@ function check() {
 // a right value is taken the moment it is typed, no Enter needed; an empty
 // field (the reset for a new task, or a slip of the finger) is never right
 watch([answer, rest], () => {
-  if (round.strikes < 3 && answer.value !== '' && isRight()) {
+  if (!round.out && answer.value !== '' && isRight()) {
     round.correct(game.pays[0])
     round.newTask()
   }
@@ -73,8 +73,8 @@ watch([answer, rest], () => {
       <span class="op">{{ game.symbol }}</span>
       <AnimatedInteger :value="task.b" />
       <span>=</span>
-      <span class="ans" :class="{ reveal: round.strikes === 3 }">
-        {{ round.strikes < 3 ? '?' : withRest ? `${task.result} r ${task.rest}` : task.result }}
+      <span class="ans" :class="{ reveal: round.out }">
+        {{ !round.out ? '?' : withRest ? `${task.result} r ${task.rest}` : task.result }}
       </span>
     </div>
 
@@ -89,7 +89,7 @@ watch([answer, rest], () => {
           type="number"
           inputmode="numeric"
           placeholder="?"
-          :disabled="round.strikes === 3"
+          :disabled="round.out"
           @keyup.enter="check"
         />
       </div>
@@ -102,14 +102,14 @@ watch([answer, rest], () => {
           type="number"
           inputmode="numeric"
           placeholder="?"
-          :disabled="round.strikes === 3"
+          :disabled="round.out"
           @keyup.enter="check"
         />
       </div>
     </div>
 
     <template #action>
-      <button class="kid-btn kid-btn-primary" :disabled="round.strikes === 3" @click="check">
+      <button class="kid-btn kid-btn-primary" :disabled="round.out" @click="check">
         <Check :size="20" /> {{ t('check') }}
       </button>
     </template>

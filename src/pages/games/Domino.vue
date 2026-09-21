@@ -16,7 +16,7 @@ const round = useRound('domino', (cfg) => {
 const isAnswer = (o) => o[0] + o[1] === task.value.total
 
 function pick(o) {
-  if (round.strikes === 3) return
+  if (round.out) return
   if (!isAnswer(o)) return round.wrong()
   round.correct('wood')
   round.newTask()
@@ -40,9 +40,9 @@ function pick(o) {
         v-for="(o, i) in task.options"
         :key="i"
         class="kid-tile kid-domino"
-        :class="{ reveal: round.strikes === 3 && isAnswer(o) }"
+        :class="{ reveal: round.out && isAnswer(o) }"
         :aria-label="`${o[0]} | ${o[1]}`"
-        :disabled="round.strikes === 3"
+        :disabled="round.out"
         @click="pick(o)"
       >
         <span class="bone">

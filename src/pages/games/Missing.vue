@@ -20,14 +20,14 @@ const round = useRound('missing', (cfg) => {
 
 // the hidden operand shows "?" until three strikes reveal it
 const shown = (side) =>
-  task.value.hide !== side ? task.value[side] : round.strikes === 3 ? task.value.answer : '?'
+  task.value.hide !== side ? task.value[side] : round.out ? task.value.answer : '?'
 
 function isRight() {
   return parseInt(answer.value) === task.value.answer
 }
 
 function check() {
-  if (answer.value === '' || round.strikes === 3) return
+  if (answer.value === '' || round.out) return
   if (isRight()) {
     round.correct(task.value.material)
     round.newTask()
@@ -40,7 +40,7 @@ function check() {
 // a right value is taken the moment it is typed, no Enter needed; an empty
 // field (the reset for a new task, or a slip of the finger) is never right
 watch(answer, () => {
-  if (round.strikes < 3 && answer.value !== '' && isRight()) {
+  if (!round.out && answer.value !== '' && isRight()) {
     round.correct(task.value.material)
     round.newTask()
   }
@@ -57,9 +57,9 @@ watch(answer, () => {
   >
     <p class="kid-prompt">{{ t('missingPrompt') }}</p>
     <div class="kid-eq sm">
-      <span :class="{ ans: task.hide === 'a', reveal: task.hide === 'a' && round.strikes === 3 }">{{ shown('a') }}</span>
+      <span :class="{ ans: task.hide === 'a', reveal: task.hide === 'a' && round.out }">{{ shown('a') }}</span>
       <span class="op">{{ task.op }}</span>
-      <span :class="{ ans: task.hide === 'b', reveal: task.hide === 'b' && round.strikes === 3 }">{{ shown('b') }}</span>
+      <span :class="{ ans: task.hide === 'b', reveal: task.hide === 'b' && round.out }">{{ shown('b') }}</span>
       <span>=</span>
       <span>{{ task.result }}</span>
     </div>
@@ -73,12 +73,12 @@ watch(answer, () => {
         type="number"
         inputmode="numeric"
         placeholder="?"
-        :disabled="round.strikes === 3"
+        :disabled="round.out"
         @keyup.enter="check"
       />
     </div>
     <template #action>
-      <button class="kid-btn kid-btn-primary" :disabled="round.strikes === 3" @click="check">
+      <button class="kid-btn kid-btn-primary" :disabled="round.out" @click="check">
         <Check :size="20" /> {{ t('check') }}
       </button>
     </template>

@@ -1,4 +1,4 @@
-import { ref, watch, reactive } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { classConfig } from '@/store/settings'
 import { reward, recordStreak } from '@/store/village'
 import { MATERIALS } from '@/data/buildings'
@@ -34,11 +34,17 @@ export function useEarnings() {
 
 // Round state shared by the new games. `next(cfg)` builds a fresh task from the
 // class config and runs once right away, so the caller must declare its task
-// refs first.
-export function useRound(game, next) {
+// refs first. `maxStrikes` is how many wrong answers end the task: three by
+// default, fewer where guessing would get there anyway (a game of three tiles
+// must not let the third one be a free win). A function is read per task, for
+// pages whose tasks differ.
+export function useRound(game, next, maxStrikes = 3) {
   const { earned, payAnswer } = useEarnings()
   const streak = ref(0)
   const strikes = ref(0)
+  const max = computed(() => (typeof maxStrikes === 'function' ? maxStrikes() : maxStrikes))
+  // the task is over and the answer shown
+  const out = computed(() => strikes.value >= max.value)
   const flash = ref('')
   const cheer = ref(0)
   const timerKey = ref(0)
@@ -64,11 +70,11 @@ export function useRound(game, next) {
   }
 
   function wrong() {
-    if (strikes.value >= 3) return
+    if (out.value) return
     flash.value = 'red'
     streak.value = 0
     strikes.value += 1
-    if (strikes.value < 3) timerKey.value += 1
+    if (!out.value) timerKey.value += 1
   }
 
   // a different kind of task from here on (a new class, a new level): the
@@ -80,5 +86,5 @@ export function useRound(game, next) {
 
   watch(classConfig, restart, { immediate: true })
 
-  return reactive({ cfg: classConfig, earned, streak, strikes, flash, cheer, timerKey, newTask, restart, correct, wrong })
+  return reactive({ cfg: classConfig, earned, streak, strikes, max, out, flash, cheer, timerKey, newTask, restart, correct, wrong })
 }

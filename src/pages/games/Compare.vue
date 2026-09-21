@@ -13,12 +13,14 @@ const onEnter = (e, sign) => {
   if (e.pointerType === 'mouse') hovered.value = sign
 }
 
+// two tries, not three: with only <, = and > to pick from, a third try is the
+// last sign left and no comparing at all
 const round = useRound('compare', (cfg) => {
   task.value = compareRound(cfg)
-})
+}, 2)
 
 function pick(sign) {
-  if (round.strikes === 3) return
+  if (round.out) return
   if (sign !== task.value.answer) return round.wrong()
   round.correct('food')
   round.newTask()
@@ -35,8 +37,8 @@ function pick(sign) {
     <p class="kid-prompt">{{ t('comparePrompt') }}</p>
     <div class="kid-eq sm">
       <span>{{ task.left.text }}</span>
-      <span class="ans slot" :class="{ reveal: round.strikes === 3 }">
-        {{ round.strikes === 3 ? task.answer : hovered || '?' }}
+      <span class="ans slot" :class="{ reveal: round.out }">
+        {{ round.out ? task.answer : hovered || '?' }}
       </span>
       <span>{{ task.right.text }}</span>
     </div>
@@ -45,7 +47,7 @@ function pick(sign) {
         v-for="sign in ['<', '=', '>']"
         :key="sign"
         class="kid-tile"
-        :disabled="round.strikes === 3"
+        :disabled="round.out"
         @pointerenter="onEnter($event, sign)"
         @pointerleave="hovered = ''"
         @click="pick(sign)"

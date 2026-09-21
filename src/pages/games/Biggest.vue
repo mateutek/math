@@ -11,7 +11,7 @@ const round = useRound('biggest', (cfg) => {
 })
 
 function pick(n) {
-  if (round.strikes === 3) return
+  if (round.out) return
   if (n !== task.value.answer) return round.wrong()
   round.correct('food')
   round.newTask()
@@ -31,8 +31,8 @@ function pick(n) {
         v-for="n in task.numbers"
         :key="n"
         class="kid-tile"
-        :class="{ reveal: round.strikes === 3 && n === task.answer }"
-        :disabled="round.strikes === 3"
+        :class="{ reveal: round.out && n === task.answer }"
+        :disabled="round.out"
         @click="pick(n)"
       >
         {{ n }}

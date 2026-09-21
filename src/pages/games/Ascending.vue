@@ -14,7 +14,7 @@ const round = useRound('ascending', (cfg) => {
 })
 
 function pick(n) {
-  if (round.strikes === 3) return
+  if (round.out) return
   if (n !== task.value.sorted[done.value.length]) return round.wrong()
   done.value = [...done.value, n]
   if (done.value.length === task.value.sorted.length) {
@@ -38,14 +38,14 @@ function pick(n) {
         :key="n"
         class="kid-tile"
         :class="{ done: done.includes(n) }"
-        :disabled="done.includes(n) || round.strikes === 3"
+        :disabled="done.includes(n) || round.out"
         @click="pick(n)"
       >
         {{ n }}
       </button>
     </div>
-    <p class="kid-trail" :class="{ reveal: round.strikes === 3 }">
-      {{ (round.strikes === 3 ? task.sorted : done).join(' < ') }}
+    <p class="kid-trail" :class="{ reveal: round.out }">
+      {{ (round.out ? task.sorted : done).join(' < ') }}
     </p>
   </GameCard>
 </template>

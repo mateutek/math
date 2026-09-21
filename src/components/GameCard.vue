@@ -60,7 +60,7 @@ onUnmounted(() => {
     <div class="kid-status">
       <h1 v-if="title" class="kid-h1 kid-wide-only">{{ title }}</h1>
       <EarnedRow :earned="round.earned" />
-      <div v-if="timed && settings.timerEnabled && round.strikes < 3" class="kid-timer-slot">
+      <div v-if="timed && settings.timerEnabled && !round.out" class="kid-timer-slot">
         <TimerRing
           :key="round.timerKey"
           :duration="round.cfg.seconds"
@@ -73,7 +73,7 @@ onUnmounted(() => {
     <slot />
 
     <div class="kid-strikes-row">
-      <WrongAnswers :wrong="round.strikes" />
+      <WrongAnswers :wrong="round.strikes" :max="round.max" />
       <div class="kid-actions">
         <button class="kid-btn kid-btn-ghost" @click="round.newTask()">
           <RefreshCw :size="18" /> {{ t('newBtn') }}

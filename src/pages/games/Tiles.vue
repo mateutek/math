@@ -38,7 +38,7 @@ function pickResult(value) {
 function settle() {
   const e = picked.value
   const value = pickedValue.value
-  if (!e || value === null || round.strikes === 3) return
+  if (!e || value === null || round.out) return
   picked.value = null
   pickedValue.value = null
   if (e.result !== value) {
@@ -67,7 +67,7 @@ function settle() {
         class="kid-tile"
         :class="{ on: picked === e, done: done.has(e.result) }"
         :aria-pressed="picked === e"
-        :disabled="done.has(e.result) || round.strikes === 3"
+        :disabled="done.has(e.result) || round.out"
         @click="pickExpr(e)"
       >
         {{ e.text }}
@@ -81,7 +81,7 @@ function settle() {
         class="kid-tile res"
         :class="{ on: pickedValue === r, done: done.has(r) }"
         :aria-pressed="pickedValue === r"
-        :disabled="done.has(r) || round.strikes === 3"
+        :disabled="done.has(r) || round.out"
         @click="pickResult(r)"
       >
         {{ r }}

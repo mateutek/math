@@ -23,11 +23,13 @@ const level = computed(() => settings.topicLevel[game.id])
 
 const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 
+// A pick of three gets two tries: the third would be the only tile left, so
+// guessing would pay as well as knowing. Typed answers keep all three.
 const round = useRound(game.id, () => {
   task.value = topicTask(game.id, level.value)
   answer.value = ''
   if (task.value.kind === 'number') focusAnswer()
-})
+}, () => (task.value?.options?.length === 3 ? 2 : 3))
 
 // a new level is a different game: the streak belonged to the old one
 function setLevel(n) {
@@ -53,20 +55,20 @@ function isRight(value) {
 }
 
 function check() {
-  if (round.strikes === 3) return
+  if (round.out) return
   const value = parseAnswer(answer.value)
   // empty, or not a number at all: a slip of the finger, not a wrong answer
   if (value !== null) settle(isRight(value))
 }
 
 function pickOption(i) {
-  if (round.strikes < 3) settle(i === task.value.answer)
+  if (!round.out) settle(i === task.value.answer)
 }
 
 // a right value is taken the moment it is typed, no Enter needed; an empty
 // field (the reset for a new task, or a slip of the finger) is never right
 watch(answer, () => {
-  if (round.strikes < 3 && task.value.kind === 'number' && answer.value !== '') {
+  if (!round.out && task.value.kind === 'number' && answer.value !== '') {
     const value = parseAnswer(answer.value)
     if (value !== null && isRight(value)) settle(true)
   }
@@ -83,7 +85,7 @@ watch(answer, () => {
 
     <p v-if="task.prompt" class="kid-prompt">{{ t(task.prompt) }}</p>
     <div v-if="task.parts.length" class="kid-eq">
-      <MathParts :parts="task.parts" :reveal="task.kind === 'number' && round.strikes === 3 ? task.answer : null" />
+      <MathParts :parts="task.parts" :reveal="task.kind === 'number' && round.out ? task.answer : null" />
     </div>
 
     <div v-if="task.kind === 'number'" class="kid-field">
@@ -98,7 +100,7 @@ watch(answer, () => {
         inputmode="decimal"
         autocomplete="off"
         placeholder="?"
-        :disabled="round.strikes === 3"
+        :disabled="round.out"
         @keyup.enter="check"
       />
     </div>
@@ -107,8 +109,8 @@ watch(answer, () => {
         v-for="(option, i) in task.options"
         :key="i"
         class="kid-tile"
-        :class="{ reveal: round.strikes === 3 && i === task.answer }"
-        :disabled="round.strikes === 3"
+        :class="{ reveal: round.out && i === task.answer }"
+        :disabled="round.out"
         @click="pickOption(i)"
       >
         <MathParts :parts="option" />
@@ -116,7 +118,7 @@ watch(answer, () => {
     </div>
 
     <template v-if="task.kind === 'number'" #action>
-      <button class="kid-btn kid-btn-primary" :disabled="round.strikes === 3" @click="check">
+      <button class="kid-btn kid-btn-primary" :disabled="round.out" @click="check">
         <Check :size="20" /> {{ t('check') }}
       </button>
     </template>
