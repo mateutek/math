@@ -29,6 +29,10 @@ export function parseAnswer(text) {
 // equal to two decimal places, the most any answer has
 export const sameNumber = (a, b) => Math.round(a * 100) === Math.round(b * 100)
 
+// How many wrong answers end a task. A pick of N tiles gets N - 1: after that
+// the one tile left would be a free win. A typed answer keeps the usual three.
+export const triesFor = (task) => (task.kind === 'pick' ? task.options.length - 1 : 3)
+
 const number = (parts, answer) => ({ kind: 'number', parts, answer })
 
 // `right` and every one of `wrongs` is { parts, value }, all values different

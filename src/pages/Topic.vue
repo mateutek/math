@@ -5,7 +5,7 @@ import { Check } from 'lucide-vue-next'
 import GameCard from '@/components/GameCard.vue'
 import MathParts from '@/components/MathParts.vue'
 import { useRound } from '@/composables/useRound'
-import { LEVELS, topicTask, parseAnswer, sameNumber } from '@/games/topics'
+import { LEVELS, topicTask, parseAnswer, sameNumber, triesFor } from '@/games/topics'
 import { GAMES } from '@/data/games'
 import settings from '@/store/settings'
 import { needed } from '@/store/village'
@@ -23,13 +23,13 @@ const level = computed(() => settings.topicLevel[game.id])
 
 const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 
-// A pick of three gets two tries: the third would be the only tile left, so
-// guessing would pay as well as knowing. Typed answers keep all three.
+// A pick of N tiles gets N - 1 tries: the last one would be the only tile
+// left, so guessing would pay as well as knowing. Typed answers keep three.
 const round = useRound(game.id, () => {
   task.value = topicTask(game.id, level.value)
   answer.value = ''
   if (task.value.kind === 'number') focusAnswer()
-}, () => (task.value?.options?.length === 3 ? 2 : 3))
+}, () => (task.value ? triesFor(task.value) : 3))
 
 // a new level is a different game: the streak belonged to the old one
 function setLevel(n) {

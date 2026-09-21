@@ -4,7 +4,7 @@
 // fills the answer into the '?' and checks that the equation on screen is true.
 import assert from 'node:assert/strict'
 import { CLASSES, TOPICS, gameOffered } from '../data/classes.js'
-import { LEVELS, topicTask, parseAnswer, sameNumber } from './topics.js'
+import { LEVELS, topicTask, parseAnswer, sameNumber, triesFor } from './topics.js'
 import { tokenValue, holds, isTriple } from './mathParts.js'
 
 const RUNS = 2000
@@ -119,6 +119,8 @@ for (const topic of BUILT) {
       const task = topicTask(topic, level)
       checkTask(task, `${topic} L${level}`)
       LEVEL_RULES[topic]?.(task, level)
+      assert.equal(triesFor(task), task.kind === 'pick' ? task.options.length - 1 : 3, `${topic} L${level}: tries`)
+      assert.ok(triesFor(task) >= 1, `${topic} L${level}: at least one try`)
       kinds.add(task.kind)
     }
     assert.deepEqual([...kinds].sort(), ['number', 'pick'], `${topic} L${level} mixes both answer styles`)

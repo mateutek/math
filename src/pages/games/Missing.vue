@@ -18,7 +18,7 @@ const round = useRound('missing', (cfg) => {
   focusAnswer()
 })
 
-// the hidden operand shows "?" until three strikes reveal it
+// the hidden operand shows "?" until the last try is used up
 const shown = (side) =>
   task.value.hide !== side ? task.value[side] : round.out ? task.value.answer : '?'
 
