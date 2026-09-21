@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { nextTick } from 'vue'
 import Village from '@/pages/Village.vue'
 import settings, { classConfig } from '@/store/settings'
 import { gameOffered } from '@/data/classes'
+import { trackPage } from '@/analytics'
 
 // the five equation games are one page; the route name tells it which
 const Equation = () => import('@/pages/Equation.vue')
@@ -95,6 +97,9 @@ const routes = [
   { path: '/teoria', name: 'theory', component: Theory, meta: { full: true } },
   { path: '/teoria/tabliczka', name: 'theoryTable', component: () => import('@/pages/TheoryTable.vue'), meta: { full: true } },
   { path: '/teoria/:slug', name: 'theoryArticle', component: () => import('@/pages/TheoryArticle.vue'), meta: { full: true } },
+  // the consent banner links here; bare like the class picker (no tabs, no
+  // settings), and reachable before a class is picked (see the guard below)
+  { path: '/prywatnosc', name: 'privacy', component: () => import('@/pages/Privacy.vue'), meta: { bare: true } },
   // GET /en and /pl only ever switch the language (see the guard below); they
   // need their own route so the catch-all does not redirect them first
   { path: '/en', name: 'langEn' },
@@ -121,9 +126,19 @@ router.beforeEach((to) => {
     settings.lang = to.name === 'langEn' ? 'en' : 'pl'
     return { path: '/', replace: true }
   }
-  // first run: nothing works until a class is picked
-  if (settings.schoolClass === null && to.name !== 'classPicker') return { name: 'classPicker' }
+  // first run: nothing works until a class is picked, except the privacy page
+  // the consent banner links to (unknown route names are always offered by
+  // gameOffered, so it needs no exemption of its own)
+  if (settings.schoolClass === null && to.name !== 'classPicker' && to.name !== 'privacy') return { name: 'classPicker' }
   if (!gameOffered(to.name, classConfig.value)) return '/graj'
+})
+
+// Page views: the app is an SPA, so App.vue sets document.title itself after
+// the route settles. Wait one flush (nextTick) for that, then send it -
+// analytics.trackPage() is a no-op until a parent has granted consent.
+router.afterEach(async (to) => {
+  await nextTick()
+  trackPage(to.path, document.title)
 })
 
 export default router

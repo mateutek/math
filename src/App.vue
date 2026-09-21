@@ -8,11 +8,16 @@ import NextGoal from '@/components/NextGoal.vue'
 import RewardsCard from '@/components/RewardsCard.vue'
 import SettingsSheet from '@/components/SettingsSheet.vue'
 import LangSwitch from '@/components/LangSwitch.vue'
+import ConsentBanner from '@/components/ConsentBanner.vue'
 import village, { affordable, needed } from '@/store/village'
 import settings, { classConfig } from '@/store/settings'
 import { MATERIALS } from '@/data/buildings'
 import { GAMES } from '@/data/games'
+import { startIfGranted } from '@/analytics'
 import { t } from '@/i18n'
+
+// app start: resumes analytics if a parent already said yes on an earlier visit
+startIfGranted()
 
 // dev-only cheat panel; the gate lets the production build drop the import
 const DevPanel = import.meta.env.DEV
@@ -118,6 +123,9 @@ watchEffect(() => {
         <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
       </RouterLink>
     </nav>
+
+    <!-- outside the router view, on every page, including bare ones -->
+    <ConsentBanner />
 
     <component :is="DevPanel" v-if="DevPanel" />
   </div>
