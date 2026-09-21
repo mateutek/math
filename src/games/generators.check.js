@@ -52,6 +52,11 @@ for (const cfg of CLASSES.filter((c) => c.available)) {
     assert.equal(new Set(big.numbers).size, big.numbers.length)
     assert.ok(big.numbers.every((n) => n >= 1 && n <= cfg.max), `${at} biggest: out of range`)
     assert.equal(big.answer, Math[big.want](...big.numbers))
+    // all the same length, or the shortest tile gives the answer away
+    assert.equal(
+      new Set(big.numbers.map((n) => String(n).length)).size, 1,
+      `${at} biggest: mixed digit counts in ${big.numbers.join(' ')}`,
+    )
 
     // Ascending: five distinct numbers in range, sorted is really sorted
     const up = ascendingRound(cfg)

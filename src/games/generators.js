@@ -83,8 +83,23 @@ export function compareRound(cfg) {
   return { left, right, answer }
 }
 
+// Every number on the board is the same length, so the answer has to be read
+// rather than spotted: among 348 and 501, a 47 is the shortest tile, not the
+// smallest number worked out. Picks one digit band wide enough to hold `count`
+// distinct numbers (1 to 9, 10 to 99, ...) and draws the whole set from it.
+function sameWidth(count, max) {
+  const bands = []
+  for (let lo = 1; lo <= max; lo *= 10) {
+    const hi = Math.min(max, lo * 10 - 1)
+    if (hi - lo + 1 >= count) bands.push([lo, hi])
+  }
+  // no band that wide (a tiny ceiling): the whole range, digits mixed
+  if (!bands.length) return distinct(count, 1, max)
+  return distinct(count, ...bands[rnd(0, bands.length - 1)])
+}
+
 export function biggestRound(cfg) {
-  const numbers = distinct(cfg.max <= 10 ? 4 : 5, 1, cfg.max)
+  const numbers = sameWidth(cfg.max <= 10 ? 4 : 5, cfg.max)
   const want = rnd(0, 1) ? 'max' : 'min'
   return { numbers, want, answer: Math[want](...numbers) }
 }
