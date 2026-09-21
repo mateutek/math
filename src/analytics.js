@@ -3,7 +3,7 @@
 // this is an app for children. With GA_ID empty the whole thing is inert.
 import { ref } from 'vue'
 
-export const GA_ID = '' // the G-... measurement ID of the Liczbowo web stream
+export const GA_ID = 'G-3YBQN8330X' // the G-... measurement ID of the Liczbowo web stream
 
 const KEY = 'consent'
 
