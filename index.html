@@ -22,9 +22,8 @@
             document.documentElement.dataset.theme = t;
         })();
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Geist and Geist Mono are self-hosted from public/fonts, see src/assets/design/fonts.css -->
+    <link rel="preload" href="/fonts/geist-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Google Analytics loads from src/analytics.js, only after a parent
          consents through ConsentBanner.vue - see src/main.js / src/App.vue -->
 </head>

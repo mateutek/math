@@ -10,6 +10,7 @@
    ---------------------------------------------------------------------------- */
 @import './design/colors_and_type.css';
 @import './design/shadcn.css';
+@import './design/fonts.css';
 @import './design/kid.css';
 
 @tailwind base;
