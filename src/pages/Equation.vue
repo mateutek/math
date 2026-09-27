@@ -44,12 +44,16 @@ function isRight() {
   return parseInt(answer.value) === task.value.result && (!withRest || parseInt(rest.value) === task.value.rest)
 }
 
+function accept() {
+  round.correct(game.pays[0])
+  round.newTask()
+}
+
 function check() {
   // an empty field is a slip of the finger, not a wrong answer
   if (round.out || answer.value === '') return
   if (isRight()) {
-    round.correct(game.pays[0])
-    round.newTask()
+    accept()
   } else {
     round.wrong()
     focusAnswer()
@@ -59,10 +63,7 @@ function check() {
 // a right value is taken the moment it is typed, no Enter needed; an empty
 // field (the reset for a new task, or a slip of the finger) is never right
 watch([answer, rest], () => {
-  if (!round.out && answer.value !== '' && isRight()) {
-    round.correct(game.pays[0])
-    round.newTask()
-  }
+  if (!round.out && answer.value !== '' && isRight()) accept()
 })
 </script>
 

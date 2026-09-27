@@ -5,7 +5,7 @@
 // written in one language and forgotten in the other fails.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { ARTICLES, THEORY_GROUPS, TRICK_ROWS, articleBySlug, shelves } from './theory.js'
+import { ARTICLES, THEORY_GROUPS, TRICK_ROWS, articleBySlug, shelves, tipFor } from './theory.js'
 import { GAMES } from './games.js'
 import { holds } from '../games/mathParts.js'
 
@@ -98,11 +98,11 @@ for (const a of ARTICLES) {
   }
 }
 
-// the multiplication tricks: build the tip exactly as TimesTable.vue does
-// (same EASY rule, same swap to the easier row), then prove the arithmetic -
-// the prose is not trusted, the numbers in it are checked one by one
+// the multiplication tricks: ask theory.js's own tipFor which trick a x b
+// gets (the same call TimesTable.vue makes), then prove the arithmetic in
+// its sentence - the prose is not trusted, the numbers in it are checked one
+// by one
 const TRICK_OPS = { '+': (x, y) => x + y, '−': (x, y) => x - y, '×': (x, y) => x * y }
-const EASY = [1, 10]
 
 // fill one i18n string's {name} placeholders by hand, since i18n.js cannot be
 // imported under node
@@ -114,33 +114,30 @@ function fill(lang, key, vars) {
 }
 
 // the tip TimesTable.vue shows for a x b, or null when there is none
-function buildTip(lang, a, b) {
-  const swap = EASY.includes(b) && !EASY.includes(a)
-  const row = swap ? b : a
-  if (!swap && !TRICK_ROWS.includes(row)) return null
-  const n = swap ? a : b
+function buildTip(lang, a, b, pick) {
+  const { key, n, swapped } = pick
   const vars = { b: n, p: a * b, f: 5 * n, t: 10 * n }
-  const sentence = fill(lang, `th_trick${row}`, vars)
-  return swap ? `${fill(lang, 'th_trickSwap', { a, b })} ${sentence}` : sentence
+  const sentence = fill(lang, key, vars)
+  return swapped ? `${fill(lang, 'th_trickSwap', { a, b })} ${sentence}` : sentence
 }
 
 for (const lang of ['pl', 'en']) {
   for (let a = 1; a <= 10; a++) {
     for (let b = 1; b <= 10; b++) {
-      const tip = buildTip(lang, a, b)
+      const pick = tipFor(a, b)
       const where = `${lang} tip for ${a} x ${b}`
-      const swapped = EASY.includes(b) && !EASY.includes(a)
-      if (tip === null) {
-        assert.ok(!swapped && !TRICK_ROWS.includes(a), `${where}: expected a tip but got none`)
+      if (pick === null) {
+        assert.ok(!TRICK_ROWS.includes(a), `${where}: expected a tip but got none`)
         continue
       }
+      const tip = buildTip(lang, a, b, pick)
       assert.ok(!tip.includes('{'), `${where}: leftover placeholder in "${tip}"`)
       for (const [, x, op, y, z] of tip.matchAll(/(\d+) ([+−×]) (\d+) = (\d+)/g)) {
         assert.equal(TRICK_OPS[op](Number(x), Number(y)), Number(z), `${where}: "${x} ${op} ${y} = ${z}" is wrong`)
       }
       const numbers = tip.match(/\d+/g)
       assert.equal(Number(numbers[numbers.length - 1]), a * b, `${where}: tip does not end on ${a} * ${b}`)
-      if (swapped) assert.ok(tip.startsWith(`${a} × ${b}`), `${where}: swapped tip does not start with ${a} x ${b}`)
+      if (pick.swapped) assert.ok(tip.startsWith(`${a} × ${b}`), `${where}: swapped tip does not start with ${a} x ${b}`)
     }
   }
 }

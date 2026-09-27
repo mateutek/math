@@ -12,6 +12,19 @@ export const THEORY_GROUPS = ['grpOps', 'grpNumbers', 'grpTopics']
 // the multiplication rows that keep a trick tip under the table
 export const TRICK_ROWS = [1, 6, 9, 10]
 
+// rows easy enough that their trick is worth showing even when picked as the
+// other factor (so 7 x 10 reads the times-10 trick, not nothing)
+const EASY_ROWS = [1, 10]
+
+// which trick tip a x b should show: swap to the other factor's row when it
+// is 1 or 10, otherwise the row's own trick when it has one, otherwise none.
+// TimesTable.vue and theory.check.js both call this, so the two never drift.
+export function tipFor(a, b) {
+  if (EASY_ROWS.includes(b) && !EASY_ROWS.includes(a)) return { key: `th_trick${b}`, n: a, swapped: true }
+  if (TRICK_ROWS.includes(a)) return { key: `th_trick${a}`, n: b, swapped: false }
+  return null
+}
+
 // the word token MathParts draws as "z" / "of"; the evaluator multiplies by it
 const OF = { t: 'of' }
 

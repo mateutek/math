@@ -7,15 +7,12 @@ import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
 import { classConfig } from '@/store/settings'
 import { t, tp } from '@/i18n'
-import { TRICK_ROWS } from '@/data/theory'
+import { tipFor } from '@/data/theory'
 
 // the desktop board's default pick
 const a = ref(7)
 const b = ref(8)
 const NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-// rows easy enough that their trick is worth showing even when picked as the
-// other factor (so 7 x 10 reads the times-10 trick, not nothing)
-const EASY = [1, 10]
 
 // desktop picks a cell, the phone chips pick a row; one component covers both
 function pick(row, col) {
@@ -33,21 +30,17 @@ function cellClass(row, col) {
 }
 
 const product = computed(() => a.value * b.value)
-// which row's trick to tell, and which number to feed it: swap to the easier
-// row when the picked row has no tip of its own, otherwise use the pick as is
-const trickPick = computed(() => {
-  if (EASY.includes(b.value) && !EASY.includes(a.value)) return { row: b.value, n: a.value, swapped: true }
-  if (TRICK_ROWS.includes(a.value)) return { row: a.value, n: b.value, swapped: false }
-  return null
-})
+// which row's trick to tell, and which number to feed it: shared with the
+// node-side proof in theory.check.js so the two never drift apart
+const trickPick = computed(() => tipFor(a.value, b.value))
 // the numbers a trick sentence may use: the fed number, the product, and the
 // stepping stones on the way to it (five times, ten times)
 const trick = computed(() => {
   const pick = trickPick.value
   if (!pick) return null
-  const { row, n, swapped } = pick
+  const { key, n, swapped } = pick
   const vars = { b: n, p: a.value * b.value, f: 5 * n, t: 10 * n }
-  const sentence = tp('th_trick' + row, n, vars)
+  const sentence = tp(key, n, vars)
   return swapped ? `${tp('th_trickSwap', a.value, { a: a.value, b: b.value })} ${sentence}` : sentence
 })
 const repeated = computed(() => Array.from({ length: a.value }, () => b.value))

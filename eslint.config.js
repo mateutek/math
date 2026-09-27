@@ -17,7 +17,6 @@ export default [
         window: 'readonly',
         document: 'readonly',
         dataLayer: 'writable',
-        gtag: 'writable',
       },
     },
     rules: {

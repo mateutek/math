@@ -6,7 +6,6 @@ export const messages = {
   pl: {
     appNameA: 'Liczb',
     appNameB: 'owo',
-    tagline: 'Matematyka, która buduje wioskę',
     wip: 'Wersja testowa - prace trwają',
     earned: 'Zdobyte',
     answer: 'Wynik',
@@ -331,7 +330,6 @@ export const messages = {
   en: {
     appNameA: 'Sum',
     appNameB: 'bury',
-    tagline: 'Maths that builds a village',
     wip: 'Test version - work in progress',
     earned: 'Earned',
     answer: 'Your answer',
