@@ -5,7 +5,7 @@
 // written in one language and forgotten in the other fails.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { ARTICLES, THEORY_GROUPS, TRICK_ROWS, articleBySlug, shelves, tipFor } from './theory.js'
+import { ARTICLES, THEORY_GROUPS, TRICK_ROWS, EASY_ROWS, articleBySlug, shelves, tipFor } from './theory.js'
 import { GAMES } from './games.js'
 import { holds } from '../games/mathParts.js'
 
@@ -126,10 +126,18 @@ for (const lang of ['pl', 'en']) {
     for (let b = 1; b <= 10; b++) {
       const pick = tipFor(a, b)
       const where = `${lang} tip for ${a} x ${b}`
-      if (pick === null) {
-        assert.ok(!TRICK_ROWS.includes(a), `${where}: expected a tip but got none`)
-        continue
+      // prove both directions of the decision, not just "some tip came back":
+      // a swap must actually swap, and a row with nothing to say must say nothing
+      const swaps = EASY_ROWS.includes(b) && !EASY_ROWS.includes(a)
+      if (swaps) {
+        assert.ok(pick !== null, `${where}: expected a swapped tip but got none`)
+        assert.ok(pick.swapped, `${where}: expected the swap branch`)
+        assert.equal(pick.key, `th_trick${b}`, `${where}: expected row ${b}'s own trick`)
+        assert.equal(pick.n, a, `${where}: expected n = ${a}`)
+      } else if (!TRICK_ROWS.includes(a)) {
+        assert.equal(pick, null, `${where}: expected no tip`)
       }
+      if (pick === null) continue
       const tip = buildTip(lang, a, b, pick)
       assert.ok(!tip.includes('{'), `${where}: leftover placeholder in "${tip}"`)
       for (const [, x, op, y, z] of tip.matchAll(/(\d+) ([+−×]) (\d+) = (\d+)/g)) {

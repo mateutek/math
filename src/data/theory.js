@@ -14,7 +14,7 @@ export const TRICK_ROWS = [1, 6, 9, 10]
 
 // rows easy enough that their trick is worth showing even when picked as the
 // other factor (so 7 x 10 reads the times-10 trick, not nothing)
-const EASY_ROWS = [1, 10]
+export const EASY_ROWS = [1, 10]
 
 // which trick tip a x b should show: swap to the other factor's row when it
 // is 1 or 10, otherwise the row's own trick when it has one, otherwise none.
