@@ -68,7 +68,8 @@ export function addPicture({ a, b }, step) {
   const rest = b - fill
   const added = [0, fill, b][step]
   return {
-    eq: [[a, '+', b, '=', '?'], [a, '+', fill, '=', 10], [a, '+', fill, '+', rest, '=', sum]][step],
+    // the whole sum keeps the split in brackets: 8 + (2 + 3), the 5 in two parts
+    eq: [[a, '+', b, '=', '?'], [a, '+', fill, '=', 10], [a, '+', '(', fill, '+', rest, ')', '=', sum]][step],
     line: {
       lo: a - 1,
       hi: sum + 1,
@@ -92,7 +93,8 @@ export function subPicture({ m, s }, step) {
   const res = m - s
   const gone = (k) => (step >= 1 && k >= 10 && k < m) || (step >= 2 && k >= 10 - rest && k < 10)
   return {
-    eq: [[m, '−', s, '=', '?'], [m, '−', units, '=', 10], [m, '−', units, '−', rest, '=', res]][step],
+    // 13 − (3 + 2): the 5 taken away in two parts
+    eq: [[m, '−', s, '=', '?'], [m, '−', units, '=', 10], [m, '−', '(', units, '+', rest, ')', '=', res]][step],
     line: {
       lo: res - 1,
       hi: m + 1,

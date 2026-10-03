@@ -35,6 +35,8 @@ for (const pick of allPicks('add')) {
     assert.equal(count(p.cells, 'added'), [0, 10 - a, b][step], where)
     if (step) assert.ok(holds(p.eq), `${where}: ${p.eq.join(' ')}`)
   }
+  // the bracket holds the split: its two parts add up to b
+  assert.deepEqual(addPicture(pick, 2).eq.slice(2, 7), ['(', 10 - a, '+', b - (10 - a), ')'])
   // the whole sum: the first frame full, the rest in the second
   const done = addPicture(pick, 2)
   assert.ok(done.cells.slice(0, 10).every((c) => c !== 'empty'), `add ${a} + ${b}: the first frame is not full`)
@@ -52,6 +54,7 @@ for (const pick of allPicks('sub')) {
     assert.equal(count(p.cells, 'gone'), [0, m - 10, s][step], where)
     if (step) assert.ok(holds(p.eq), `${where}: ${p.eq.join(' ')}`)
   }
+  assert.deepEqual(subPicture(pick, 2).eq.slice(2, 7), ['(', m - 10, '+', s - (m - 10), ')'])
   // after step 1 exactly ten are left, the first frame
   assert.equal(count(subPicture(pick, 1).cells, 'start'), 10)
 }
