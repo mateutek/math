@@ -980,8 +980,9 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-oplegend .start::before { background: var(--start); }
 .kid-oplegend .added::before { background: var(--added); }
 .kid-opbars { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
-.kid-opbars .bar { display: flex; gap: 3px; }
-.kid-opbars .bar span { flex: 1 1 0; height: 26px; border-radius: 6px; box-sizing: border-box; }
+/* a grid, not flex: ten equal slots whatever their border, so the bars line up */
+.kid-opbars .bar { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
+.kid-opbars .bar span { height: 26px; border-radius: 6px; box-sizing: border-box; }
 .kid-opbars .same { background: var(--k-op-mul); }
 .kid-opbars .more { background: color-mix(in oklab, var(--k-op-sub) 25%, var(--k-card)); border: 2px dashed var(--k-op-sub); }
 .kid-oparray { align-self: center; display: grid; grid-template-columns: repeat(var(--cols), 26px); gap: 10px; padding: 12px; border-radius: 14px; background: var(--k-page); }
