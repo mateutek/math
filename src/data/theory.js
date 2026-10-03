@@ -179,7 +179,7 @@ export const ARTICLES = [
   {
     id: 'powers',
     slug: 'potegi',
-    cls: 7,
+    cls: 4,
     group: 'grpTopics',
     symbol: 'x²',
     color: 'var(--k-op-mul)',

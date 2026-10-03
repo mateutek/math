@@ -142,10 +142,12 @@ assert.equal(parseAnswer(7), 7)
 assert.ok(sameNumber(0.1 + 0.2, 0.3))
 assert.ok(!sameNumber(0.3, 0.31))
 
-// classes: topics pile up one a year from class 4, and only a class that has
-// reached a topic is offered its game
+// classes: class 4 meets fractions and powers, then one topic a year, and only
+// a class that has reached a topic is offered its game
 for (const cfg of CLASSES) {
-  assert.deepEqual(cfg.topics, TOPICS.slice(0, Math.max(0, cfg.id - 3)), `class ${cfg.id} topics`)
+  const want = { 4: ['fractions', 'powers'], 5: ['fractions', 'powers', 'decimals'], 6: ['fractions', 'powers', 'decimals', 'percents'] }
+  const expected = cfg.id < 4 ? [] : cfg.id < 7 ? want[cfg.id] : cfg.id === 7 ? want[6] : TOPICS
+  assert.deepEqual(cfg.topics, expected, `class ${cfg.id} topics`)
   for (const topic of TOPICS) assert.equal(gameOffered(topic, cfg), cfg.topics.includes(topic))
 }
 

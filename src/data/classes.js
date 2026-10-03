@@ -3,9 +3,10 @@
 // change here moves the whole app at once.
 // Pure data and pure functions, no Vue: generators.check.js runs under node.
 
-// The topics of classes 4 to 8, in school order. Class 4 meets the first, and
-// every class after it keeps the earlier ones, as school does.
-export const TOPICS = ['fractions', 'decimals', 'percents', 'powers', 'pythagoras']
+// The topics of classes 4 to 8, in school order, with the class that meets
+// each first. Every class after it keeps the earlier ones, as school does.
+const FROM = { fractions: 4, powers: 4, decimals: 5, percents: 6, pythagoras: 8 }
+export const TOPICS = Object.keys(FROM)
 
 // `max`       biggest number + and - and the number games work with
 // `mulMax`    biggest product x and / work with; 0 means the class has neither
@@ -24,8 +25,8 @@ const cls = (id, max, mulMax, pay, seconds, available = true) => ({
   dominoMax: Math.min(max, 12),
   // i18n key of the one-line caption under the class on the picker
   cap: `cls_cap_${id}`,
-  // topic games offered to the class: none up to class 3, then one more a year
-  topics: TOPICS.slice(0, Math.max(0, id - 3)),
+  // topic games offered to the class: none up to class 3, then FROM decides
+  topics: TOPICS.filter((t) => FROM[t] <= id),
 })
 
 export const CLASSES = [
@@ -33,8 +34,8 @@ export const CLASSES = [
   cls(1, 20, 0, 1, 30),
   cls(2, 100, 50, 2, 20),
   cls(3, 1000, 100, 3, 15),
-  // 4 to 8 keep class 3's numbers for the whole-number games and add a topic
-  // each (see TOPICS)
+  // 4 to 8 keep class 3's numbers for the whole-number games and add topics
+  // (see FROM)
   ...[4, 5, 6, 7, 8].map((id) => cls(id, 1000, 100, 3, 15)),
 ]
 
