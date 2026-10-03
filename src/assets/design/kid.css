@@ -163,6 +163,11 @@
 .kid-frac > span:last-child { padding-top: .1em; }
 .kid-eq sup { font-size: .55em; line-height: 0; vertical-align: super; }
 .kid-sqrt > span { margin-left: .04em; padding: 0 .1em; border-top: .08em solid currentColor; }
+/* x in an equation; a bracket hugs what it holds */
+.kid-eq .var { font-style: italic; }
+/* a mean of five long numbers breaks after a semicolon rather than leave the card */
+.kid-eq .kid-mean { white-space: normal; text-align: center; }
+.kid-eq .paren { margin: 0 -.2em; }
 .kid-eq .word { font-family: var(--font-sans); font-size: .5em; font-weight: 700; color: var(--muted-foreground); }
 .kid-tri { height: 3.4em; width: auto; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; }
 .kid-tri text { fill: currentColor; stroke: none; font: 700 16px var(--font-mono); }
@@ -197,6 +202,9 @@
 
 /* answer fields */
 .kid-fields { display: flex; gap: 12px; }
+/* the answer field and, in topics with signs, its ± key (Topic.vue) */
+.kid-signed { display: flex; gap: 8px; }
+.kid-signed .kid-btn { flex: none; width: 56px; padding: 0; font-size: 24px; }
 .kid-fields .kid-field { flex: 1; }
 .kid-field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--muted-foreground); }
 .kid-field-label .en { font-weight: 500; opacity: .8; }

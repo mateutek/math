@@ -3,8 +3,9 @@
 //
 // A task is plain data. `parts` is what the kid reads, as a list of tokens that
 // MathParts.vue draws: numbers, the operator strings '=' '+' '−' '×' '·' '÷', the
-// slot '?', and { t } { frac } { pow } { root } { pct } { triangle }. A '?' may
-// also sit inside a frac, pow, pct or triangle.
+// slot '?', brackets, and { t } { frac } { pow } { root } { pct } { triangle }
+// { mean } { x }. A '?' may also sit inside a frac, pow, pct, triangle or mean.
+// A task with an { x } has no '?': its prompt asks for x.
 //   { kind: 'number', parts, answer }                 one '?', typed
 //   { kind: 'pick', prompt, parts, options, answer }  answer indexes options
 // Every task also carries `type`, the name of the kind that made it.
@@ -29,8 +30,8 @@ const OF = { t: 'of' }
 
 // a typed answer: comma or dot, spaces around it; null when it is not a number
 export function parseAnswer(text) {
-  const s = String(text ?? '').trim().replace(',', '.')
-  return /^\d+(\.\d+)?$/.test(s) ? Number(s) : null
+  const s = String(text ?? '').trim().replace(',', '.').replace(/^−/, '-')
+  return /^-?\d+(\.\d+)?$/.test(s) ? Number(s) : null
 }
 
 // equal to two decimal places, the most any answer has
@@ -378,6 +379,209 @@ const POWERS = {
 }
 
 // ---------------------------------------------------------------------------
+// Negative numbers, from class 5
+// ---------------------------------------------------------------------------
+// a number after an operator: a negative one goes in brackets, 5 − (−3)
+const opd = (n) => (n < 0 ? ['(', n, ')'] : [n])
+// the reach of the numbers, both ways from zero
+const negRange = (level, year) => ({ 1: 10, 2: 20, 3: 50 })[level] * (year + 1)
+
+// two numbers in ±r, at least one of them below zero
+function negPair(r) {
+  for (;;) {
+    const a = rnd(-r, r)
+    const b = rnd(-r, r)
+    if (a < 0 || b < 0) return [a, b]
+  }
+}
+
+// a factor for × and ÷: never 0 or ±1, which are no task
+const factor = (level) => rnd(2, { 1: 5, 2: 10, 3: 12 }[level]) * one([1, -1])
+
+const NEGATIVES = {
+  add: [5, (level, year) => {
+    const [a, b] = negPair(negRange(level, year))
+    return number([a, '+', ...opd(b), '=', '?'], a + b)
+  }],
+
+  sub: [5, (level, year) => {
+    const [a, b] = negPair(negRange(level, year))
+    return number([a, '−', ...opd(b), '=', '?'], a - b)
+  }],
+
+  pickBiggest: [5, (level, year) => {
+    const r = negRange(level, year)
+    let options
+    do options = distinct(3, () => decOpt(rnd(-r, r) * 100))
+    while (!options.some((o) => o.value < 0))
+    const right = biggest(options)
+    return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+  }],
+
+  // the signs of a product; a division is built from its answer
+  times: [6, (level) => {
+    const a = factor(level)
+    const b = factor(level)
+    return rnd(0, 1)
+      ? number([a, '×', ...opd(b), '=', '?'], a * b)
+      : number([a * b, '÷', ...opd(b), '=', '?'], a)
+  }],
+
+  // the order of operations, with signs: −3 + 4 × (−2), (5 − 8) × (−2)
+  order: [7, (level, year) => {
+    const [a, b] = negPair(negRange(level, year) / (level === 1 ? 1 : 2))
+    const c = factor(level)
+    return rnd(0, 1)
+      ? number([a, '+', ...opd(b), '×', ...opd(c), '=', '?'], a + b * c)
+      : number(['(', a, '−', ...opd(b), ')', '×', ...opd(c), '=', '?'], (a - b) * c)
+  }],
+}
+
+// ---------------------------------------------------------------------------
+// Equations, from class 6. Class 6 writes the unknown as the '?' slot, so the
+// kid fills it in; class 7 meets x on both sides, { x: k } is kx.
+// ---------------------------------------------------------------------------
+const eqRange = (level, year) => ({ 1: 10, 2: 20, 3: 50 })[level] * (year + 1)
+// + 5 or − 5 after a term
+const signed = (n) => (n < 0 ? ['−', -n] : ['+', n])
+
+// an equation with the '?' as the unknown, `x` its value (a whole number > 0)
+function slotEquation(level, year, x) {
+  const a = rnd(2, level === 1 ? 5 : 9)
+  const b = rnd(1, eqRange(level, year))
+  return one([
+    () => [a, '·', '?', '+', b, '=', a * x + b],
+    () => [a, '·', '?', '−', b, '=', a * x - b],
+    () => ['(', '?', '+', b, ')', '·', a, '=', (x + b) * a],
+    () => ['?', '÷', a, '+', b, '=', x / a + b],
+  ])()
+}
+
+// a whole x > 0 for slotEquation that keeps every side whole and above zero
+function slotTask(level, year) {
+  for (;;) {
+    const x = rnd(1, eqRange(level, year))
+    const parts = slotEquation(level, year, x)
+    const nums = parts.filter((p) => typeof p === 'number')
+    if (nums.every((n) => Number.isInteger(n) && n > 0)) return [parts, x]
+  }
+}
+
+// ax + b = cx + d, with x whole and maybe below zero
+function xEquation(level, year) {
+  const r = eqRange(level, year) / 2
+  for (;;) {
+    const x = rnd(-r, r)
+    const a = rnd(1, 9)
+    const c = rnd(1, 9)
+    const b = rnd(-r, r)
+    const d = a * x + b - c * x
+    if (a !== c && b !== 0 && d !== 0) {
+      return [[{ x: a }, ...signed(b), '=', { x: c }, ...signed(d)], x]
+    }
+  }
+}
+
+// answers a kid would slip into: off by one or two, the wrong sign
+function eqWrongs(x, right) {
+  return distinct(3, () => decOpt((x + one([-2, -1, 1, 2, -2 * x, 10])) * 100), [right])
+}
+
+const EQUATIONS = {
+  // one step: ? + 7 = 12, 3 · ? = 21, ? ÷ 4 = 5, 20 − ? = 8
+  oneStep: [6, (level, year) => {
+    const x = rnd(1, eqRange(level, year))
+    const a = rnd(2, level === 1 ? 9 : eqRange(level, year))
+    return one([
+      () => number(['?', '+', a, '=', x + a], x),
+      () => number(['?', '−', a, '=', x], x + a),
+      () => number([a, '·', '?', '=', a * x], x),
+      () => number(['?', '÷', a, '=', x], x * a),
+      () => number([x + a, '−', '?', '=', a], x),
+    ])()
+  }],
+
+  // two steps: 3 · ? + 4 = 19, (? + 2) · 3 = 21
+  twoStep: [6, (level, year) => number(...slotTask(level, year))],
+
+  pickSolves: [6, (level, year) => {
+    const [parts, x] = slotTask(level, year)
+    const right = decOpt(x * 100)
+    return pick('topicPickSolves', parts, right, eqWrongs(x, right))
+  }],
+
+  // x on both sides: 5x − 3 = 2x + 9
+  bothSides: [7, (level, year) => {
+    const [parts, x] = xEquation(level, year)
+    return { ...number(parts, x), prompt: 'topicSolveX' }
+  }],
+
+  // brackets: 3 · (x − 2) = 12
+  brackets: [7, (level, year) => {
+    const r = eqRange(level, year) / 2
+    const a = rnd(2, 9)
+    let b, x
+    do {
+      b = rnd(-r, r)
+      x = rnd(-r, r)
+    } while (b === 0)
+    return { ...number([a, '·', '(', { x: 1 }, ...signed(b), ')', '=', a * (x + b)], x), prompt: 'topicSolveX' }
+  }],
+
+  pickX: [7, (level, year) => {
+    const [parts, x] = xEquation(level, year)
+    const right = decOpt(x * 100)
+    return pick('topicSolveX', parts, right, eqWrongs(x, right))
+  }],
+}
+
+// ---------------------------------------------------------------------------
+// The average, from class 6. { mean: [4, 7, 10] } is their arithmetic mean.
+// ---------------------------------------------------------------------------
+const meanTop = (level, year) => ({ 1: 10, 2: 50, 3: 100 })[level] * (year + 1)
+
+// n numbers from 1 to `top` whose mean is whole
+function wholeMean(n, top) {
+  for (;;) {
+    const m = rnd(1, top)
+    const vals = Array.from({ length: n - 1 }, () => rnd(1, top))
+    const last = n * m - vals.reduce((s, v) => s + v, 0)
+    if (last >= 1 && last <= top) return [shuffle([...vals, last]), m]
+  }
+}
+
+const AVERAGE = {
+  mean: [6, (level, year) => {
+    const [vals, m] = wholeMean(level === 1 ? 3 : rnd(3, 5), meanTop(level, year))
+    return number([{ mean: vals }, '=', '?'], m)
+  }],
+
+  // one set, and its mean among near misses. Three means side by side would
+  // not fit a phone's row of tiles.
+  pickEqual: [6, (level, year) => {
+    const [vals, m] = wholeMean(3, meanTop(level, year))
+    const right = decOpt(m * 100)
+    const wrongs = distinct(3, () => decOpt((m + rnd(1, 3) * (m > 3 ? one([1, -1]) : 1)) * 100), [right])
+    return pick('topicPickEqual', [{ mean: vals }], right, wrongs)
+  }],
+
+  // the number the mean is missing
+  missing: [7, (level, year) => {
+    const [vals, m] = wholeMean(level === 1 ? 3 : rnd(3, 5), meanTop(level, year))
+    const i = rnd(0, vals.length - 1)
+    const shown = vals.map((v, j) => (j === i ? '?' : v))
+    return number([{ mean: shown }, '=', m], vals[i])
+  }],
+
+  // two or four numbers: a mean of halves or quarters, 7,5 or 6,25
+  part: [7, (level, year) => {
+    const n = one([2, 4])
+    const vals = Array.from({ length: n }, () => rnd(1, meanTop(level, year)))
+    return number([{ mean: vals }, '=', '?'], vals.reduce((s, v) => s + v, 0) / n)
+  }],
+}
+
+// ---------------------------------------------------------------------------
 // Pythagoras, class 8. Whole-number triples only, so every answer is whole.
 // ---------------------------------------------------------------------------
 const EASY_TRIPLES = [[3, 4, 5], [6, 8, 10], [5, 12, 13]]
@@ -415,7 +619,16 @@ const PYTHAGORAS = {
 }
 
 // ---------------------------------------------------------------------------
-const KINDS = { fractions: FRACTIONS, decimals: DECIMALS, percents: PERCENTS, powers: POWERS, pythagoras: PYTHAGORAS }
+const KINDS = {
+  fractions: FRACTIONS,
+  decimals: DECIMALS,
+  negatives: NEGATIVES,
+  percents: PERCENTS,
+  equations: EQUATIONS,
+  average: AVERAGE,
+  powers: POWERS,
+  pythagoras: PYTHAGORAS,
+}
 
 // the names of the kinds a class has in a topic
 export const kindsFor = (topic, cls) =>

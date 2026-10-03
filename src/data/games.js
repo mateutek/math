@@ -79,13 +79,16 @@ export const GROUPS = [
     // needs next (see neededMaterial), so `pays` is empty all the way down.
     key: 'grpTopics',
     pays: [],
-    cols: 5,
-    // five cards need the whole row on desktop, not half of it
+    cols: 4,
+    // eight cards need the whole row on desktop, not half of it
     wide: true,
     games: [
       { id: 'fractions', symbol: '½', color: 'var(--k-op-sub)', ink: 'var(--k-ink-sub, #b45309)', route: '/tematy/ulamki', pays: [] },
       { id: 'decimals', symbol: '0,5', color: 'var(--k-op-add)', ink: 'var(--k-ink-add, #15803d)', route: '/tematy/dziesietne', pays: [] },
+      { id: 'negatives', symbol: '−3', color: 'var(--k-op-sub)', ink: 'var(--k-ink-sub, #b45309)', route: '/tematy/ujemne', pays: [], signed: true },
       { id: 'percents', symbol: '%', color: 'var(--k-op-div)', ink: 'var(--k-ink-div, #be185d)', route: '/tematy/procenty', pays: [] },
+      { id: 'equations', symbol: 'x=', color: 'var(--k-op-mul)', ink: 'var(--k-ink-mul, #4f46e5)', route: '/tematy/rownania', pays: [], signed: true },
+      { id: 'average', symbol: 'x̄', color: 'var(--k-op-add)', ink: 'var(--k-ink-add, #15803d)', route: '/tematy/srednia', pays: [] },
       { id: 'powers', symbol: 'x²', color: 'var(--k-op-mul)', ink: 'var(--k-ink-mul, #4f46e5)', route: '/tematy/potegi', pays: [] },
       { id: 'pythagoras', symbol: '△', color: 'var(--k-op-div2)', ink: 'var(--k-ink-div2, #0f766e)', route: '/tematy/pitagoras', pays: [] },
     ],

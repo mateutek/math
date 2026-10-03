@@ -21,6 +21,10 @@ const answer = ref('')
 const answerInput = ref(null)
 const level = computed(() => settings.topicLevel[game.id])
 
+// a long equation (x on both sides, a mean of five numbers) steps down a size
+// to fit a phone; each number of a mean counts as a number and its separator
+const long = computed(() => task.value.parts.reduce((n, p) => n + (p?.mean ? p.mean.length * 2 : 1), 0) > 7)
+
 const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 
 // A pick of N tiles gets N - 1 tries: the last one would be the only tile
@@ -61,6 +65,11 @@ function check() {
   if (value !== null) settle(isRight(value))
 }
 
+function flipSign() {
+  answer.value = /^[-−]/.test(answer.value) ? answer.value.slice(1) : '−' + answer.value
+  focusAnswer()
+}
+
 function pickOption(i) {
   if (!round.out) settle(i === task.value.answer)
 }
@@ -75,25 +84,30 @@ function pickOption(i) {
     </div>
 
     <p v-if="task.prompt" class="kid-prompt">{{ t(task.prompt) }}</p>
-    <div v-if="task.parts.length" class="kid-eq">
+    <div v-if="task.parts.length" class="kid-eq" :class="{ sm: long }">
       <MathParts :parts="task.parts" :reveal="task.kind === 'number' && round.out ? task.answer : null" />
     </div>
 
     <div v-if="task.kind === 'number'" class="kid-field">
       <label class="kid-field-label" for="topic-answer">{{ t('answer') }}</label>
       <!-- text, not number: a number field refuses the Polish decimal comma -->
-      <input
-        id="topic-answer"
-        ref="answerInput"
-        v-model="answer"
-        class="kid-input"
-        type="text"
-        inputmode="decimal"
-        autocomplete="off"
-        placeholder="?"
-        :disabled="round.out"
-        @keyup.enter="check"
-      />
+      <div class="kid-signed">
+        <input
+          id="topic-answer"
+          ref="answerInput"
+          v-model="answer"
+          class="kid-input"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="?"
+          :disabled="round.out"
+          @keyup.enter="check"
+        />
+        <!-- a phone's number pad has no minus, so topics with signs bring one;
+             it is there for every task of the topic, so it gives no sign away -->
+        <button v-if="game.signed" type="button" class="kid-btn kid-btn-ghost" :disabled="round.out" :aria-label="t('signToggle')" @click="flipSign">±</button>
+      </div>
     </div>
     <div v-else class="kid-tiles" :class="{ two: task.options.length !== 3 }">
       <button

@@ -5,7 +5,8 @@
 // Tokens are the ones src/games/topics.js and src/data/theory.js produce:
 // numbers, the operator strings '+' '−' '×' '·' ':' '÷', the grouping strings
 // '(' ')', the relations '=' '<' '>', a word token { t } that means "of" and
-// multiplies, and { frac } { pow } { root } { pct } { triangle }.
+// multiplies, and { frac } { pow } { root } { pct } { triangle } { mean }.
+// An { x } has no value here: whoever checks it puts the number in first.
 const isObj = (x) => x !== null && typeof x === 'object'
 
 // the number a single token stands for
@@ -15,6 +16,7 @@ export function tokenValue(p) {
   if (p.pow) return p.pow[0] ** p.pow[1]
   if (p.root !== undefined) return Math.sqrt(p.root)
   if (p.pct !== undefined) return p.pct / 100
+  if (p.mean) return p.mean.reduce((s, v) => s + v, 0) / p.mean.length
   throw new Error(`no value for ${JSON.stringify(p)}`)
 }
 

@@ -12,7 +12,10 @@ const props = defineProps({
 })
 
 // Polish writes decimals with a comma
-const fmt = (n) => String(n).replace('.', ',')
+// and a real minus sign, not a hyphen
+const fmt = (n) => String(n).replace('.', ',').replace('-', '−')
+// 3x, x for 1x
+const xTerm = (k) => (k === 1 ? '' : fmt(k)) + 'x'
 // any value that may be the '?' slot
 // i is the token's index, for picking its value out of a list reveal
 const show = (x, i) => {
@@ -32,7 +35,7 @@ const sides = (s) => `a = ${show(s.a)}, b = ${show(s.b)}, c = ${show(s.c)}`
 <template>
   <template v-for="(p, i) in parts" :key="i">
     <span v-if="typeof p === 'number' || p === '?'" :class="slot(p)">{{ show(p, i) }}</span>
-    <span v-else-if="typeof p === 'string'" :class="{ op: p !== '=' }">{{ p }}</span>
+    <span v-else-if="typeof p === 'string'" :class="p === '(' || p === ')' ? 'paren' : { op: p !== '=' }">{{ p }}</span>
     <span v-else-if="p.t" class="word">{{ t(p.t) }}</span>
     <span v-else-if="p.frac" class="kid-frac" role="img" :aria-label="show(p.frac[0]) + '/' + show(p.frac[1])">
       <span :class="slot(p.frac[0])">{{ show(p.frac[0]) }}</span>
@@ -41,6 +44,11 @@ const sides = (s) => `a = ${show(s.a)}, b = ${show(s.b)}, c = ${show(s.c)}`
     <span v-else-if="p.pow" role="img" :aria-label="show(p.pow[0]) + '^' + show(p.pow[1])">{{ show(p.pow[0]) }}<sup :class="slot(p.pow[1])">{{ show(p.pow[1]) }}</sup></span>
     <span v-else-if="p.root !== undefined" class="kid-sqrt">√<span>{{ show(p.root) }}</span></span>
     <span v-else-if="p.pct !== undefined"><span :class="slot(p.pct)">{{ show(p.pct) }}</span>%</span>
+    <span v-else-if="p.x !== undefined" class="var">{{ xTerm(p.x) }}</span>
+    <!-- a semicolon between the numbers: the comma is the decimal point -->
+    <span v-else-if="p.mean" class="kid-mean" role="img" :aria-label="t('meanOf') + ' ' + p.mean.map((v) => show(v)).join('; ')">
+      <span class="word">{{ t('meanOf') }}</span>(<template v-for="(v, j) in p.mean" :key="j"><span :class="slot(v)">{{ show(v) }}</span><template v-if="j < p.mean.length - 1">; </template></template>)
+    </span>
     <!-- not to scale: one fixed right triangle, legs a and b, hypotenuse c -->
     <svg v-else-if="p.triangle" class="kid-tri" viewBox="0 0 150 100" role="img" :aria-label="sides(p.triangle)">
       <polygon points="34,80 130,80 34,14" />

@@ -18,6 +18,10 @@ const fill = (x, v) =>
       : isObject(x) ? Object.fromEntries(Object.entries(x).map(([k, y]) => [k, fill(y, v)]))
         : x
 
+// an { x } becomes the number it stands for, after the '?' is filled
+const fillX = (parts, v) => fill(parts, v).map((p) => (isObject(p) && p.x !== undefined ? p.x * v : p))
+const hasX = (parts) => parts.some((p) => isObject(p) && p.x !== undefined)
+
 const denominators = (x) =>
   isObject(x) && !Array.isArray(x) && x.frac ? [x.frac[1]] : children(x).flatMap(denominators)
 
@@ -27,13 +31,18 @@ function checkTask(task, where) {
   }
 
   if (task.kind === 'number') {
-    assert.equal(slots(task.parts), 1, `${where}: exactly one "?" in ${JSON.stringify(task.parts)}`)
-    assert.ok(Number.isFinite(task.answer) && task.answer >= 0, `${where}: answer ${task.answer}`)
+    // a task with x asks for x in its prompt and has no slot
+    const want = hasX(task.parts) ? 0 : 1
+    assert.equal(slots(task.parts), want, `${where}: ${want} "?" in ${JSON.stringify(task.parts)}`)
+    if (want === 0) assert.equal(task.prompt, 'topicSolveX', where)
+    assert.ok(Number.isFinite(task.answer), `${where}: answer ${task.answer}`)
+    // below zero only where the topic has signs
+    assert.ok(task.answer >= 0 || ['negatives', 'equations'].includes(where.split(' ')[0]), `${where}: answer ${task.answer}`)
     assert.ok(
       Math.abs(task.answer * 100 - Math.round(task.answer * 100)) < 1e-9,
       `${where}: ${task.answer} has more than two decimal places`,
     )
-    assert.ok(holds(fill(task.parts, task.answer)), `${where}: ${JSON.stringify(task.parts)} is not ${task.answer}`)
+    assert.ok(holds(fillX(task.parts, task.answer)), `${where}: ${JSON.stringify(task.parts)} is not ${task.answer}`)
     return
   }
 
@@ -46,6 +55,14 @@ function checkTask(task, where) {
     return
   }
   const values = task.options.map((o) => tokenValue(o[0]))
+  // which number solves it: the right one does, and none of the others
+  if (task.prompt === 'topicPickSolves' || task.prompt === 'topicSolveX') {
+    assert.equal(slots(task.parts), task.prompt === 'topicSolveX' ? 0 : 1, where)
+    for (const [i, v] of values.entries()) {
+      assert.equal(holds(fillX(task.parts, v)), i === task.answer, `${where}: ${v} in ${JSON.stringify(task.parts)}`)
+    }
+    return
+  }
   for (const [i, v] of values.entries()) {
     for (const [j, w] of values.entries()) {
       assert.ok(i === j || Math.abs(v - w) > 1e-9, `${where}: options ${i} and ${j} are equal`)
@@ -162,13 +179,17 @@ assert.equal(parseAnswer(''), null)
 assert.equal(parseAnswer('abc'), null)
 assert.equal(parseAnswer('1,2,3'), null)
 assert.equal(parseAnswer(7), 7)
+assert.equal(parseAnswer('-3'), -3)
+assert.equal(parseAnswer('−3,5'), -3.5)
+assert.equal(parseAnswer('3-'), null)
 assert.ok(sameNumber(0.1 + 0.2, 0.3))
 assert.ok(!sameNumber(0.3, 0.31))
 
-// classes: class 4 meets fractions and powers, then one topic a year, and only
+// classes: class 4 meets fractions and powers, then a few topics a year, and only
 // a class that has reached a topic is offered its game
 for (const cfg of CLASSES) {
-  const want = { 4: ['fractions', 'powers'], 5: ['fractions', 'powers', 'decimals'], 6: ['fractions', 'powers', 'decimals', 'percents'] }
+  const five = ['fractions', 'powers', 'decimals', 'negatives']
+  const want = { 4: ['fractions', 'powers'], 5: five, 6: [...five, 'percents', 'equations', 'average'] }
   const expected = cfg.id < 4 ? [] : cfg.id < 7 ? want[cfg.id] : cfg.id === 7 ? want[6] : TOPICS
   assert.deepEqual(cfg.topics, expected, `class ${cfg.id} topics`)
   for (const topic of TOPICS) assert.equal(gameOffered(topic, cfg), cfg.topics.includes(topic))

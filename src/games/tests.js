@@ -21,6 +21,9 @@ const SECTIONS = [
   { id: 'powers', instr: 'testCalc', count: 4 },
   { id: 'decimals', instr: 'testCalc', count: 4 },
   { id: 'percents', instr: 'testCalc', count: 4 },
+  { id: 'negatives', instr: 'testCalc', count: 4 },
+  { id: 'equations', instr: 'testSolve', count: 4 },
+  { id: 'average', instr: 'testCalc', count: 3 },
   { id: 'pythagoras', instr: 'testCalc', count: 3 },
 ]
 
@@ -55,10 +58,11 @@ function make(id, cfg, level) {
     const [a, b] = r.hide === 'a' ? ['?', r.b] : [r.a, '?']
     return { parts: [a, r.op, b, '=', r.result], answer: r.answer }
   }
-  // a topic: only typed tasks, a pick needs its tiles and paper has none
+  // a topic: only typed tasks with a blank. A pick needs its tiles and paper
+  // has none; an x task asks for x in a prompt the sheet does not print.
   for (;;) {
     const task = topicTask(id, level, cfg.id)
-    if (task.kind === 'number') return { parts: task.parts, answer: task.answer }
+    if (task.kind === 'number' && blanks(task.parts)) return { parts: task.parts, answer: task.answer }
   }
 }
 
@@ -76,8 +80,9 @@ export function question(id, cfg, level, taken = []) {
 
 // Hand edits. A question goes out as one line of text and comes back from it:
 //   34 + ? = 62    1/4 + 1/4 = ?/4    2^3 = ?    √49 = ?    25% z 80 = ?
-// Only the Pythagoras triangle has no text form; it is swapped, not typed.
-export const editable = (q) => !q.parts.some((p) => p && p.triangle)
+// The Pythagoras triangle and the mean have no text form; they are swapped, not
+// typed. A minus right at the start, after '(' or after '=' is a sign: (−3).
+export const editable = (q) => !q.parts.some((p) => p && (p.triangle || p.mean))
 
 // the keyboard's signs, as the app prints them; "z" and "of" are the word
 const KEYS = { '-': '−', '*': '×', ':': '÷', '/': '÷', z: { t: 'of' }, of: { t: 'of' }, r: { t: 'restShort' } }
@@ -98,10 +103,12 @@ export const toText = (q, of = 'z') => q.parts.map((p) => tokenText(p, of)).join
 
 // a number or the blank, then what a token may be built from it
 const N = String.raw`(\d+(?:[.,]\d+)?|\?)`
-const TOKEN = new RegExp(String.raw`${N}\/${N}|${N}\^${N}|(?:√|sqrt)\s*${N}|${N}%|${N}|[^\s\d?√%^]+`, 'g')
+const SIGNED = String.raw`((?<=(?:^|[(=])\s*)[-−]\d+(?:[.,]\d+)?)`
+const TOKEN = new RegExp(String.raw`${N}\/${N}|${N}\^${N}|(?:√|sqrt)\s*${N}|${N}%|${N}|${SIGNED}|[()]|[^\s\d?√%^()]+`, 'g')
 
 function readToken(m) {
-  const [s, fn, fd, pb, pe, root, pct, n] = m
+  const [s, fn, fd, pb, pe, root, pct, n, neg] = m
+  if (neg) return Number(neg.replace('−', '-').replace(',', '.'))
   if (fn) return { frac: [num(fn), num(fd)] }
   if (pb) return { pow: [num(pb), num(pe)] }
   if (root) return { root: num(root) }
