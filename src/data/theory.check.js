@@ -76,7 +76,7 @@ for (const a of ARTICLES) {
   needsKey(`th_${a.id}_ex`, where)
   if (a.practise) needsKey(`th_${a.id}_cta`, where)
 
-  assert.ok(a.cards.length >= 2 && a.cards.length <= 4, `${where}: ${a.cards.length} cards`)
+  assert.ok(a.cards.length >= 2 && a.cards.length <= 5, `${where}: ${a.cards.length} cards`)
   for (const [i, card] of a.cards.entries()) {
     const cw = `${where} card ${i + 1}`
     needsKey(card.h, cw)

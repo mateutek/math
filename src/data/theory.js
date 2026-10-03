@@ -316,7 +316,6 @@ export const ARTICLES = [
       { h: 'th_triangles_h1', fig: { shape: 'triangle', angles: { A: 50, B: 60, C: 70 } }, parts: [50, '+', 60, '+', 70, '=', 180], notes: ['th_triangles_n1'] },
       { h: 'th_triangles_h2', fig: { shape: 'triangle', iso: true, angles: { A: 70, B: 70, C: 40 } }, parts: [70, '+', 70, '+', 40, '=', 180], notes: ['th_triangles_n2'] },
       { h: 'th_triangles_h3', fig: { shape: 'bars', sides: [6, 3, 4] }, parts: [3, '+', 4, '>', 6], notes: ['th_triangles_n3'] },
-      { h: 'th_triangles_h4', fig: { shape: 'quad', angles: [80, 100, 70, 110] }, parts: [80, '+', 100, '+', 70, '+', 110, '=', 360], notes: ['th_triangles_n4'] },
     ],
   },
   {
@@ -335,6 +334,7 @@ export const ARTICLES = [
       { h: 'th_quads_h2', fig: { shape: 'para', a: 7, h: 3, o: 2, bare: true }, notes: ['th_quads_n2'] },
       { h: 'th_quads_h3', fig: { shape: 'rhombus', e: 8, f: 5, bare: true }, notes: ['th_quads_n3'] },
       { h: 'th_quads_h4', fig: { shape: 'trap', a: 9, b: 4, h: 3, o: 2, bare: true }, notes: ['th_quads_n4'] },
+      { h: 'th_quads_h5', fig: { shape: 'quad', angles: [80, 100, 70, 110] }, parts: [80, '+', 100, '+', 70, '+', 110, '=', 360], notes: ['th_quads_n5'] },
     ],
   },
   {

@@ -1010,6 +1010,8 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   .kid-texp .kid-eq.sm { font-size: 40px; letter-spacing: -0.03em; }
   .kid-texp .kid-btn { height: 52px; }
   .kid-tcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* an odd last card takes the whole row rather than leave a hole */
+  .kid-tcards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
   /* .kid-tcols .pick (0-2-0) outranks .kid-phone-only (0-1-0), so
      the phone chip picker keeps showing on desktop; match its specificity */
   .kid-tcols .pick { display: none; }
