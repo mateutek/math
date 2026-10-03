@@ -4,7 +4,7 @@
 // cannot be loaded here. The pl and en halves are sliced apart first, so a key
 // written in one language and forgotten in the other fails.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { ARTICLES, THEORY_GROUPS, TRICK_ROWS, EASY_ROWS, articleBySlug, shelves, tipFor } from './theory.js'
 import { GAMES } from './games.js'
 import { holds } from '../games/mathParts.js'
@@ -167,19 +167,20 @@ for (const lang of ['pl', 'en']) {
   }
 }
 
-// the operation pictures' words, in both languages (plain or with plural forms)
-const opKeys = new Set(
-  ['../components/OpExplorer.vue', '../components/NumStepper.vue'].flatMap((f) =>
-    [...read(f).matchAll(/'(op_\w+)'/g)].map((m) => m[1]),
-  ),
-)
+// the pictures' words, in both languages (plain or with plural forms)
+const EXPLORE_FILES = ['../components/OpExplorer.vue', '../components/NumStepper.vue']
+const EXPLORE_DIR = new URL('../components/explore/', import.meta.url)
+for (const f of readdirSync(EXPLORE_DIR)) EXPLORE_FILES.push(`../components/explore/${f}`)
+const opKeys = new Set(EXPLORE_FILES.flatMap((f) => [...read(f).matchAll(/'((?:op|ex)_\w+)'/g)].map((m) => m[1])))
 assert.ok(opKeys.size > 20, `only ${opKeys.size} op_ keys found`)
 for (const key of opKeys) {
   for (const lang of ['pl', 'en']) {
     assert.ok(new RegExp(`\\n    ${key}: ['\\[]`).test(BLOCK[lang]), `the pictures: ${lang} has no "${key}"`)
   }
 }
-for (const a of ARTICLES.filter((x) => x.explore)) assert.ok(['add', 'sub', 'mul', 'div'].includes(a.explore), a.id)
+// every article with pictures names a picture that exists
+const EXPLORE_KINDS = ['add', 'sub', 'mul', 'div', ...readdirSync(EXPLORE_DIR).map((f) => f.replace('Explore.vue', '').toLowerCase())]
+for (const a of ARTICLES.filter((x) => x.explore)) assert.ok(EXPLORE_KINDS.includes(a.explore), `${a.id}: no picture "${a.explore}"`)
 
 assert.equal(articleBySlug('nic-takiego'), null)
 

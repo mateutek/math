@@ -37,7 +37,8 @@ const view = computed(() => {
     <line x1="2" :y1="BASE" :x2="W - 2" :y2="BASE" class="axis" />
     <template v-for="(t, i) in view.ticks" :key="'t' + i">
       <line :x1="t.x" :y1="BASE - 5" :x2="t.x" :y2="BASE + 5" class="axis" />
-      <text :x="t.x" :y="BASE + 22" :class="{ key: t.key }">{{ t.n }}</text>
+      <!-- a long line leaves its minor ticks unnamed (quiet) -->
+      <text v-if="!t.quiet" :x="t.x" :y="BASE + 22" :class="{ key: t.key }">{{ String(t.n).replace('-', '−') }}</text>
     </template>
     <template v-for="(j, i) in view.jumps" :key="'j' + i">
       <path :d="j.d" class="jump" :class="{ off: !j.on }" />

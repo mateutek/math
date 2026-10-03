@@ -6,6 +6,14 @@ import MathParts from '@/components/MathParts.vue'
 import GeoFigure from '@/components/GeoFigure.vue'
 import TheoryCrumbs from '@/components/TheoryCrumbs.vue'
 import OpExplorer from '@/components/OpExplorer.vue'
+import FractionsExplore from '@/components/explore/FractionsExplore.vue'
+import DecimalsExplore from '@/components/explore/DecimalsExplore.vue'
+import PercentsExplore from '@/components/explore/PercentsExplore.vue'
+import PowersExplore from '@/components/explore/PowersExplore.vue'
+import NegativesExplore from '@/components/explore/NegativesExplore.vue'
+import EquationsExplore from '@/components/explore/EquationsExplore.vue'
+import AverageExplore from '@/components/explore/AverageExplore.vue'
+import PythagorasExplore from '@/components/explore/PythagorasExplore.vue'
 import { articleBySlug } from '@/data/theory'
 import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
@@ -43,6 +51,19 @@ function toggle(h) {
   shown.value = next
 }
 
+// the pictures an article opens with, by its `explore`; the four operations
+// share OpExplorer
+const EXPLORERS = {
+  fractions: FractionsExplore,
+  decimals: DecimalsExplore,
+  percents: PercentsExplore,
+  powers: PowersExplore,
+  negatives: NegativesExplore,
+  equations: EquationsExplore,
+  average: AverageExplore,
+  pythagoras: PythagorasExplore,
+}
+
 const note = (n) => (typeof n === 'string' ? { term: null, text: n } : n)
 const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
 </script>
@@ -57,7 +78,8 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
 
     <div class="kid-tcards" :class="{ explore: article.explore }" :style="{ '--g': article.color, '--k-ink': article.ink }">
       <!-- keyed: a new article starts its pictures from their own numbers -->
-      <OpExplorer v-if="article.explore" :key="article.id" :kind="article.explore" />
+      <component :is="EXPLORERS[article.explore]" v-if="EXPLORERS[article.explore]" :key="article.id" />
+      <OpExplorer v-else-if="article.explore" :key="article.id" :kind="article.explore" />
       <!-- under the pictures, the article's own cards take the whole row -->
       <section v-for="card in article.cards" :key="card.h" class="kid-panel" :class="{ wide: article.explore }" :style="{ '--g': article.color, '--k-ink': article.ink }">
         <h2>{{ t(card.h) }}</h2>

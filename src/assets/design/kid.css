@@ -1018,6 +1018,36 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-opbags span { width: 13px; height: 13px; border-radius: 50%; background: var(--k-op-div); }
 .kid-opbags > div.left { border: 2px dashed var(--k-op-sub); background: transparent; border-radius: 12px; }
 .kid-opbags > div.left span { background: var(--k-op-sub); }
+/* the topic pictures (src/components/explore/) */
+.kid-strip.thin > span { height: 22px; }
+.kid-opsay { margin: 0; text-align: center; font-size: 13.5px; color: var(--muted-foreground); }
+.kid-hgrid { align-self: center; display: grid; grid-template-columns: repeat(10, 22px); gap: 3px; padding: 10px; border-radius: 14px; background: var(--k-page); }
+.kid-hgrid span { width: 22px; height: 22px; border-radius: 4px; background: var(--k-track); }
+.kid-hgrid span.on { background: var(--g, var(--k-brand)); }
+.kid-pctbar { position: relative; height: 40px; border-radius: 10px; background: var(--k-track); overflow: hidden; }
+.kid-pctbar .part { position: absolute; inset: 0 auto 0 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; min-width: 34px; background: var(--g, var(--k-brand)); color: #fff; font: 700 15px var(--font-mono); }
+.kid-pctscale { display: flex; justify-content: space-between; font: 600 13px var(--font-mono); color: var(--muted-foreground); }
+.kid-balance { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.kid-balance .pan { min-height: 92px; padding: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-content: center; justify-content: center; border-radius: 16px; border: 2px solid var(--k-card-border); border-bottom-width: 6px; background: var(--k-page); }
+.kid-balance .eqsign { font: 700 28px var(--font-mono); }
+.kid-balance .box { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: var(--g, var(--k-op-mul)); color: #fff; font: 700 italic 17px var(--font-mono); }
+.kid-balance .w { width: 16px; height: 16px; border-radius: 50%; background: var(--k-op-sub); display: flex; align-items: center; justify-content: center; font: 800 12px var(--font-sans); color: var(--k-ink-sub, #b45309); }
+.kid-balance .w.gone { background: var(--k-track); border: 2px dashed var(--k-op-sub); box-sizing: border-box; }
+.kid-balance .group { display: flex; flex-wrap: wrap; gap: 4px; max-width: 70px; padding: 5px; border-radius: 10px; border: 2px solid color-mix(in oklab, var(--g, var(--k-op-mul)) 45%, var(--k-card)); }
+.kid-avgbars { position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 10px; align-items: end; }
+.kid-avgbars .col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.kid-avgbars .track { width: 100%; max-width: 56px; height: 180px; display: flex; align-items: flex-end; }
+.kid-avgbars .bar { width: 100%; height: calc(var(--v) * 18px); border-radius: 8px 8px 0 0; background: var(--g, var(--k-op-add)); }
+/* the mean as a dashed level across all the bars, measured from their foot */
+.kid-avgbars .level { position: absolute; left: 0; right: 0; top: calc(180px - var(--mean) * 18px); border-top: 3px dashed var(--k-op-sub); pointer-events: none; }
+.kid-avgbars .kid-stepper.small button { width: 32px; height: 32px; }
+.kid-pyth { width: 100%; max-width: 340px; height: auto; align-self: center; }
+.kid-pyth polygon { stroke: var(--foreground); stroke-width: 2; stroke-linejoin: round; }
+.kid-pyth .tri { fill: var(--k-card); }
+.kid-pyth .sa { fill: color-mix(in oklab, var(--k-op-sub) 45%, var(--k-card)); }
+.kid-pyth .sb { fill: color-mix(in oklab, var(--k-op-add) 45%, var(--k-card)); }
+.kid-pyth .sc { fill: color-mix(in oklab, var(--k-op-mul) 45%, var(--k-card)); }
+.kid-pyth text { fill: var(--foreground); font: 700 16px var(--font-mono); text-anchor: middle; dominant-baseline: middle; }
 .kid-tfig { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--foreground); }
 .kid-tfig .kid-crumb[aria-pressed="true"] { background: var(--k-brand-soft); border-color: var(--k-brand-soft); color: var(--k-brand-on-soft); }
 /* a helper line (a quad's diagonal) waits for hover or the card's switch */

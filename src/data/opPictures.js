@@ -7,7 +7,8 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
 
 // The range of each number, in the order they are settled: a later range may
 // depend on an earlier number (the second addend keeps the sum past ten).
-const LIMITS = {
+// topicPictures.js adds the other articles' pictures to these two tables.
+export const LIMITS = {
   // bridging ten: a + b from 11 to 18
   add: { a: () => [2, 9], b: ({ a }) => [Math.max(2, 11 - a), 9] },
   // back across ten: m − s lands below 10

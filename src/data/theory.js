@@ -130,20 +130,8 @@ export const ARTICLES = [
     color: 'var(--k-op-sub)',
     ink: 'var(--k-ink-sub, #b45309)',
     practise: '/tematy/ulamki',
+    explore: 'fractions',
     cards: [
-      {
-        h: 'th_fractions_h1',
-        // a lone fraction is a picture, not an equation, so nothing to verify
-        parts: [{ frac: [3, 4] }],
-        verify: false,
-        bars: [3, 4],
-        notes: [
-          { term: 'th_numerator', text: 'th_fractions_n1' },
-          { term: 'th_denominator', text: 'th_fractions_n2' },
-          'th_fractions_n3',
-        ],
-      },
-      { h: 'th_fractions_h2', rows: [[1, 2], [2, 4], [4, 8]], notes: ['th_fractions_n4'] },
       {
         h: 'th_fractions_h3',
         parts: [{ frac: [1, 5] }, '+', { frac: [2, 5] }, '=', { frac: [3, 5] }],
@@ -163,9 +151,8 @@ export const ARTICLES = [
     color: 'var(--k-op-add)',
     ink: 'var(--k-ink-add, #15803d)',
     practise: '/tematy/dziesietne',
+    explore: 'decimals',
     cards: [
-      { h: 'th_decimals_h1', parts: [{ frac: [3, 10] }, '=', 0.3], bars: [3, 10], notes: ['th_decimals_n1'] },
-      { h: 'th_decimals_h2', parts: [0.25, '=', { frac: [25, 100] }], notes: ['th_decimals_n2'] },
       { h: 'th_decimals_h3', parts: [0.4, '+', 0.3, '=', 0.7], notes: ['th_decimals_n3'] },
     ],
   },
@@ -178,9 +165,9 @@ export const ARTICLES = [
     color: 'var(--k-op-mul)',
     ink: 'var(--k-ink-mul, #4f46e5)',
     practise: '/tematy/procenty',
+    explore: 'percents',
     cards: [
       { h: 'th_percents_h1', parts: [{ pct: 1 }, '=', { frac: [1, 100] }], notes: ['th_percents_n1'] },
-      { h: 'th_percents_h2', parts: [{ pct: 25 }, OF, 80, '=', 20], bars: [1, 4], notes: ['th_percents_n2'] },
       { h: 'th_percents_h3', parts: [{ frac: [1, 2] }, '=', 0.5, '=', { pct: 50 }], notes: ['th_percents_n3'] },
     ],
   },
@@ -193,13 +180,8 @@ export const ARTICLES = [
     color: 'var(--k-op-mul)',
     ink: 'var(--k-ink-mul, #4f46e5)',
     practise: '/tematy/potegi',
+    explore: 'powers',
     cards: [
-      {
-        h: 'th_powers_h1',
-        parts: [{ pow: [2, 5] }, '=', 2, '·', 2, '·', 2, '·', 2, '·', 2, '=', 32],
-        notes: ['th_powers_n1'],
-      },
-      { h: 'th_powers_h2', parts: [{ root: 49 }, '=', 7], notes: ['th_powers_n2'] },
       { h: 'th_powers_h3', parts: [{ pow: [2, 3] }, '·', { pow: [2, 2] }, '=', { pow: [2, 5] }], notes: ['th_powers_n3'] },
     ],
   },
@@ -212,6 +194,7 @@ export const ARTICLES = [
     color: 'var(--k-op-div2)',
     ink: 'var(--k-ink-div2, #0f766e)',
     practise: '/tematy/pitagoras',
+    explore: 'pythagoras',
     cards: [
       {
         h: 'th_pythagoras_h1',
@@ -228,11 +211,6 @@ export const ARTICLES = [
         verify: false,
         notes: ['th_pythagoras_n2'],
       },
-      {
-        h: 'th_pythagoras_h3',
-        parts: [{ pow: [3, 2] }, '+', { pow: [4, 2] }, '=', 9, '+', 16, '=', 25, '=', { pow: [5, 2] }],
-        notes: ['th_pythagoras_n3'],
-      },
     ],
   },
   {
@@ -244,9 +222,9 @@ export const ARTICLES = [
     color: 'var(--k-op-sub)',
     ink: 'var(--k-ink-sub, #b45309)',
     practise: '/tematy/ujemne',
+    explore: 'negatives',
     cards: [
       { h: 'th_negatives_h1', parts: [-3, '<', -1, '<', 0, '<', 2], notes: ['th_negatives_n1'] },
-      { h: 'th_negatives_h2', parts: [-3, '+', 5, '=', 2], notes: ['th_negatives_n2'] },
       { h: 'th_negatives_h3', parts: [4, '−', '(', -2, ')', '=', 4, '+', 2, '=', 6], notes: ['th_negatives_n3'] },
       { h: 'th_negatives_h4', parts: ['(', -3, ')', '·', '(', -2, ')', '=', 6], notes: ['th_negatives_n4'] },
     ],
@@ -260,6 +238,7 @@ export const ARTICLES = [
     color: 'var(--k-op-mul)',
     ink: 'var(--k-ink-mul, #4f46e5)',
     practise: '/tematy/rownania',
+    explore: 'equations',
     cards: [
       { h: 'th_equations_h1', parts: [X(), '+', 7, '=', 12], x: 5, notes: ['th_equations_n1'] },
       { h: 'th_equations_h2', parts: [3, '·', X(), '=', 21], x: 7, notes: ['th_equations_n2'] },
@@ -276,9 +255,8 @@ export const ARTICLES = [
     color: 'var(--k-op-add)',
     ink: 'var(--k-ink-add, #15803d)',
     practise: '/tematy/srednia',
+    explore: 'average',
     cards: [
-      { h: 'th_average_h1', parts: [{ mean: [4, 7, 10] }, '=', 7], notes: ['th_average_n1'] },
-      { h: 'th_average_h2', parts: ['(', 4, '+', 7, '+', 10, ')', ':', 3, '=', 21, ':', 3, '=', 7], notes: ['th_average_n2'] },
       { h: 'th_average_h3', parts: [{ mean: [3, 4] }, '=', 3.5], notes: ['th_average_n3'] },
     ],
   },
