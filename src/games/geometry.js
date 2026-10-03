@@ -51,13 +51,14 @@ const LAYOUT = {
     }
   },
 
-  // two crossing lines; `shown` is labelled, the '?' is opposite it or next to it
-  cross: ({ shown, ask }) => ({
+  // two crossing lines; `shown` is labelled, the '?' is opposite it or next to
+  // it (a theory card puts the number there instead, as `other`)
+  cross: ({ shown, ask, other = '?' }) => ({
     pts: { O: [0, 0], P0: pol(4, 0), P1: pol(4, shown), P2: pol(4, 180), P3: pol(4, 180 + shown) },
     segs: [['P0', 'P2'], ['P1', 'P3']],
     arcs: [
       { at: 'O', from: 'P0', to: 'P1', label: shown },
-      ask === 'opposite' ? { at: 'O', from: 'P2', to: 'P3', label: '?' } : { at: 'O', from: 'P1', to: 'P2', label: '?' },
+      ask === 'opposite' ? { at: 'O', from: 'P2', to: 'P3', label: other } : { at: 'O', from: 'P1', to: 'P2', label: other },
     ],
   }),
 

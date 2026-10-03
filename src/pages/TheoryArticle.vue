@@ -1,9 +1,10 @@
 <script setup>
 import { computed, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
+import { ArrowRight } from 'lucide-vue-next'
 import MathParts from '@/components/MathParts.vue'
-import TheoryNav from '@/components/TheoryNav.vue'
+import GeoFigure from '@/components/GeoFigure.vue'
+import TheoryCrumbs from '@/components/TheoryCrumbs.vue'
 import { articleBySlug } from '@/data/theory'
 import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
@@ -15,7 +16,7 @@ const router = useRouter()
 
 const article = computed(() => articleBySlug(String(route.params.slug)))
 
-// the rail reuses this instance across articles (same route name), so a
+// the crumbs' menus reuse this instance across articles (same route name), so a
 // hand-typed unknown slug must redirect on every change, not only on mount;
 // and the reader is scrolled back to the top of the new article
 watchEffect(() => {
@@ -36,19 +37,17 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
 </script>
 
 <template>
-  <div v-if="article" class="kid-theory kid-tnav">
-    <TheoryNav />
-    <div class="col">
-      <div class="kid-thead">
-        <RouterLink to="/teoria" class="back kid-phone-only" :aria-label="t('back')">
-          <ArrowLeft :size="22" />
-        </RouterLink>
-        <h1 class="kid-h1">{{ t('th_' + article.id) }}</h1>
-        <span class="kid-class-pill">{{ tp('classLabel', article.cls) }}</span>
-      </div>
+  <div v-if="article" class="kid-theory">
+    <TheoryCrumbs :article="article" />
+    <div class="kid-thead">
+      <h1 class="kid-h1">{{ t('th_' + article.id) }}</h1>
+      <span class="kid-class-pill">{{ tp('classLabel', article.cls) }}</span>
+    </div>
 
-      <section v-for="card in article.cards" :key="card.h" class="kid-panel" :style="{ '--g': article.color }">
+    <div class="kid-tcards">
+      <section v-for="card in article.cards" :key="card.h" class="kid-panel" :style="{ '--g': article.color, '--k-ink': article.ink }">
         <h2>{{ t(card.h) }}</h2>
+        <div v-if="card.fig" class="kid-tfig"><GeoFigure :fig="card.fig" /></div>
         <div v-if="card.parts" class="kid-eq sm"><MathParts :parts="card.parts" /></div>
         <div v-if="card.bars" class="kid-strip" aria-hidden="true">
           <span v-for="(on, i) in segments(card.bars[0], card.bars[1])" :key="i" :class="{ on }"></span>
@@ -65,10 +64,10 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
           <b v-if="note(n).term">{{ t(note(n).term) }}</b>{{ t(note(n).text) }}
         </p>
       </section>
-
-      <RouterLink v-if="practise" :to="practise" class="kid-btn kid-btn-primary">
-        {{ t('th_' + article.id + '_cta') }} <ArrowRight :size="18" />
-      </RouterLink>
     </div>
+
+    <RouterLink v-if="practise" :to="practise" class="kid-btn kid-btn-primary">
+      {{ t('th_' + article.id + '_cta') }} <ArrowRight :size="18" />
+    </RouterLink>
   </div>
 </template>

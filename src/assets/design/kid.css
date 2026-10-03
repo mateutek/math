@@ -925,9 +925,22 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-tlead { margin: 0; font-size: 14px; line-height: 1.4; color: var(--muted-foreground); }
 .kid-thead { display: flex; align-items: center; gap: 10px; }
 .kid-thead .kid-h1 { min-width: 0; }
-.kid-thead .back { width: 44px; height: 44px; flex: none; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: var(--muted-foreground); }
-.kid-thead .back:hover { background: var(--k-brand-soft); color: var(--k-brand-on-soft); }
 .kid-thead .kid-class-pill { flex: none; }
+/* Teoria › section › page; the last two open a menu to switch (TheoryCrumbs.vue) */
+.kid-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; font-size: 14px; font-weight: 700; }
+.kid-crumbs a { padding: 6px 4px; color: var(--muted-foreground); text-decoration: none; border-radius: 8px; }
+.kid-crumbs a:hover { color: var(--k-brand-on-soft); }
+.kid-crumbs svg { flex: none; width: 16px; height: 16px; }
+.kid-crumbs .sep { color: var(--muted-foreground); }
+.kid-crumb { min-height: 36px; padding: 0 10px; display: inline-flex; align-items: center; gap: 4px; border: 1.5px solid var(--k-card-border); border-radius: 999px; background: var(--k-card); color: var(--foreground); font: inherit; cursor: pointer; }
+.kid-crumb.here { background: var(--k-brand-soft); border-color: var(--k-brand-soft); color: var(--k-brand-on-soft); }
+.kid-crumb:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+.kid-menu .sym { width: 36px; flex: none; font-family: var(--font-mono); font-weight: 700; }
+/* an article's cards: one column on a phone, two on desktop */
+.kid-tcards { display: grid; gap: 14px; align-items: start; }
+.kid-tfig { display: flex; justify-content: center; color: var(--foreground); }
+/* the grid tiles carry an example under the name, which may be long */
+.kid-tgrid .best { max-width: 100%; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); }
 .kid-tsec { display: flex; flex-direction: column; gap: 8px; }
 .kid-tsec h2 { margin: 0; font-size: 15px; font-weight: 800; }
 .kid-tlist { display: flex; flex-direction: column; gap: 8px; }
@@ -953,16 +966,6 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-striprows { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px 10px; }
 .kid-striprows .lab { display: flex; justify-content: center; font-family: var(--font-mono); font-weight: 700; font-size: 26px; line-height: 1; }
 .kid-striprows .kid-strip > span { height: 24px; }
-.kid-thero { padding: 16px 18px; display: flex; align-items: center; gap: 14px; border-radius: 22px; background: var(--k-brand); color: var(--k-brand-fg); text-decoration: none; box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--k-brand) 25%, transparent); }
-.kid-thero:focus-visible { outline: 3px solid var(--k-brand-deep); outline-offset: 3px; }
-.kid-thero .txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.kid-thero .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in oklab, var(--k-brand-fg) 80%, var(--k-brand)); }
-.kid-thero .name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
-.kid-thero .sub { font-size: 13px; color: color-mix(in oklab, var(--k-brand-fg) 80%, var(--k-brand)); }
-.kid-thero .mini { flex: none; display: grid; grid-template-columns: repeat(5, 22px); gap: 2px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; }
-.kid-thero .mini > span { height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 4px; color: color-mix(in oklab, var(--k-brand-fg) 80%, var(--k-brand)); }
-.kid-thero .mini > span.on { background: color-mix(in srgb, var(--k-brand-fg) 18%, transparent); color: var(--k-brand-fg); }
-.kid-thero .mini > span.pick { background: var(--k-brand-deep); color: var(--k-brand-fg); }
 .kid-tcols { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .kid-tcols > .tab { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .kid-tcols .pick { display: flex; flex-direction: column; gap: 8px; }
@@ -988,12 +991,9 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-texp .fact .val { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; }
 .kid-tip { margin: 0; padding: 12px 14px; display: flex; align-items: flex-start; gap: 8px; border-radius: 14px; background: color-mix(in oklab, var(--k-accent) 18%, var(--k-mix-base)); color: var(--k-fire); font-size: 13.5px; line-height: 1.45; }
 .kid-tip svg { flex: none; }
-/* Desktop: a 300px rail of every article, content to its right. The rail is a
-   .kid-desktop-only aside, so below 1024px none of this applies. */
+/* Desktop: the theory grid and an article's cards spread out; the test
+   builder's rows get the same denser look. */
 @media (min-width: 1024px) {
-  .kid-tnav { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; align-items: start; }
-  .kid-tnav > aside { flex-direction: column; gap: 8px; }
-  .kid-tnav > .col { gap: 16px; }
   .kid-trow { min-height: 56px; border-width: 1.5px; border-radius: 16px; }
   .kid-trow .tile { width: 38px; height: 38px; border-radius: 11px; font-size: 18px; }
   .kid-trow .name { font-size: 14px; }
@@ -1008,11 +1008,8 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   .kid-texp { padding: 22px; gap: 14px; }
   .kid-texp .kid-eq.sm { font-size: 40px; letter-spacing: -0.03em; }
   .kid-texp .kid-btn { height: 52px; }
-  /* the rail replaces it here, but .kid-thead .back (0-2-0) outranks
-     .kid-phone-only (0-1-0) at any width; this rule matches that specificity
-     and wins on source order, at the same breakpoint the rail appears */
-  .kid-thead .back { display: none; }
-  /* same trap: .kid-tcols .pick (0-2-0) outranks .kid-phone-only (0-1-0), so
+  .kid-tcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* .kid-tcols .pick (0-2-0) outranks .kid-phone-only (0-1-0), so
      the phone chip picker keeps showing on desktop; match its specificity */
   .kid-tcols .pick { display: none; }
 }

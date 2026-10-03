@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import { ARTICLES, THEORY_GROUPS, TRICK_ROWS, EASY_ROWS, articleBySlug, shelves, tipFor } from './theory.js'
 import { GAMES } from './games.js'
 import { holds } from '../games/mathParts.js'
+import { figureErrors, outline, shoelace, perimeter, near } from '../games/geoMeasure.js'
 
 const EM_DASH = String.fromCharCode(0x2014)
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8')
@@ -38,8 +39,8 @@ function needsKey(key, where) {
 
 // the chrome the three pages say out loud, plus the section headings
 const CHROME = [
-  'theory', 'theoryLead', 'theoryHelper', 'theoryTable', 'theoryTableSub', 'theoryLater',
-  'theoryYourClass', 'theoryPick', 'theoryPicked', 'theorySameAsAdd', 'theorySwap',
+  'theory', 'theoryLead', 'theoryHelper', 'theoryTable', 'theoryLater', 'crumbs',
+  'theoryPick', 'theoryPicked', 'theorySameAsAdd', 'theorySwap',
   'classShort', 'timesAria', ...THEORY_GROUPS,
 ]
 for (const key of CHROME) needsKey(key, 'chrome')
@@ -87,9 +88,23 @@ for (const a of ARTICLES) {
         needsKey(note.text, cw)
       }
     }
-    // this is what catches a typo in 2 + 3 × 4 = 14 or in √49 = 7
+    // this is what catches a typo in 2 + 3 × 4 = 14 or in √49 = 7; an x
+    // equation is checked with the x the card says
     if (card.parts && card.verify !== false) {
-      assert.ok(holds(card.parts), `${cw}: ${JSON.stringify(card.parts)} is not true`)
+      const parts = card.parts.map((p) => (p && p.x !== undefined ? p.x * card.x : p))
+      if (card.parts.some((p) => p && p.x !== undefined)) assert.ok(Number.isFinite(card.x), `${cw}: an x with no value`)
+      assert.ok(holds(parts), `${cw}: ${JSON.stringify(card.parts)} is not true`)
+    }
+    // a figure is measured: its labels are what is drawn, it hides nothing,
+    // and its area or perimeter is the one the card's sum arrives at
+    if (card.fig) {
+      assert.deepEqual(figureErrors(card.fig), [], `${cw}: ${JSON.stringify(card.fig)}`)
+      assert.ok(!JSON.stringify(card.fig).includes('"?"'), `${cw}: a theory figure with a "?"`)
+      for (const [what, measure] of [['area', shoelace], ['perimeter', perimeter]]) {
+        if (card[what] === undefined) continue
+        assert.ok(near(measure(outline(card.fig)), card[what]), `${cw}: the drawn ${what} is not ${card[what]}`)
+        assert.equal(card.parts.at(-1), card[what], `${cw}: the sum does not end on the ${what}`)
+      }
     }
     // a 13-segment strip is unreadable at 350px
     for (const [n, d] of [card.bars, ...(card.rows ?? [])].filter(Boolean)) {
