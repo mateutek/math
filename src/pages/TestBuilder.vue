@@ -43,7 +43,7 @@ const draft = ref({ text: '', answer: '' })
 const parsed = computed(() => fromText(draft.value.text, draft.value.answer))
 function edit(q) {
   editing.value = q
-  draft.value = { text: toText(q), answer: answerText(q) }
+  draft.value = { text: toText(q, t('of')), answer: answerText(q) }
 }
 function save(s, i) {
   if (!parsed.value) return

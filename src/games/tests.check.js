@@ -65,6 +65,28 @@ assert.deepEqual(fromText('47 ? 52', '<'), { parts: [47, '?', 52], answer: '<' }
 assert.equal(fromText('34 + 28 =', '62'), null) // no blank
 assert.equal(fromText('? + ? = 4', '2'), null) // two blanks
 assert.equal(fromText('34 + ? = 62', ' '), null) // no answer
-assert.ok(!editable({ parts: [{ frac: [1, 2] }, '=', '?'], answer: 0.5 }))
+// the rich tokens have a text form too
+const round = (parts, answer) => assert.deepEqual(fromText(toText({ parts, answer }), String(answer)), { parts, answer })
+round([{ frac: [1, 4] }, '+', { frac: [1, 4] }, '=', { frac: ['?', 4] }], 2)
+round([{ frac: [1, 2] }, { t: 'of' }, 6, '=', '?'], 3)
+round([{ pow: [2, 3] }, '=', '?'], 8)
+round([{ pow: [2, 3] }, '·', { pow: [2, 2] }, '=', { pow: [2, '?'] }], 5)
+round([{ root: 49 }, '=', '?'], 7)
+round([{ pct: '?' }, { t: 'of' }, 80, '=', 20], 25)
+round([0.25, '=', { pct: '?' }], 25)
+assert.deepEqual(fromText('3/4 of 20 = ?', '15').parts, [{ frac: [3, 4] }, { t: 'of' }, 20, '=', '?'])
+assert.deepEqual(fromText('sqrt 81=?', '9').parts, [{ root: 81 }, '=', '?'])
+assert.deepEqual(fromText('12 : 4 = ?', '3').parts, [12, '÷', 4, '=', '?'])
+assert.equal(fromText('?/? = 1/2', '1'), null) // two blanks
+assert.ok(!editable({ parts: [{ triangle: { a: 3, b: 4, c: '?' } }], answer: 5 }))
+// every generated question that is editable survives the trip out and back
+for (const cfg of CLASSES) {
+  for (const s of sectionsFor(cfg)) {
+    for (let i = 0; i < 300; i++) {
+      const g = question(s.id, cfg, 1 + (i % 3))
+      if (editable(g)) assert.deepEqual(fromText(toText(g), answerText(g)), g, `${s.id}: ${toText(g)}`)
+    }
+  }
+}
 
 console.log('tests.js ok')

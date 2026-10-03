@@ -71,25 +71,51 @@ export function question(id, cfg, level, taken = []) {
   return q
 }
 
-// Hand edits. Only a question made of plain numbers and signs can be typed
-// back in; a fraction, power or triangle is swapped for a new one instead.
-export const editable = (q) => q.parts.every((p) => typeof p === 'number' || typeof p === 'string')
+// Hand edits. A question goes out as one line of text and comes back from it:
+//   34 + ? = 62    1/4 + 1/4 = ?/4    2^3 = ?    √49 = ?    25% z 80 = ?
+// Only the Pythagoras triangle has no text form; it is swapped, not typed.
+export const editable = (q) => !q.parts.some((p) => p && p.triangle)
 
-// the keyboard's minus and star, as the app prints them
-const KEYS = { '-': '−', '*': '×' }
-const num = (s) => Number(s.replace(',', '.'))
+// the keyboard's signs, as the app prints them; "z" and "of" are the word
+const KEYS = { '-': '−', '*': '×', ':': '÷', '/': '÷', z: { t: 'of' }, of: { t: 'of' } }
+const num = (s) => (s === '?' ? '?' : Number(s.replace(',', '.')))
 const fmt = (x) => (typeof x === 'number' ? String(x).replace('.', ',') : x)
 
-export const toText = (q) => q.parts.map(fmt).join(' ')
+// `of` is the word for { t: 'of' } in the language on screen
+function tokenText(p, of) {
+  if (typeof p !== 'object') return fmt(p)
+  if (p.t) return of
+  if (p.frac) return `${fmt(p.frac[0])}/${fmt(p.frac[1])}`
+  if (p.pow) return `${fmt(p.pow[0])}^${fmt(p.pow[1])}`
+  if (p.root !== undefined) return `√${fmt(p.root)}`
+  return `${fmt(p.pct)}%`
+}
+
+export const toText = (q, of = 'z') => q.parts.map((p) => tokenText(p, of)).join(' ')
 export const answerText = (q) => fmt(q.answer)
 
-// "34 + ? = 62" and "28" back into a question; null unless it has exactly one
-// '?' and an answer. Spaces are optional: "34+?=62" reads the same.
+// a number or the blank, then what a token may be built from it
+const N = String.raw`(\d+(?:[.,]\d+)?|\?)`
+const TOKEN = new RegExp(String.raw`${N}\/${N}|${N}\^${N}|(?:√|sqrt)\s*${N}|${N}%|${N}|[^\s\d?√%^]+`, 'g')
+
+function readToken(m) {
+  const [s, fn, fd, pb, pe, root, pct, n] = m
+  if (fn) return { frac: [num(fn), num(fd)] }
+  if (pb) return { pow: [num(pb), num(pe)] }
+  if (root) return { root: num(root) }
+  if (pct) return { pct: num(pct) }
+  if (n) return num(n)
+  return KEYS[s.toLowerCase()] ?? s
+}
+
+// the '?' anywhere in a token
+const blanks = (x) => (x === '?' ? 1 : x && typeof x === 'object' ? Object.values(x).reduce((n, v) => n + blanks(v), 0) : 0)
+
+// text and answer back into a question; null unless it has exactly one '?'
+// and an answer. Spaces are optional: "34+?=62" reads the same.
 export function fromText(text, answer) {
-  const parts = (String(text).match(/\d+(?:[.,]\d+)?|\?|[^\s\d?]+/g) ?? []).map((s) =>
-    /^\d/.test(s) ? num(s) : (KEYS[s] ?? s),
-  )
+  const parts = [...String(text).matchAll(TOKEN)].map(readToken)
   const a = String(answer ?? '').trim()
-  if (parts.filter((p) => p === '?').length !== 1 || !a) return null
+  if (blanks(parts) !== 1 || !a) return null
   return { parts, answer: /^\d+(?:[.,]\d+)?$/.test(a) ? num(a) : a }
 }
