@@ -20,6 +20,9 @@ export const TOPICS = Object.keys(FROM)
 // `max`       biggest number + and - and the number games work with
 // `mulMax`    biggest product x and / work with; 0 means the class has neither
 // `pay`       materials a correct answer pays
+// `easyPay`   what the whole-number games pay instead: from class 6 they are a
+//             warm-up, and paying them like the topics would let a kid build
+//             the village on 7 + 5
 // `seconds`   what the optional timer gives per task
 // `available` false while the app has no games for the class's topic
 const cls = (id, max, mulMax, pay, seconds, available = true) => ({
@@ -29,6 +32,7 @@ const cls = (id, max, mulMax, pay, seconds, available = true) => ({
   pay,
   seconds,
   available,
+  easyPay: { 6: 2, 7: 1, 8: 1 }[id] ?? pay,
   ops: mulMax ? ['+', '−', '×', '÷'] : ['+', '−'],
   // a domino bone is two halves of 0 to 6 pips, so 12 is the hard ceiling
   dominoMax: Math.min(max, 12),
@@ -70,6 +74,9 @@ const GAMES = {
   biggest: { pool: 'max', op: '' },
   ascending: { pool: 'max', op: '' },
 }
+
+// what a correct answer in this game pays the class, before any level
+export const payFor = (id, cfg) => (TOPICS.includes(id) ? cfg.pay : cfg.easyPay)
 
 // the biggest number this game shows a kid in this class
 export function gameMax(id, cfg) {

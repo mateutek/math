@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { side } from './mathParts.js'
-import { CLASSES, gameMax, gameOffered } from '../data/classes.js'
+import { CLASSES, gameMax, gameOffered, payFor } from '../data/classes.js'
 import {
   expr, tilesRound, dominoRound, compareRound, biggestRound, ascendingRound, missingRound,
 } from './generators.js'
@@ -85,6 +85,14 @@ for (const cfg of CLASSES.filter((c) => c.available)) {
   for (const id of ['addition', 'subtraction', 'missing', 'tiles', 'domino', 'compare']) {
     assert.ok(gameOffered(id, cfg), `${at}: ${id} should be offered`)
   }
+}
+
+// pay: the whole-number games pay less than the topics from class 6 on,
+// never more anywhere, and never nothing
+for (const cfg of CLASSES) {
+  const easy = payFor('addition', cfg)
+  assert.ok(easy >= 1 && easy <= payFor('fractions', cfg), `class ${cfg.id} pay`)
+  assert.equal(easy < cfg.pay, cfg.id >= 6, `class ${cfg.id}: easy games pay ${easy} of ${cfg.pay}`)
 }
 
 console.log('generators: all checks passed')

@@ -13,6 +13,7 @@ import ConsentBanner from '@/components/ConsentBanner.vue'
 import village, { affordable, needed } from '@/store/village'
 import settings, { classConfig } from '@/store/settings'
 import { MATERIALS } from '@/data/buildings'
+import { payFor } from '@/data/classes'
 import { GAMES } from '@/data/games'
 import { startIfGranted } from '@/analytics'
 import { t } from '@/i18n'
@@ -116,7 +117,7 @@ watchEffect(() => {
           <RewardsCard
             v-if="game"
             :pays="game.pays.length ? game.pays : [needed]"
-            :pay="classConfig.pay * (settings.topicLevel[game.id] ?? 1)"
+            :pay="payFor(game.id, classConfig) * (settings.topicLevel[game.id] ?? 1)"
             :topic="!game.pays.length"
           />
         </aside>

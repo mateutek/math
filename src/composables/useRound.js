@@ -1,5 +1,6 @@
 import { ref, computed, watch, reactive } from 'vue'
 import { classConfig } from '@/store/settings'
+import { payFor } from '@/data/classes'
 import { reward, recordStreak } from '@/store/village'
 import { MATERIALS } from '@/data/buildings'
 
@@ -21,10 +22,10 @@ export function useEarnings() {
     earned[kind] += amount
   }
 
-  // `streak` already counts this answer. `times` multiplies the class pay: the
-  // topic games pass their level, so a harder level is worth more.
-  function payAnswer(material, streak, flawless = false, times = 1) {
-    pay(material, classConfig.value.pay * times)
+  // `streak` already counts this answer. `times` multiplies the game's pay:
+  // the topic games pass their level, so a harder level is worth more.
+  function payAnswer(game, material, streak, flawless = false, times = 1) {
+    pay(material, payFor(game, classConfig.value) * times)
     if (streak % STARS_PER_COIN === 0) pay('coins', 1)
     if (flawless || streak % 10 === 0) pay('coins', CLEAN_BOARD_COINS)
   }
@@ -61,7 +62,7 @@ export function useRound(game, next, maxStrikes = 3) {
     streak.value += 1
     cheer.value += 1
     flash.value = 'green'
-    payAnswer(material, streak.value, flawless, times)
+    payAnswer(game, material, streak.value, flawless, times)
     recordStreak(game, classConfig.value.id, streak.value)
     clearTimeout(flashTimeout)
     flashTimeout = setTimeout(() => {
