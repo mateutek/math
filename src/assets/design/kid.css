@@ -939,6 +939,72 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 /* an article's cards: one column on a phone, two on desktop, the two in a row
    as tall as each other */
 .kid-tcards { display: grid; gap: 14px; align-items: stretch; }
+/* the operation pictures (OpExplorer.vue and its parts) */
+.kid-stepper { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.kid-stepper .cap { font-size: 12px; font-weight: 700; color: var(--muted-foreground); }
+.kid-stepper .row { display: flex; align-items: center; gap: 4px; }
+.kid-stepper button { width: 44px; height: 44px; border-radius: 999px; border: 1.5px solid var(--k-card-border); background: var(--k-page); color: var(--foreground); font: 800 20px var(--font-sans); cursor: pointer; }
+.kid-stepper button:disabled { opacity: .35; cursor: default; }
+.kid-stepper button:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+.kid-stepper .val { min-width: 36px; text-align: center; font: 700 28px var(--font-mono); color: var(--k-ink, var(--foreground)); }
+.kid-stepper.small button { width: 36px; height: 36px; font-size: 17px; }
+.kid-stepper.small .val { min-width: 26px; font-size: 20px; }
+.kid-opctl .nums { display: flex; align-items: flex-end; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.kid-opctl .op { font: 700 28px var(--font-mono); padding-bottom: 6px; }
+.kid-opctl .steps { display: flex; gap: 10px; }
+.kid-opctl .steps .kid-btn { flex: 1; height: 48px; margin: 0; }
+.kid-ophead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kid-ophead h2 { margin: 0; }
+.kid-opsoft { font: 700 18px var(--font-mono); color: var(--muted-foreground); }
+.kid-nline { width: 100%; max-width: 380px; height: auto; align-self: center; overflow: visible; }
+.kid-nline .axis { stroke: var(--muted-foreground); stroke-width: 2; opacity: .6; }
+.kid-nline text { fill: var(--muted-foreground); font: 500 13px var(--font-mono); text-anchor: middle; }
+.kid-nline text.key { fill: var(--foreground); font-weight: 800; }
+.kid-nline .jump { fill: none; stroke: var(--jump, var(--k-op-sub)); stroke-width: 3; stroke-linecap: round; }
+.kid-nline .jlab { fill: var(--jump-ink, var(--k-ink-sub, #b45309)); font-weight: 700; font-size: 14px; }
+.kid-nline .off { opacity: .15; }
+.kid-nline .start { fill: var(--g, var(--k-op-add)); }
+.kid-nline .end { fill: var(--jump, var(--k-op-sub)); }
+.kid-opmul { --jump: var(--k-op-mul); --jump-ink: var(--k-ink-mul, #4f46e5); }
+.kid-frames { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.kid-frames .frame { display: grid; grid-template-columns: repeat(5, 30px); gap: 6px; padding: 8px; border-radius: 14px; border: 2px solid var(--k-card-border); background: var(--k-page); }
+.kid-frames span { width: 30px; height: 30px; box-sizing: border-box; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--k-track); font: 800 18px var(--font-sans); line-height: 1; color: var(--k-ink-sub, #b45309); }
+.kid-frames .start { background: var(--start, var(--k-op-add)); border-color: var(--start, var(--k-op-add)); }
+.kid-frames .added { background: var(--added, var(--k-op-sub)); border-color: var(--added, var(--k-op-sub)); }
+.kid-frames .gone { background: var(--k-track); border-color: var(--k-op-sub); }
+.kid-opcolors { --start: var(--k-op-add); --added: var(--k-op-sub); }
+.kid-opcolors.sub { --start: var(--k-op-mul); }
+.kid-oplegend { display: flex; justify-content: center; gap: 16px; font-size: 13px; font-weight: 700; }
+.kid-oplegend span { display: flex; align-items: center; gap: 6px; }
+.kid-oplegend span::before { content: ""; width: 12px; height: 12px; border-radius: 50%; }
+.kid-oplegend .start::before { background: var(--start); }
+.kid-oplegend .added::before { background: var(--added); }
+.kid-opbars { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+.kid-opbars .bar { display: flex; gap: 3px; }
+.kid-opbars .bar span { flex: 1 1 0; height: 26px; border-radius: 6px; box-sizing: border-box; }
+.kid-opbars .same { background: var(--k-op-mul); }
+.kid-opbars .more { background: color-mix(in oklab, var(--k-op-sub) 25%, var(--k-card)); border: 2px dashed var(--k-op-sub); }
+.kid-oparray { align-self: center; display: grid; grid-template-columns: repeat(var(--cols), 26px); gap: 10px; padding: 12px; border-radius: 14px; background: var(--k-page); }
+.kid-oparray span { width: 26px; height: 26px; border-radius: 50%; background: var(--k-op-mul); }
+.kid-oparray span.light { background: color-mix(in oklab, var(--k-op-mul) 55%, var(--k-card)); }
+.kid-oparray.dense { grid-template-columns: repeat(var(--cols), 18px); gap: 6px; }
+.kid-oparray.dense span { width: 18px; height: 18px; }
+.kid-opgroups { display: grid; grid-template-columns: repeat(var(--per), minmax(0, 1fr)); gap: 8px; }
+.kid-opgroups > div { padding: 10px 6px; border-radius: 14px; border: 2px solid color-mix(in oklab, var(--k-op-mul) 35%, var(--k-card)); background: color-mix(in oklab, var(--k-op-mul) 10%, var(--k-card)); display: grid; grid-template-columns: repeat(2, 18px); gap: 5px; justify-content: center; align-content: center; }
+.kid-opgroups > div span { width: 18px; height: 18px; border-radius: 50%; background: var(--k-op-mul); }
+.kid-opgroups.dense > div { grid-template-columns: repeat(5, 10px); }
+.kid-opgroups.dense > div span { width: 10px; height: 10px; }
+.kid-oppool { min-height: 34px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; padding: 8px; border-radius: 14px; border: 2px dashed var(--k-card-border); }
+.kid-oppool span, .kid-opkids .plate span { width: 16px; height: 16px; border-radius: 50%; background: var(--k-op-div); }
+.kid-opkids { display: grid; grid-template-columns: repeat(var(--kids), minmax(0, 1fr)); gap: 8px; }
+.kid-opkids > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.kid-opkids .plate { width: 100%; min-height: 64px; box-sizing: border-box; padding: 8px 4px; border-radius: 14px; border: 2px solid color-mix(in oklab, var(--k-op-div) 35%, var(--k-card)); background: color-mix(in oklab, var(--k-op-div) 10%, var(--k-card)); display: grid; grid-template-columns: repeat(2, 16px); gap: 6px; justify-content: center; align-content: start; }
+.kid-opkids .name { font-size: 12px; font-weight: 700; }
+.kid-opbags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+.kid-opbags > div { padding: 7px; border-radius: 999px; border: 2px solid color-mix(in oklab, var(--k-op-div) 35%, var(--k-card)); background: color-mix(in oklab, var(--k-op-div) 10%, var(--k-card)); display: flex; gap: 4px; }
+.kid-opbags span { width: 13px; height: 13px; border-radius: 50%; background: var(--k-op-div); }
+.kid-opbags > div.left { border: 2px dashed var(--k-op-sub); background: transparent; border-radius: 12px; }
+.kid-opbags > div.left span { background: var(--k-op-sub); }
 .kid-tfig { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--foreground); }
 .kid-tfig .kid-crumb[aria-pressed="true"] { background: var(--k-brand-soft); border-color: var(--k-brand-soft); color: var(--k-brand-on-soft); }
 /* a helper line (a quad's diagonal) waits for hover or the card's switch */
@@ -969,8 +1035,21 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-theory .kid-eq.sm { flex: none; justify-content: center; }
 /* n of d parts, filled in the article's own colour */
 .kid-strip { display: flex; gap: 4px; width: 100%; }
-.kid-strip > span { flex: 1 1 0; height: 34px; border-radius: 8px; background: var(--k-track); }
+.kid-strip > span { flex: 1 1 0; height: 34px; background: var(--k-track); }
 .kid-strip > span.on { background: var(--g, var(--k-brand)); }
+/* rounded only at the two ends, so the gaps read as ticks on one scale */
+.kid-strip > span:first-child { border-radius: 8px 0 0 8px; }
+.kid-strip > span:last-child { border-radius: 0 8px 8px 0; }
+/* a sum strip: the first addend, then the second on the top half, the sum on
+   the bottom half, each in the colour of its fraction in the equation */
+.kid-strip.split > span { --top: var(--k-track); --bot: var(--k-track); background: linear-gradient(var(--top) 50%, var(--bot) 0); }
+.kid-strip.split > span.on { --bot: var(--g, var(--k-brand)); }
+.kid-strip.split > span.a { --top: var(--k-op-add); }
+.kid-strip.split > span.b { --top: var(--k-op-mul); }
+.kid-eq.split .kid-frac:nth-child(1 of .kid-frac) { color: var(--k-op-add); }
+.kid-eq.split .kid-frac:nth-child(2 of .kid-frac) { color: var(--k-op-mul); }
+.kid-eq.split .kid-frac:nth-child(3 of .kid-frac) { color: var(--g, var(--k-brand)); }
+.kid-eq.split .kid-frac > span:first-child { border-bottom-color: currentColor; }
 .kid-striprows { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px 10px; }
 .kid-striprows .lab { display: flex; justify-content: center; font-family: var(--font-mono); font-weight: 700; font-size: 26px; line-height: 1; }
 .kid-striprows .kid-strip > span { height: 24px; }
@@ -1017,6 +1096,7 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   .kid-texp .kid-eq.sm { font-size: 40px; letter-spacing: -0.03em; }
   .kid-texp .kid-btn { height: 52px; }
   .kid-tcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kid-tcards > .wide { grid-column: 1 / -1; }
   /* an odd last card takes the whole row rather than leave a hole */
   .kid-tcards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
   /* .kid-tcols .pick (0-2-0) outranks .kid-phone-only (0-1-0), so

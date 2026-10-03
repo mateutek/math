@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-vue-next'
 import MathParts from '@/components/MathParts.vue'
 import GeoFigure from '@/components/GeoFigure.vue'
 import TheoryCrumbs from '@/components/TheoryCrumbs.vue'
+import OpExplorer from '@/components/OpExplorer.vue'
 import { articleBySlug } from '@/data/theory'
 import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
@@ -54,8 +55,11 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
       <span class="kid-class-pill">{{ tp('classLabel', article.cls) }}</span>
     </div>
 
-    <div class="kid-tcards">
-      <section v-for="card in article.cards" :key="card.h" class="kid-panel" :style="{ '--g': article.color, '--k-ink': article.ink }">
+    <div class="kid-tcards" :style="{ '--g': article.color, '--k-ink': article.ink }">
+      <!-- keyed: a new article starts its pictures from their own numbers -->
+      <OpExplorer v-if="article.explore" :key="article.id" :kind="article.explore" />
+      <!-- under the pictures, the article's own cards take the whole row -->
+      <section v-for="card in article.cards" :key="card.h" class="kid-panel" :class="{ wide: article.explore }" :style="{ '--g': article.color, '--k-ink': article.ink }">
         <h2>{{ t(card.h) }}</h2>
         <div v-if="card.fig" class="kid-tfig" :class="{ show: shown.has(card.h) }">
           <GeoFigure :fig="card.fig" />
@@ -64,9 +68,13 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
             {{ t('showDiagonal') }}
           </button>
         </div>
-        <div v-if="card.parts" class="kid-eq sm"><MathParts :parts="card.parts" /></div>
-        <div v-if="card.bars" class="kid-strip" aria-hidden="true">
-          <span v-for="(on, i) in segments(card.bars[0], card.bars[1])" :key="i" :class="{ on }"></span>
+        <div v-if="card.parts" class="kid-eq sm" :class="{ split: card.split }"><MathParts :parts="card.parts" /></div>
+        <div v-if="card.bars" class="kid-strip" :class="{ split: card.split }" aria-hidden="true">
+          <span
+            v-for="(on, i) in segments(card.bars[0], card.bars[1])"
+            :key="i"
+            :class="[{ on }, card.split && on && (i < card.split[0] ? 'a' : 'b')]"
+          ></span>
         </div>
         <div v-if="card.rows" class="kid-striprows">
           <template v-for="row in card.rows" :key="row.join('/')">

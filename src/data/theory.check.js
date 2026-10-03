@@ -76,7 +76,8 @@ for (const a of ARTICLES) {
   needsKey(`th_${a.id}_ex`, where)
   if (a.practise) needsKey(`th_${a.id}_cta`, where)
 
-  assert.ok(a.cards.length >= 2 && a.cards.length <= 5, `${where}: ${a.cards.length} cards`)
+  // an article with pictures (explore) needs fewer cards of its own
+  assert.ok(a.cards.length >= (a.explore ? 1 : 2) && a.cards.length <= 5, `${where}: ${a.cards.length} cards`)
   for (const [i, card] of a.cards.entries()) {
     const cw = `${where} card ${i + 1}`
     needsKey(card.h, cw)
@@ -110,6 +111,7 @@ for (const a of ARTICLES) {
     for (const [n, d] of [card.bars, ...(card.rows ?? [])].filter(Boolean)) {
       assert.ok(n > 0 && n <= d && d <= 12, `${cw}: a ${n} of ${d} strip`)
     }
+    if (card.split) assert.equal(card.split[0] + card.split[1], card.bars[0], `${cw}: the split does not add up to the strip`)
   }
 }
 
@@ -164,6 +166,20 @@ for (const lang of ['pl', 'en']) {
     }
   }
 }
+
+// the operation pictures' words, in both languages (plain or with plural forms)
+const opKeys = new Set(
+  ['../components/OpExplorer.vue', '../components/NumStepper.vue'].flatMap((f) =>
+    [...read(f).matchAll(/'(op_\w+)'/g)].map((m) => m[1]),
+  ),
+)
+assert.ok(opKeys.size > 20, `only ${opKeys.size} op_ keys found`)
+for (const key of opKeys) {
+  for (const lang of ['pl', 'en']) {
+    assert.ok(new RegExp(`\\n    ${key}: ['\\[]`).test(BLOCK[lang]), `the pictures: ${lang} has no "${key}"`)
+  }
+}
+for (const a of ARTICLES.filter((x) => x.explore)) assert.ok(['add', 'sub', 'mul', 'div'].includes(a.explore), a.id)
 
 assert.equal(articleBySlug('nic-takiego'), null)
 

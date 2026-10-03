@@ -6,7 +6,9 @@
 // example on the index row, `th_<id>_cta` the button into the game, and each
 // card carries `th_<id>_h<n>` plus its `th_<id>_n<n>` notes. `parts` is the
 // token list MathParts.vue draws; `verify: false` marks one that is not an
-// equation (a lone fraction, or the symbolic a² + b² = c²).
+// equation (a lone fraction, or the symbolic a² + b² = c²). `explore` names
+// the interactive pictures an operation article opens with (OpExplorer.vue,
+// src/data/opPictures.js).
 export const THEORY_GROUPS = ['grpOps', 'grpNumbers', 'grpTopics', 'grpGeometry']
 
 // the multiplication rows that keep a trick tip under the table
@@ -42,8 +44,8 @@ export const ARTICLES = [
     color: 'var(--k-op-add)',
     ink: 'var(--k-ink-add, #15803d)',
     practise: '/dodawanie',
+    explore: 'add',
     cards: [
-      { h: 'th_addTen_h1', parts: [8, '+', 5, '=', 8, '+', 2, '+', 3, '=', 13], notes: ['th_addTen_n1'] },
       { h: 'th_addTen_h2', parts: [5, '+', 8, '=', 8, '+', 5], notes: ['th_addTen_n2'] },
     ],
   },
@@ -56,8 +58,8 @@ export const ARTICLES = [
     color: 'var(--k-op-sub)',
     ink: 'var(--k-ink-sub, #b45309)',
     practise: '/odejmowanie',
+    explore: 'sub',
     cards: [
-      { h: 'th_subTen_h1', parts: [13, '−', 5, '=', 13, '−', 3, '−', 2, '=', 8], notes: ['th_subTen_n1'] },
       { h: 'th_subTen_h2', parts: [8, '+', 5, '=', 13], notes: ['th_subTen_n2'] },
     ],
   },
@@ -70,8 +72,8 @@ export const ARTICLES = [
     color: 'var(--k-op-mul)',
     ink: 'var(--k-ink-mul, #4f46e5)',
     practise: '/mnozenie',
+    explore: 'mul',
     cards: [
-      { h: 'th_mulAdd_h1', parts: [3, '×', 4, '=', 4, '+', 4, '+', 4, '=', 12], notes: ['th_mulAdd_n1'] },
       { h: 'th_mulAdd_h2', parts: [4, '×', 3, '=', 3, '×', 4], notes: ['th_mulAdd_n2'] },
     ],
   },
@@ -84,6 +86,7 @@ export const ARTICLES = [
     color: 'var(--k-op-div)',
     ink: 'var(--k-ink-div, #be185d)',
     practise: '/dzielenie',
+    explore: 'div',
     cards: [
       { h: 'th_divMul_h1', parts: [12, ':', 3, '=', 4], notes: ['th_divMul_n1'] },
       { h: 'th_divMul_h2', parts: [12, ':', 1, '=', 12], notes: ['th_divMul_n2'] },
@@ -146,6 +149,8 @@ export const ARTICLES = [
         h: 'th_fractions_h3',
         parts: [{ frac: [1, 5] }, '+', { frac: [2, 5] }, '=', { frac: [3, 5] }],
         bars: [3, 5],
+        // the strip splits in half: the two addends on top, their sum below
+        split: [1, 2],
         notes: ['th_fractions_n5'],
       },
     ],
