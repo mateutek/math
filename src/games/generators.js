@@ -64,18 +64,59 @@ export function tilesRound(cfg) {
   return { exprs, results: shuffle(exprs.map((e) => e.result)) }
 }
 
+const one = (list) => list[rnd(0, list.length - 1)]
+
+// a domino half holds 0 to 6 pips
+const split = (sum) => {
+  const x = rnd(Math.max(0, sum - 6), Math.min(6, sum))
+  return [x, sum - x]
+}
+
+// From class 3 the bone's pips are the result of a calculation the class
+// knows, never the numbers on screen: 47 − 39, 3 × 4, 36 ÷ 4, and from class 4
+// 6 × 7 − 35. Each returns the tokens or null when `total` does not suit it.
+const DOMINO_SUMS = {
+  '−': (total) => {
+    const a = rnd(total + 10, 99)
+    return [a, '−', a - total]
+  },
+  '×': (total) => {
+    const pairs = [2, 3, 4, 5, 6].filter((x) => total % x === 0 && total / x >= 2)
+    if (!pairs.length) return null
+    const x = one(pairs)
+    return [x, '×', total / x]
+  },
+  '÷': (total, cfg) => {
+    const d = rnd(2, Math.min(9, Math.floor(cfg.mulMax / total)))
+    return d >= 2 ? [total * d, '÷', d] : null
+  },
+  mix: (total) => {
+    const x = rnd(3, 9)
+    const y = rnd(3, 9)
+    return x * y - total > 0 ? [x, '×', y, '−', x * y - total] : null
+  },
+}
+
 export function dominoRound(cfg) {
   const total = rnd(2, cfg.dominoMax)
-  // a domino half holds 0 to 6 pips
-  const split = (sum) => {
-    const x = rnd(Math.max(0, sum - 6), Math.min(6, sum))
-    return [x, sum - x]
+  let left
+  if (cfg.id < 3) {
+    // the youngest read the two halves straight off: 3 + 4 is the 3|4 bone
+    const [a, b] = split(total)
+    left = [a, '+', b]
+  } else {
+    const kinds = ['−', '×', '÷', ...(cfg.id >= 4 ? ['mix', 'mix'] : [])]
+    while (!left) left = DOMINO_SUMS[one(kinds)](total, cfg)
   }
-  const [a, b] = split(total)
+  // Above class 2 the wrong bones are near misses, so the pips must be
+  // counted, not glanced at; below it any total will do.
   const totals = new Set([total])
-  while (totals.size < 4) totals.add(rnd(1, cfg.dominoMax))
-  const options = shuffle([...totals].map((sum) => (sum === total ? [a, b] : split(sum))))
-  return { a, b, total, options }
+  while (totals.size < 4) {
+    const t = cfg.id < 3 ? rnd(1, cfg.dominoMax) : total + one([-3, -2, -1, 1, 2, 3])
+    if (t >= 1 && t <= cfg.dominoMax) totals.add(t)
+  }
+  const options = shuffle([...totals].map((sum) => (cfg.id < 3 && sum === total ? [left[0], left[2]] : split(sum))))
+  return { left, total, options }
 }
 
 export function compareRound(cfg) {

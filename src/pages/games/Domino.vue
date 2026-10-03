@@ -31,9 +31,10 @@ function pick(o) {
     ink="var(--k-ink-add, #15803d)"
     timed
   >
-    <p class="kid-prompt">{{ t('dominoPrompt') }}</p>
+    <!-- below class 3 the sum is the bone itself; from 3 it is worked out first -->
+    <p class="kid-prompt">{{ t(task.left[1] === '+' ? 'dominoPrompt' : 'dominoPromptResult') }}</p>
     <div class="kid-eq">
-      <span>{{ task.a }}</span><span class="op">+</span><span>{{ task.b }}</span>
+      <span v-for="(p, i) in task.left" :key="i" :class="{ op: typeof p === 'string' }">{{ p }}</span>
     </div>
     <div class="kid-tiles two">
       <button

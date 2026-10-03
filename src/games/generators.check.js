@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { side } from './mathParts.js'
 import { CLASSES, gameMax, gameOffered } from '../data/classes.js'
 import {
   expr, tilesRound, dominoRound, compareRound, biggestRound, ascendingRound, missingRound,
@@ -33,7 +34,12 @@ for (const cfg of CLASSES.filter((c) => c.available)) {
 
     // Domino: exactly one correct option, halves are real domino halves
     const dom = dominoRound(cfg)
-    assert.equal(dom.a + dom.b, dom.total)
+    assert.equal(side(dom.left), dom.total, `${at} domino: ${dom.left.join(' ')} is not ${dom.total}`)
+    if (cfg.id >= 3) {
+      // a calculation, not the bone's halves read off, and near-miss wrong bones
+      assert.ok(!(dom.left.length === 3 && dom.left[1] === '+'), `${at} domino: ${dom.left.join(' ')}`)
+      for (const [x, y] of dom.options) assert.ok(Math.abs(x + y - dom.total) <= 3, `${at} domino: ${x}|${y} is no near miss`)
+    }
     assert.ok(dom.total <= gameMax('domino', cfg), `${at} domino: ${dom.total} passes the sum ceiling`)
     assert.equal(dom.options.length, 4)
     assert.equal(dom.options.filter(([x, y]) => x + y === dom.total).length, 1)

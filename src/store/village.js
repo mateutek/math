@@ -1,25 +1,63 @@
 import { reactive, computed, watch } from 'vue'
 import * as logic from './villageLogic.js'
+import settings from './settings.js'
 
-const KEY = 'village'
+// Every class builds its own village: siblings in different classes share a
+// device, and a village grown on class 2 sums would make class 6 a stroll.
+// The village before this split was saved under the bare key; the first class
+// to open finds it and takes it over, so nothing anyone built is lost.
+const LEGACY = 'village'
+const keyFor = (schoolClass) => `village#${schoolClass}`
 
-function load() {
+function read(key) {
   try {
-    return logic.validate(JSON.parse(localStorage.getItem(KEY))) ?? logic.fresh()
+    return logic.validate(JSON.parse(localStorage.getItem(key)))
   } catch {
-    return logic.fresh()
+    return null
   }
 }
 
-const village = reactive(load())
+function load(schoolClass) {
+  // no class yet: show the old village, if any, but leave it where it is
+  if (schoolClass === null) return read(LEGACY) ?? logic.fresh()
+  const own = read(keyFor(schoolClass))
+  if (own) return own
+  const legacy = read(LEGACY)
+  if (legacy) {
+    try {
+      localStorage.setItem(keyFor(schoolClass), JSON.stringify(legacy))
+      localStorage.removeItem(LEGACY)
+    } catch {
+      // storage blocked: the legacy save just stays where it was
+    }
+    return legacy
+  }
+  return logic.fresh()
+}
+
+// Before a class is picked nothing is saved: the router keeps that visitor
+// on the picker, and the village is loaded for real once a class is chosen.
+let key = settings.schoolClass === null ? null : keyFor(settings.schoolClass)
+const village = reactive(load(settings.schoolClass))
 
 watch(village, (value) => {
+  if (key === null) return
   try {
-    localStorage.setItem(KEY, JSON.stringify(value))
+    localStorage.setItem(key, JSON.stringify(value))
   } catch {
     // storage full or blocked: keep playing in memory
   }
 })
+
+// a new class swaps the whole village; the old one stays saved under its class
+watch(
+  () => settings.schoolClass,
+  (schoolClass) => {
+    if (schoolClass === null) return
+    key = keyFor(schoolClass)
+    Object.assign(village, load(schoolClass))
+  },
+)
 
 const set = (state) => Object.assign(village, state)
 
