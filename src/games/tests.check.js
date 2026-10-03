@@ -2,7 +2,7 @@
 // '?' slot per question, and the answer is what the slot really holds.
 import assert from 'node:assert/strict'
 import { CLASSES } from '../data/classes.js'
-import { sectionsFor, question, editable, toText, answerText, fromText } from './tests.js'
+import { sectionsFor, question, editable, toText, fromText } from './tests.js'
 
 // the '?' anywhere in a token tree
 const slots = (x) => (x === '?' ? 1 : x && typeof x === 'object' ? Object.values(x).reduce((n, v) => n + slots(v), 0) : 0)
@@ -54,37 +54,33 @@ const taken = []
 for (let i = 0; i < 12; i++) taken.push(question('addition', cfg, 1, taken))
 assert.equal(new Set(taken.map((q) => JSON.stringify(q.parts))).size, 12)
 
-// hand edits: what goes out as text comes back as the same question
-const q = { parts: [34, '+', '?', '=', 62], answer: 28 }
-assert.ok(editable(q))
-assert.deepEqual(fromText(toText(q), answerText(q)), q)
-assert.deepEqual(fromText('34+?=62', '28'), q)
-assert.deepEqual(fromText('9-?=4', '5').parts, [9, '−', '?', '=', 4])
-assert.deepEqual(fromText('2,5 + 1,5 = ?', '4'), { parts: [2.5, '+', 1.5, '=', '?'], answer: 4 })
-assert.deepEqual(fromText('47 ? 52', '<'), { parts: [47, '?', 52], answer: '<' })
-assert.equal(fromText('34 + 28 =', '62'), null) // no blank
-assert.equal(fromText('? + ? = 4', '2'), null) // two blanks
-assert.equal(fromText('34 + ? = 62', ' '), null) // no answer
-// the rich tokens have a text form too
-const round = (parts, answer) => assert.deepEqual(fromText(toText({ parts, answer }), String(answer)), { parts, answer })
-round([{ frac: [1, 4] }, '+', { frac: [1, 4] }, '=', { frac: ['?', 4] }], 2)
-round([{ frac: [1, 2] }, { t: 'of' }, 6, '=', '?'], 3)
-round([{ pow: [2, 3] }, '=', '?'], 8)
-round([{ pow: [2, 3] }, '·', { pow: [2, 2] }, '=', { pow: [2, '?'] }], 5)
-round([{ root: 49 }, '=', '?'], 7)
-round([{ pct: '?' }, { t: 'of' }, 80, '=', 20], 25)
-round([0.25, '=', { pct: '?' }], 25)
-assert.deepEqual(fromText('3/4 of 20 = ?', '15').parts, [{ frac: [3, 4] }, { t: 'of' }, 20, '=', '?'])
-assert.deepEqual(fromText('sqrt 81=?', '9').parts, [{ root: 81 }, '=', '?'])
-assert.deepEqual(fromText('12 : 4 = ?', '3').parts, [12, '÷', 4, '=', '?'])
-assert.equal(fromText('?/? = 1/2', '1'), null) // two blanks
-assert.ok(!editable({ parts: [{ triangle: { a: 3, b: 4, c: '?' } }], answer: 5 }))
+// hand edits: what goes out as text comes back as the same parts
+const back = (parts) => assert.deepEqual(fromText(toText({ parts })), parts)
+back([34, '+', '?', '=', 62])
+back([{ frac: [1, 4] }, '+', { frac: [1, 4] }, '=', { frac: ['?', 4] }])
+back([{ frac: [1, 2] }, { t: 'of' }, 6, '=', '?'])
+back([{ pow: [2, 3] }, '·', { pow: [2, 2] }, '=', { pow: [2, '?'] }])
+back([{ root: 49 }, '=', '?'])
+back([{ pct: '?' }, { t: 'of' }, 80, '=', 20])
+back([0.25, '=', { pct: '?' }])
+assert.deepEqual(fromText('34+?=62'), [34, '+', '?', '=', 62])
+assert.deepEqual(fromText('9-?=4'), [9, '−', '?', '=', 4])
+assert.deepEqual(fromText('2,5 + 1,5 = ?'), [2.5, '+', 1.5, '=', '?'])
+assert.deepEqual(fromText('47 ? 52'), [47, '?', 52])
+assert.deepEqual(fromText('3/4 of 20 = ?'), [{ frac: [3, 4] }, { t: 'of' }, 20, '=', '?'])
+assert.deepEqual(fromText('sqrt 81=?'), [{ root: 81 }, '=', '?'])
+assert.deepEqual(fromText('12 : 4 = ?'), [12, '÷', 4, '=', '?'])
+assert.equal(fromText('34 + 28 ='), null) // no blank
+assert.equal(fromText('? + ? = 4'), null) // two blanks
+assert.equal(fromText('?/? = 1/2'), null)
+assert.ok(editable({ parts: [34, '+', '?', '=', 62] }))
+assert.ok(!editable({ parts: [{ triangle: { a: 3, b: 4, c: '?' } }] }))
 // every generated question that is editable survives the trip out and back
 for (const cfg of CLASSES) {
   for (const s of sectionsFor(cfg)) {
     for (let i = 0; i < 300; i++) {
       const g = question(s.id, cfg, 1 + (i % 3))
-      if (editable(g)) assert.deepEqual(fromText(toText(g), answerText(g)), g, `${s.id}: ${toText(g)}`)
+      if (editable(g)) assert.deepEqual(fromText(toText(g)), g.parts, `${s.id}: ${toText(g)}`)
     }
   }
 }

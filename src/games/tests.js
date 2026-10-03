@@ -92,7 +92,6 @@ function tokenText(p, of) {
 }
 
 export const toText = (q, of = 'z') => q.parts.map((p) => tokenText(p, of)).join(' ')
-export const answerText = (q) => fmt(q.answer)
 
 // a number or the blank, then what a token may be built from it
 const N = String.raw`(\d+(?:[.,]\d+)?|\?)`
@@ -111,11 +110,10 @@ function readToken(m) {
 // the '?' anywhere in a token
 const blanks = (x) => (x === '?' ? 1 : x && typeof x === 'object' ? Object.values(x).reduce((n, v) => n + blanks(v), 0) : 0)
 
-// text and answer back into a question; null unless it has exactly one '?'
-// and an answer. Spaces are optional: "34+?=62" reads the same.
-export function fromText(text, answer) {
+// text back into a question's parts; null unless it has exactly one '?'.
+// Spaces are optional: "34+?=62" reads the same. No answer comes with it: the
+// builder is for kids and never shows one (a parent panel will add them).
+export function fromText(text) {
   const parts = [...String(text).matchAll(TOKEN)].map(readToken)
-  const a = String(answer ?? '').trim()
-  if (blanks(parts) !== 1 || !a) return null
-  return { parts, answer: /^\d+(?:[.,]\d+)?$/.test(a) ? num(a) : a }
+  return blanks(parts) === 1 ? parts : null
 }

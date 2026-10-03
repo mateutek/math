@@ -2,7 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { Printer, KeyRound, RotateCcw, X, Plus, Pencil, Shuffle, Check } from 'lucide-vue-next'
 import MathParts from '@/components/MathParts.vue'
-import { sectionsFor, question, MAX_PER_SECTION, editable, toText, answerText, fromText } from '@/games/tests'
+import { sectionsFor, question, MAX_PER_SECTION, editable, toText, fromText } from '@/games/tests'
 import { GAMES } from '@/data/games'
 import settings, { classConfig } from '@/store/settings'
 import { t, tp } from '@/i18n'
@@ -36,18 +36,20 @@ const remove = (s, i) => s.items.splice(i, 1)
 const swap = (s, i) =>
   s.items.splice(i, 1, question(s.id, classConfig.value, settings.topicLevel[s.id] ?? 1, s.items))
 
-// One question at a time is open for a hand edit: the question as text with
-// '?' for the blank, and its answer for the key.
+// One question at a time is open for a hand edit, as text with '?' for the
+// blank. Kids use this page, so no answer is ever shown or asked for: a
+// changed question has none, and its line on the key stays blank until a
+// parent panel can fill it in. Saved unchanged, it keeps its own.
 const editing = ref(null) // the item being edited
-const draft = ref({ text: '', answer: '' })
-const parsed = computed(() => fromText(draft.value.text, draft.value.answer))
+const draft = ref('')
+const parsed = computed(() => fromText(draft.value))
 function edit(q) {
   editing.value = q
-  draft.value = { text: toText(q, t('of')), answer: answerText(q) }
+  draft.value = toText(q, t('of'))
 }
 function save(s, i) {
   if (!parsed.value) return
-  s.items.splice(i, 1, parsed.value)
+  if (draft.value !== toText(editing.value, t('of'))) s.items.splice(i, 1, { parts: parsed.value, answer: null })
   editing.value = null
 }
 
@@ -131,11 +133,7 @@ async function print(which) {
             <span class="n">{{ q.n }}.</span>
             <label>
               <span>{{ t('testEditQ') }}</span>
-              <input v-model="draft.text" class="kid-input" autocomplete="off" />
-            </label>
-            <label class="ans">
-              <span>{{ t('testEditA') }}</span>
-              <input v-model="draft.answer" class="kid-input" autocomplete="off" />
+              <input v-model="draft" class="kid-input" autocomplete="off" />
             </label>
             <button type="submit" class="x ok" :disabled="!parsed" :aria-label="t('testEditSave')"><Check :size="16" /></button>
             <button type="button" class="x" :aria-label="t('testEditCancel')" @click="editing = null"><X :size="16" /></button>
