@@ -156,3 +156,123 @@ export function pythagorasPicture({ i }) {
     vars: { a, b, c, aa: a * a, bb: b * b, cc: c * c },
   }
 }
+
+// ---------------------------------------------------------------------------
+// Geometry, comparing and the order of operations. The figures go through
+// geometry.js's layout(), so the checks measure them the way the game does.
+// ---------------------------------------------------------------------------
+Object.assign(LIMITS, {
+  // any angle in tens (k × 10), and an angle on a straight line in tens
+  angles: { k: () => [1, 35], a: () => [2, 16] },
+  // two angles of a triangle in tens, and an isosceles base angle in fives
+  triangles: { A: () => [2, 14], B: ({ A }) => [2, 16 - A], base: () => [6, 16] },
+  // three segments: can they make a triangle?
+  sides: { p: () => [1, 10], q: () => [1, 10], r: () => [1, 10] },
+  // the five quadrilaterals, one at a time
+  quads: { s: () => [0, 4] },
+  // a rectangle's sides for its perimeter
+  perimeter: { a: () => [1, 12], b: () => [1, 12] },
+  // a rectangle counted in unit squares, and a triangle in its rectangle
+  area: { a: () => [1, 10], b: () => [1, 8], ta: () => [2, 12], th: () => [1, 8] },
+  // two numbers to compare, as tens and ones
+  compare: { x: () => [0, 99], y: () => [0, 99] },
+  // p + q × r, with or without the brackets
+  order: { p: () => [1, 9], q: () => [1, 9], r: () => [2, 9] },
+})
+
+Object.assign(DEFAULTS, {
+  angles: { k: 13, a: 13 },
+  triangles: { A: 5, B: 6, base: 14 },
+  sides: { p: 3, q: 4, r: 6 },
+  quads: { s: 0 },
+  perimeter: { a: 6, b: 4 },
+  area: { a: 6, b: 4, ta: 8, th: 5 },
+  compare: { x: 47, y: 52 },
+  order: { p: 2, q: 3, r: 4 },
+})
+
+export function anglesPicture({ k, a }) {
+  const deg = k * 10
+  const line = a * 10
+  return {
+    deg,
+    angle: { shape: 'angle', deg },
+    line: { shape: 'line', angles: [line, 180 - line] },
+    cross: { shape: 'cross', shown: line, ask: 'opposite', other: line },
+    lineEq: [line, '+', 180 - line, '=', 180],
+    vars: { deg, a: line, b: 180 - line },
+  }
+}
+
+export function trianglesPicture({ A, B, base }) {
+  const [a, b] = [A * 10, B * 10]
+  const c = 180 - a - b
+  const bs = base * 5
+  const top = 180 - 2 * bs
+  return {
+    sum: { shape: 'triangle', angles: { A: a, B: b, C: c } },
+    sumEq: [a, '+', b, '+', c, '=', 180],
+    iso: { shape: 'triangle', iso: true, angles: { A: bs, B: bs, C: top } },
+    isoEq: [bs, '+', bs, '+', top, '=', 180],
+    vars: { a, b, c, bs, top },
+  }
+}
+
+// whether three segments make a triangle: the longest against the other two
+export function sidesPicture({ p, q, r }) {
+  const [s1, s2, big] = [p, q, r].sort((x, y) => x - y)
+  const sum = s1 + s2
+  const ok = sum > big
+  return {
+    bars: { shape: 'bars', sides: [p, q, r] },
+    // the triangle itself when there is one, its longest side along the bottom
+    tri: ok ? { shape: 'tri3', a: s1, b: s2, c: big } : null,
+    eq: [s1, '+', s2, sum > big ? '>' : sum < big ? '<' : '=', big],
+    ok,
+    vars: { s1, s2, big, sum },
+  }
+}
+
+// the five quadrilaterals, drawn bare (no numbers), with what makes each one
+const QUADS = [
+  { name: 'square', fig: { shape: 'rect', a: 5, b: 5, bare: true } },
+  { name: 'rect', fig: { shape: 'rect', a: 7, b: 4, bare: true } },
+  { name: 'rhombus', fig: { shape: 'rhombus', e: 8, f: 5, bare: true } },
+  { name: 'para', fig: { shape: 'para', a: 7, h: 3, o: 2, bare: true } },
+  { name: 'trap', fig: { shape: 'trap', a: 9, b: 4, h: 3, o: 2, bare: true } },
+]
+export const quadsPicture = ({ s }) => QUADS[s]
+
+export function perimeterPicture({ a, b }) {
+  return {
+    fig: { shape: 'rect', a, b },
+    eq: [a, '+', b, '+', a, '+', b, '=', 2, '·', '(', a, '+', b, ')', '=', 2 * (a + b)],
+    vars: { a, b, p: 2 * (a + b) },
+  }
+}
+
+export function areaPicture({ a, b, ta, th }) {
+  return {
+    cells: range(a * b),
+    rectEq: [a, '·', b, '=', a * b],
+    triEq: [ta, '·', th, ':', 2, '=', (ta * th) / 2],
+    vars: { a, b, ab: a * b, ta, th, half: String((ta * th) / 2).replace('.', ','), whole: ta * th },
+  }
+}
+
+// a number as tens rods and ones cubes
+const place = (n) => ({ n, tens: Math.floor(n / 10), ones: n % 10 })
+export function comparePicture({ x, y }) {
+  const sign = x < y ? '<' : x > y ? '>' : '='
+  const left = place(x)
+  const right = place(y)
+  // what decides: the tens when they differ, else the ones, else they are equal
+  const by = left.tens !== right.tens ? 'tens' : left.ones !== right.ones ? 'ones' : 'same'
+  return { left, right, sign, eq: [x, sign, y], by }
+}
+
+export function orderPicture({ p, q, r }, brackets) {
+  return brackets
+    ? { eq: ['(', p, '+', q, ')', '×', r, '=', p + q, '×', r, '=', (p + q) * r], first: 'add' }
+    : { eq: [p, '+', q, '×', r, '=', p, '+', q * r, '=', p + q * r], first: 'mul' }
+}

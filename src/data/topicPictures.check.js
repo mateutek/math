@@ -96,3 +96,59 @@ for (let n = 2; n <= 5; n++) {
 }
 
 console.log('topicPictures: all checks passed')
+
+// ---- geometry, comparing, the order of operations -------------------------
+const { anglesPicture, trianglesPicture, sidesPicture, quadsPicture, perimeterPicture, areaPicture, comparePicture, orderPicture } =
+  await import('./topicPictures.js')
+const { figureErrors, outline, shoelace, perimeter, quadName } = await import('../games/geoMeasure.js')
+const { angleKind } = await import('../games/geometry.js')
+const noErrors = (fig, where) => assert.deepEqual(figureErrors(fig), [], `${where}: ${JSON.stringify(fig)}`)
+
+for (const pick of allPicks('angles')) {
+  const p = anglesPicture(pick)
+  noErrors(p.angle, 'angle')
+  noErrors(p.line, 'line')
+  noErrors(p.cross, 'cross')
+  assert.ok(holds(p.lineEq))
+  assert.ok(['acute', 'right', 'obtuse', 'straight', 'reflex'].includes(angleKind(p.deg)))
+}
+for (const pick of allPicks('triangles')) {
+  const p = trianglesPicture(pick)
+  noErrors(p.sum, 'triangle')
+  noErrors(p.iso, 'isosceles')
+  assert.ok(holds(p.sumEq) && holds(p.isoEq))
+}
+for (const pick of allPicks('sides')) {
+  const p = sidesPicture(pick)
+  noErrors(p.bars, 'bars')
+  assert.ok(holds(p.eq), JSON.stringify(p.eq))
+  if (p.ok) noErrors(p.tri, 'tri3')
+  assert.equal(p.ok, p.tri !== null)
+}
+for (const pick of allPicks('quads')) {
+  const p = quadsPicture(pick)
+  noErrors(p.fig, p.name)
+  assert.equal(quadName(outline(p.fig)), p.name, `quads: the ${p.name} drawn is a ${quadName(outline(p.fig))}`)
+}
+for (const pick of allPicks('perimeter')) {
+  const p = perimeterPicture(pick)
+  noErrors(p.fig, 'rect')
+  assert.ok(holds(p.eq))
+  assert.ok(Math.abs(perimeter(outline(p.fig)) - p.vars.p) < 1e-9)
+}
+for (const pick of allPicks('area')) {
+  const p = areaPicture(pick)
+  assert.equal(p.cells.length, pick.a * pick.b)
+  assert.ok(holds(p.rectEq) && holds(p.triEq))
+  assert.ok(Math.abs(shoelace(outline({ shape: 'triH', a: pick.ta, h: pick.th, o: 1 })) - (pick.ta * pick.th) / 2) < 1e-9)
+}
+for (const pick of allPicks('compare')) {
+  const p = comparePicture(pick)
+  assert.ok(holds(p.eq), JSON.stringify(p.eq))
+  assert.equal(p.left.tens * 10 + p.left.ones, pick.x)
+}
+for (const pick of allPicks('order')) {
+  for (const brackets of [false, true]) assert.ok(holds(orderPicture(pick, brackets).eq))
+}
+
+console.log('topicPictures (geometry and the rest): all checks passed')

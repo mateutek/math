@@ -27,8 +27,6 @@ export function tipFor(a, b) {
   return null
 }
 
-// the word token MathParts draws as "z" / "of"; the evaluator multiplies by it
-const OF = { t: 'of' }
 // x in an equation, as MathParts draws it; a card with x says its value in `x`
 const X = (k = 1) => ({ x: k })
 // the colours of the geometry game
@@ -100,11 +98,8 @@ export const ARTICLES = [
     color: 'var(--k-op-div2)',
     ink: 'var(--k-ink-div2, #0f766e)',
     practise: '/gry/porownaj',
-    cards: [
-      { h: 'th_compareNum_h1', parts: [47, '<', 52], notes: ['th_compareNum_n1'] },
-      { h: 'th_compareNum_h2', parts: [54, '>', 51], notes: ['th_compareNum_n2'] },
-      { h: 'th_compareNum_h3', parts: [3, '<', 8], notes: ['th_compareNum_n3'] },
-    ],
+    explore: 'compare',
+    cards: [],
   },
   {
     id: 'order',
@@ -115,9 +110,8 @@ export const ARTICLES = [
     color: 'var(--k-brand)',
     ink: 'var(--k-ink-missing, #1f4fc4)',
     practise: null,
+    explore: 'order',
     cards: [
-      { h: 'th_order_h1', parts: [2, '+', 3, '×', 4, '=', 2, '+', 12, '=', 14], notes: ['th_order_n1'] },
-      { h: 'th_order_h2', parts: ['(', 2, '+', 3, ')', '×', 4, '=', 5, '×', 4, '=', 20], notes: ['th_order_n2'] },
       { h: 'th_order_h3', parts: [20, ':', 4, '×', 2, '=', 5, '×', 2, '=', 10], notes: ['th_order_n3'] },
     ],
   },
@@ -270,20 +264,8 @@ export const ARTICLES = [
     group: 'grpGeometry',
     symbol: '∠',
     ...GEO,
+    explore: 'angles',
     cards: [
-      {
-        h: 'th_angles_h1',
-        fig: { shape: 'angle', deg: 130 },
-        notes: [
-          { term: 'th_angles_t_acute', text: 'th_angles_acute' },
-          { term: 'th_angles_t_right', text: 'th_angles_right' },
-          { term: 'th_angles_t_obtuse', text: 'th_angles_obtuse' },
-          { term: 'th_angles_t_straight', text: 'th_angles_straight' },
-          { term: 'th_angles_t_reflex', text: 'th_angles_reflex' },
-        ],
-      },
-      { h: 'th_angles_h2', fig: { shape: 'line', angles: [130, 50] }, parts: [130, '+', 50, '=', 180], notes: ['th_angles_n2'] },
-      { h: 'th_angles_h3', fig: { shape: 'cross', shown: 70, ask: 'opposite', other: 70 }, notes: ['th_angles_n3'] },
       { h: 'th_angles_h4', fig: { shape: 'around', angles: [120, 100, 140] }, parts: [120, '+', 100, '+', 140, '=', 360], notes: ['th_angles_n4'] },
     ],
   },
@@ -294,11 +276,8 @@ export const ARTICLES = [
     group: 'grpGeometry',
     symbol: '△',
     ...GEO,
-    cards: [
-      { h: 'th_triangles_h1', fig: { shape: 'triangle', angles: { A: 50, B: 60, C: 70 } }, parts: [50, '+', 60, '+', 70, '=', 180], notes: ['th_triangles_n1'] },
-      { h: 'th_triangles_h2', fig: { shape: 'triangle', iso: true, angles: { A: 70, B: 70, C: 40 } }, parts: [70, '+', 70, '+', 40, '=', 180], notes: ['th_triangles_n2'] },
-      { h: 'th_triangles_h3', fig: { shape: 'bars', sides: [6, 3, 4] }, parts: [3, '+', 4, '>', 6], notes: ['th_triangles_n3'] },
-    ],
+    explore: 'triangles',
+    cards: [],
   },
   {
     id: 'quads',
@@ -307,15 +286,8 @@ export const ARTICLES = [
     group: 'grpGeometry',
     symbol: '▱',
     ...GEO,
+    explore: 'quads',
     cards: [
-      {
-        h: 'th_quads_h1',
-        fig: { shape: 'rect', a: 7, b: 4, bare: true },
-        notes: [{ term: 'th_quads_t_rect', text: 'th_quads_rect' }, { term: 'th_quads_t_square', text: 'th_quads_square' }],
-      },
-      { h: 'th_quads_h2', fig: { shape: 'para', a: 7, h: 3, o: 2, bare: true }, notes: ['th_quads_n2'] },
-      { h: 'th_quads_h3', fig: { shape: 'rhombus', e: 8, f: 5, bare: true }, notes: ['th_quads_n3'] },
-      { h: 'th_quads_h4', fig: { shape: 'trap', a: 9, b: 4, h: 3, o: 2, bare: true }, notes: ['th_quads_n4'] },
       { h: 'th_quads_h5', fig: { shape: 'quad', angles: [80, 100, 70, 110], diagonal: true }, parts: [80, '+', 100, '+', 70, '+', 110, '=', 360], notes: ['th_quads_n5'] },
     ],
   },
@@ -326,9 +298,8 @@ export const ARTICLES = [
     group: 'grpGeometry',
     symbol: '⬚',
     ...GEO,
+    explore: 'perimeter',
     cards: [
-      { h: 'th_perimeter_h1', fig: { shape: 'rect', a: 6, b: 4 }, perimeter: 20, parts: [6, '+', 4, '+', 6, '+', 4, '=', 20], notes: ['th_perimeter_n1'] },
-      { h: 'th_perimeter_h2', fig: { shape: 'rect', a: 5, b: 5 }, perimeter: 20, parts: [4, '·', 5, '=', 20], notes: ['th_perimeter_n2'] },
       { h: 'th_perimeter_h3', fig: { shape: 'tri3', a: 6, b: 5, c: 7 }, perimeter: 18, parts: [7, '+', 6, '+', 5, '=', 18], notes: ['th_perimeter_n3'] },
     ],
   },
@@ -339,9 +310,8 @@ export const ARTICLES = [
     group: 'grpGeometry',
     symbol: 'cm²',
     ...GEO,
+    explore: 'area',
     cards: [
-      { h: 'th_area_h1', fig: { shape: 'rect', a: 6, b: 4 }, area: 24, parts: [6, '·', 4, '=', 24], notes: ['th_area_n1'] },
-      { h: 'th_area_h2', fig: { shape: 'triH', a: 8, h: 5, o: 3 }, area: 20, parts: [8, '·', 5, ':', 2, '=', 20], notes: ['th_area_n2'] },
       { h: 'th_area_h3', fig: { shape: 'para', a: 7, h: 4, o: 2 }, area: 28, parts: [7, '·', 4, '=', 28], notes: ['th_area_n3'] },
       { h: 'th_area_h4', fig: { shape: 'trap', a: 8, b: 4, h: 5, o: 2 }, area: 30, parts: ['(', 8, '+', 4, ')', '·', 5, ':', 2, '=', 30], notes: ['th_area_n4'] },
     ],

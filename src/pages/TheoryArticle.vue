@@ -14,6 +14,13 @@ import NegativesExplore from '@/components/explore/NegativesExplore.vue'
 import EquationsExplore from '@/components/explore/EquationsExplore.vue'
 import AverageExplore from '@/components/explore/AverageExplore.vue'
 import PythagorasExplore from '@/components/explore/PythagorasExplore.vue'
+import AnglesExplore from '@/components/explore/AnglesExplore.vue'
+import TrianglesExplore from '@/components/explore/TrianglesExplore.vue'
+import QuadsExplore from '@/components/explore/QuadsExplore.vue'
+import PerimeterExplore from '@/components/explore/PerimeterExplore.vue'
+import AreaExplore from '@/components/explore/AreaExplore.vue'
+import CompareExplore from '@/components/explore/CompareExplore.vue'
+import OrderExplore from '@/components/explore/OrderExplore.vue'
 import { articleBySlug } from '@/data/theory'
 import { GAMES } from '@/data/games'
 import { gameOffered } from '@/data/classes'
@@ -62,6 +69,13 @@ const EXPLORERS = {
   equations: EquationsExplore,
   average: AverageExplore,
   pythagoras: PythagorasExplore,
+  angles: AnglesExplore,
+  triangles: TrianglesExplore,
+  quads: QuadsExplore,
+  perimeter: PerimeterExplore,
+  area: AreaExplore,
+  compare: CompareExplore,
+  order: OrderExplore,
 }
 
 const note = (n) => (typeof n === 'string' ? { term: null, text: n } : n)
