@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, nextTick } from 'vue'
 import { Check } from 'lucide-vue-next'
 import GameCard from '@/components/GameCard.vue'
 import { useRound } from '@/composables/useRound'
@@ -40,12 +40,6 @@ function check() {
     focusAnswer()
   }
 }
-
-// a right value is taken the moment it is typed, no Enter needed; an empty
-// field (the reset for a new task, or a slip of the finger) is never right
-watch(answer, () => {
-  if (!round.out && answer.value !== '' && isRight()) accept()
-})
 </script>
 
 <template>
