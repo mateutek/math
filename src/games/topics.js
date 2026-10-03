@@ -2,15 +2,21 @@
 // so this file runs under plain node (see topics.check.js).
 //
 // A task is plain data. `parts` is what the kid reads, as a list of tokens that
-// MathParts.vue draws: numbers, the operator strings '=' '+' '−' '×' '·', the
+// MathParts.vue draws: numbers, the operator strings '=' '+' '−' '×' '·' '÷', the
 // slot '?', and { t } { frac } { pow } { root } { pct } { triangle }. A '?' may
 // also sit inside a frac, pow, pct or triangle.
 //   { kind: 'number', parts, answer }                 one '?', typed
 //   { kind: 'pick', prompt, parts, options, answer }  answer indexes options
+// Every task also carries `type`, the name of the kind that made it.
 // Decimals are built as whole hundredths and divided by 100 at the last moment,
 // so no task ever carries a 0.30000000000000004.
+//
+// The class decides which kinds a topic has (each kind names the class that
+// meets it first, after the curriculum) and, with the level, how big the
+// numbers get. `year` is how many years the class has had the topic: 0 in the
+// class that meets it. See docs/superpowers/specs/2026-10-03-topics-by-class-design.md.
 import { randomIntFromInterval as rnd } from '../helpers/helpers.js'
-import { TOPICS } from '../data/classes.js'
+import { TOPICS, FROM } from '../data/classes.js'
 import { shuffle } from './generators.js'
 
 export { TOPICS }
@@ -18,6 +24,7 @@ export const LEVELS = [1, 2, 3]
 
 const one = (list) => list[rnd(0, list.length - 1)]
 const gcd = (a, b) => (b ? gcd(b, a % b) : a)
+const lcm = (a, b) => (a * b) / gcd(a, b)
 const OF = { t: 'of' }
 
 // a typed answer: comma or dot, spaces around it; null when it is not a number
@@ -56,10 +63,15 @@ function distinct(count, make, taken = []) {
 const biggest = (options) => options.reduce((p, q) => (q.value > p.value ? q : p))
 
 // ---------------------------------------------------------------------------
-// Class 4: fractions
+// Fractions, from class 4
 // ---------------------------------------------------------------------------
 const FRAC_MAX = { 1: 6, 2: 10, 3: 12 } // the largest denominator in lowest terms
 const FRAC_TIMES = { 1: 3, 2: 5, 3: 6 } // the most an equal fraction is scaled by
+
+// the largest denominator in lowest terms grows by one a year
+export const fracMax = (level, year) => FRAC_MAX[level] + year
+// the largest denominator any fraction task shows
+export const fracTop = (level, year) => fracMax(level, year) * FRAC_TIMES[level]
 
 const fracOpt = (n, d) => ({ parts: [{ frac: [n, d] }], value: n / d })
 
@@ -72,37 +84,28 @@ function properFrac(maxD) {
   }
 }
 
-function fractions(level) {
-  const maxD = FRAC_MAX[level]
-  const kind = one(['equal', 'same', 'of', 'pickEqual', 'pickBiggest'])
-
-  if (kind === 'equal') {
-    // expand or reduce; the unknown is always a numerator
-    const [n, d] = properFrac(maxD)
+const FRACTIONS = {
+  // expand or reduce; the unknown is always a numerator
+  equal: [4, (level, year) => {
+    const [n, d] = properFrac(fracMax(level, year))
     const k = rnd(2, FRAC_TIMES[level])
     return rnd(0, 1)
       ? number([{ frac: [n, d] }, '=', { frac: ['?', d * k] }], n * k)
       : number([{ frac: [n * k, d * k] }, '=', { frac: ['?', d] }], n)
-  }
+  }],
 
-  if (kind === 'same') {
-    // one denominator, and the sum stays a proper fraction
-    const d = rnd(3, maxD)
+  // one denominator, and the sum stays a proper fraction
+  same: [4, (level, year) => {
+    const d = rnd(3, fracMax(level, year))
     const a = rnd(1, d - 2)
     const b = rnd(1, d - 1 - a)
     return rnd(0, 1)
       ? number([{ frac: [a, d] }, '+', { frac: [b, d] }, '=', { frac: ['?', d] }], a + b)
       : number([{ frac: [a + b, d] }, '−', { frac: [b, d] }, '=', { frac: ['?', d] }], a)
-  }
+  }],
 
-  if (kind === 'of') {
-    // a fraction of a number it divides: 3/4 z 20
-    const [n, d] = properFrac(maxD)
-    const m = rnd(2, level === 1 ? 5 : 10) // from 2: a whole of one denominator is no task
-    return number([{ frac: [n, d] }, OF, d * m, '=', '?'], n * m)
-  }
-
-  if (kind === 'pickEqual') {
+  pickEqual: [4, (level, year) => {
+    const maxD = fracMax(level, year)
     const [n, d] = properFrac(maxD)
     const k = rnd(2, FRAC_TIMES[level])
     const right = fracOpt(n * k, d * k)
@@ -112,82 +115,146 @@ function fractions(level) {
       return fracOpt(x * j, y * j)
     }, [right])
     return pick('topicPickEqual', [{ frac: [n, d] }], right, wrongs)
-  }
+  }],
 
-  // pickBiggest. One shared denominator below level 3, so only the numerators
-  // are compared; any denominators at level 3. Three numerators need d >= 4.
-  let options
-  if (level < 3) {
-    const d = rnd(4, maxD)
-    options = distinct(3, () => fracOpt(rnd(1, d - 1), d))
-  } else {
-    options = distinct(3, () => fracOpt(...properFrac(maxD)))
-  }
-  const right = biggest(options)
-  return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+  // One shared denominator, so only the numerators are compared. Any
+  // denominators once the class has met common denominators (class 5), at
+  // level 3. Three numerators need d >= 4.
+  pickBiggest: [4, (level, year) => {
+    const maxD = fracMax(level, year)
+    let options
+    if (level < 3 || year === 0) {
+      const d = rnd(4, maxD)
+      options = distinct(3, () => fracOpt(rnd(1, d - 1), d))
+    } else {
+      options = distinct(3, () => fracOpt(...properFrac(maxD)))
+    }
+    const right = biggest(options)
+    return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+  }],
+
+  // a fraction of a number it divides: 3/4 z 20
+  of: [5, (level, year) => {
+    const [n, d] = properFrac(fracMax(level, year))
+    const m = rnd(2, level === 1 ? 5 : 10) // from 2: a whole of one denominator is no task
+    return number([{ frac: [n, d] }, OF, d * m, '=', '?'], n * m)
+  }],
+
+  // Two denominators: in class 5 one divides the other (1/4 + 3/8), from class
+  // 6 any pair. The answer is over their common denominator and may be
+  // improper.
+  unlike: [5, (level, year) => {
+    const maxD = fracMax(level, year)
+    for (;;) {
+      const b = rnd(2, maxD)
+      const d = rnd(2, maxD)
+      const l = lcm(b, d)
+      if (b === d || l > fracTop(level, year) || (year < 2 && l !== Math.max(b, d))) continue
+      const a = rnd(1, b - 1)
+      const c = rnd(1, d - 1)
+      return number([{ frac: [a, b] }, '+', { frac: [c, d] }, '=', { frac: ['?', l] }], (a * l) / b + (c * l) / d)
+    }
+  }],
+
+  // a fraction times a fraction, unreduced: 2/3 · 4/5 = ?/15
+  times: [6, (level, year) => {
+    for (;;) {
+      const [a, b] = properFrac(fracMax(level, year))
+      const [c, d] = properFrac(fracMax(level, year))
+      if (b * d <= fracTop(level, year)) {
+        return number([{ frac: [a, b] }, '·', { frac: [c, d] }, '=', { frac: ['?', b * d] }], a * c)
+      }
+    }
+  }],
 }
 
 // ---------------------------------------------------------------------------
-// Class 5: decimals. Everything is counted in hundredths until it is shown.
+// Decimals, from class 5. Everything is counted in hundredths until it is shown.
 // ---------------------------------------------------------------------------
 const dec = (hundredths) => hundredths / 100
 const decOpt = (h) => ({ parts: [dec(h)], value: dec(h) })
 
-// an operand, in hundredths: tenths below 1, tenths below 10, hundredths below 10
-function decOperand(level) {
-  if (level === 1) return rnd(1, 9) * 10
-  if (level === 2) return rnd(1, 99) * 10
-  return rnd(1, 999)
+// An operand, in hundredths: tenths below 1, tenths below 10, hundredths below
+// 10. Later classes get one place more in front: level 1 from the second year,
+// the others from the third.
+function decOperand(level, year) {
+  const up = year >= (level === 1 ? 1 : 2) ? 10 : 1
+  if (level === 1) return rnd(1, 9 * up) * 10
+  if (level === 2) return rnd(1, 99 * up) * 10
+  return rnd(1, 999 * up)
 }
 
 // denominators that land on a level's number of decimal places
 const DEC_DENOMS = { 1: [10], 2: [2, 5, 10], 3: [4, 20, 25, 50, 100] }
 
-function decimals(level) {
-  const kind = one(['add', 'sub', 'times', 'fromFrac', 'pickBiggest'])
-
-  if (kind === 'add') {
-    const a = decOperand(level)
-    const b = decOperand(level)
+const DECIMALS = {
+  add: [5, (level, year) => {
+    const a = decOperand(level, year)
+    const b = decOperand(level, year)
     return number([dec(a), '+', dec(b), '=', '?'], dec(a + b))
-  }
+  }],
 
-  if (kind === 'sub') {
-    const x = decOperand(level)
-    const y = decOperand(level)
+  sub: [5, (level, year) => {
+    const x = decOperand(level, year)
+    const y = decOperand(level, year)
     const [hi, lo] = x > y ? [x, y] : [y, x]
     return number([dec(hi), '−', dec(lo), '=', '?'], dec(hi - lo))
-  }
+  }],
 
-  if (kind === 'times') {
-    const a = decOperand(level)
+  times: [5, (level, year) => {
+    const a = decOperand(level, year)
     const k = rnd(2, 9)
     return number([dec(a), '×', k, '=', '?'], dec(a * k))
-  }
+  }],
 
-  if (kind === 'fromFrac') {
+  fromFrac: [5, (level) => {
     const d = one(DEC_DENOMS[level])
     const n = rnd(1, d - 1)
     return number([{ frac: [n, d] }, '=', '?'], dec((n * 100) / d))
-  }
+  }],
 
-  // pickBiggest. Level 1 compares tenths from anywhere below 1. Above it the
-  // three sit close to one shared number, in tenths at level 2 and hundredths
-  // at level 3, so the places have to be read, not just the first digit.
-  let options
-  if (level === 1) {
-    options = distinct(3, () => decOpt(rnd(1, 9) * 10))
-  } else {
-    const step = level === 2 ? 10 : 1
-    const base = (level === 2 ? rnd(10, 89) : rnd(10, 98)) * 10
-    options = distinct(3, () => decOpt(base + rnd(-9, 9) * step))
-  }
-  const right = biggest(options)
-  return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+  // Level 1 compares tenths from anywhere below 1. Above it the three sit
+  // close to one shared number, in tenths at level 2 and hundredths at level
+  // 3, so the places have to be read, not just the first digit.
+  pickBiggest: [5, (level) => {
+    let options
+    if (level === 1) {
+      options = distinct(3, () => decOpt(rnd(1, 9) * 10))
+    } else {
+      const step = level === 2 ? 10 : 1
+      const base = (level === 2 ? rnd(10, 89) : rnd(10, 98)) * 10
+      options = distinct(3, () => decOpt(base + rnd(-9, 9) * step))
+    }
+    const right = biggest(options)
+    return pick('topicPickBiggest', [], right, options.filter((o) => o !== right))
+  }],
+
+  // times or divided by 10 or 100; a division is built from its answer
+  shift: [6, (level, year) => {
+    const k = one([10, 100])
+    const a = decOperand(level, year)
+    return rnd(0, 1)
+      ? number([dec(a), '×', k, '=', '?'], dec(a * k))
+      : number([dec(a * k), '÷', k, '=', '?'], dec(a))
+  }],
+
+  // divided by a digit, built from its answer so it always comes out
+  divide: [6, (level, year) => {
+    const q = decOperand(level, year)
+    const k = rnd(2, 9)
+    return number([dec(q * k), '÷', k, '=', '?'], dec(q))
+  }],
+
+  // tenths times tenths: hundredths
+  decTimes: [7, (level) => {
+    const a = level === 1 ? rnd(1, 9) : rnd(11, 99)
+    const b = level === 3 ? rnd(11, 99) : rnd(1, 9)
+    return number([dec(a * 10), '×', dec(b * 10), '=', '?'], dec(a * b))
+  }],
 }
 
 // ---------------------------------------------------------------------------
-// Class 6: percents
+// Percents, from class 6
 // ---------------------------------------------------------------------------
 const PCTS = {
   1: [10, 25, 50, 100],
@@ -199,128 +266,165 @@ const PCT_DENOMS = { 1: [2, 4, 10], 2: [2, 4, 5, 10, 20], 3: [4, 5, 20, 25, 50] 
 
 const pctOpt = (p) => ({ parts: [{ pct: p }], value: p / 100 })
 
-function percents(level) {
-  const kind = one(['of', 'which', 'fromFrac', 'pickEqual'])
+// p% and a base that makes p% of it a whole number; bases grow every year
+function pctOfBase(level, year) {
   const p = one(PCTS[level])
+  const base = (100 / gcd(p, 100)) * rnd(1, 10 * (year + 1))
+  return [p, base, (p * base) / 100]
+}
 
-  if (kind === 'of' || kind === 'which') {
-    // the base is a multiple of whatever makes p% of it a whole number
-    const base = (100 / gcd(p, 100)) * rnd(1, 10)
-    const part = (p * base) / 100
-    return kind === 'of'
-      ? number([{ pct: p }, OF, base, '=', '?'], part)
-      : number([{ pct: '?' }, OF, base, '=', part], p)
-  }
+const PERCENTS = {
+  of: [6, (level, year) => {
+    const [p, base, part] = pctOfBase(level, year)
+    return number([{ pct: p }, OF, base, '=', '?'], part)
+  }],
 
-  if (kind === 'fromFrac') {
+  fromFrac: [6, (level) => {
     const d = one(PCT_DENOMS[level])
     const n = rnd(1, d - 1)
     return number([{ frac: [n, d] }, '=', { pct: '?' }], (n * 100) / d)
-  }
+  }],
 
-  // pickEqual: a decimal, and which percentage it is. The wrong ones are the
-  // slips kids make: a place off, the complement, a near miss.
-  const slips = [p / 10, p * 10, 100 - p, p + 5, p + 10, p * 2]
-  const wrongs = shuffle([...new Set(slips.filter((q) => Number.isInteger(q) && q > 0 && q !== p))])
-    .slice(0, 3)
-    .map(pctOpt)
-  return pick('topicPickEqual', [p / 100], pctOpt(p), wrongs)
+  // A decimal, and which percentage it is. The wrong ones are the slips kids
+  // make: a place off, the complement, a near miss.
+  pickEqual: [6, (level) => {
+    const p = one(PCTS[level])
+    const slips = [p / 10, p * 10, 100 - p, p + 5, p + 10, p * 2]
+    const wrongs = shuffle([...new Set(slips.filter((q) => Number.isInteger(q) && q > 0 && q !== p))])
+      .slice(0, 3)
+      .map(pctOpt)
+    return pick('topicPickEqual', [p / 100], pctOpt(p), wrongs)
+  }],
+
+  // what percent of the base the part is
+  which: [7, (level, year) => {
+    const [p, base, part] = pctOfBase(level, year)
+    return number([{ pct: '?' }, OF, base, '=', part], p)
+  }],
+
+  // the whole, from a part and its percent
+  whole: [7, (level, year) => {
+    const [p, base, part] = pctOfBase(level, year)
+    return number([{ pct: p }, OF, '?', '=', part], base)
+  }],
 }
 
 // ---------------------------------------------------------------------------
-// Class 7: powers and roots
+// Powers, from class 4: squares and cubes there, roots and the rules in 7
 // ---------------------------------------------------------------------------
-const POWER_KINDS = {
-  1: ['square', 'pickBiggest'],
-  2: ['square', 'cube', 'root', 'sumSquares', 'pickBiggest'],
-  3: ['pow2', 'pow10', 'root', 'sumSquares', 'rule', 'pickBiggest'],
-}
-
 const powOpt = (b, e) => ({ parts: [{ pow: [b, e] }], value: b ** e })
 const power = (b, e) => number([{ pow: [b, e] }, '=', '?'], b ** e)
 
-function powers(level) {
-  const kind = one(POWER_KINDS[level])
-  const top = level === 1 ? 10 : 15 // the biggest base that gets squared
+// the biggest base that gets squared
+const squareTop = (level, year) => ({ 1: 10, 2: 12, 3: 15 })[level] + year
 
-  if (kind === 'square') return power(rnd(1, top), 2)
-  if (kind === 'cube') return power(rnd(1, 5), 3)
-  if (kind === 'pow2') return power(2, rnd(2, 10))
-  if (kind === 'pow10') return power(10, rnd(2, 6))
+const POWERS = {
+  square: [4, (level, year) => power(rnd(1, squareTop(level, year)), 2)],
+  cube: [4, (level, year) => power(rnd(1, 2 + level + Math.min(year, 3)), 3)],
 
-  if (kind === 'root') {
-    const b = rnd(2, top)
-    return number([{ root: b * b }, '=', '?'], b)
-  }
+  // Three squares, until class 5; from there above level 1 a power against
+  // its mirror, 2^5 or 5^2, skipping the pairs that tie (2^4 and 4^2, or a = b).
+  pickBiggest: [4, (level, year) => {
+    let options
+    if (level === 1 || year === 0) {
+      options = distinct(3, () => powOpt(rnd(1, 10 + year), 2))
+    } else {
+      const hi = level === 2 ? 5 : 6
+      do {
+        const a = rnd(2, hi)
+        const b = rnd(2, hi)
+        options = [powOpt(a, b), powOpt(b, a)]
+      } while (options[0].value === options[1].value)
+    }
+    const right = biggest(options)
+    return pick(options.length === 2 ? 'topicPickBigger' : 'topicPickBiggest', [], right, options.filter((o) => o !== right))
+  }],
 
-  if (kind === 'sumSquares') {
-    const a = rnd(1, 10)
-    const b = rnd(1, 10)
+  pow2: [5, (level, year) => power(2, rnd(2, Math.min(10, 4 + level + year)))],
+  pow10: [5, (level) => power(10, rnd(2, 3 + level))],
+
+  sumSquares: [5, (level) => {
+    const a = rnd(1, 5 + level * 2)
+    const b = rnd(1, 5 + level * 2)
     return number([{ pow: [a, 2] }, '+', { pow: [b, 2] }, '=', '?'], a * a + b * b)
-  }
+  }],
 
-  if (kind === 'rule') {
-    // same base: the exponents add
+  // a decimal squared, in tenths: 0,3² at level 1, up to 2,9² at level 3
+  decSquare: [6, (level) => {
+    const t = level === 1 ? rnd(1, 9) : rnd(11, level === 2 ? 19 : 29)
+    return number([{ pow: [t / 10, 2] }, '=', '?'], dec(t * t))
+  }],
+
+  root: [7, (level, year) => {
+    const b = rnd(2, squareTop(level, year))
+    return number([{ root: b * b }, '=', '?'], b)
+  }],
+
+  // same base: the exponents add
+  rule: [7, (level) => {
     const b = rnd(2, 9)
-    const m = rnd(2, 5)
-    const n = rnd(2, 5)
+    const m = rnd(2, 3 + level)
+    const n = rnd(2, 3 + level)
     return number([{ pow: [b, m] }, '·', { pow: [b, n] }, '=', { pow: [b, '?'] }], m + n)
-  }
+  }],
 
-  // pickBiggest. Three squares on the easy level; above it a power against its
-  // mirror, 2^5 or 5^2, skipping the pairs that tie (2^4 and 4^2, or a = b).
-  let options
-  if (level === 1) {
-    options = distinct(3, () => powOpt(rnd(1, 10), 2))
-  } else {
-    const hi = level === 2 ? 5 : 6
-    do {
-      const a = rnd(2, hi)
-      const b = rnd(2, hi)
-      options = [powOpt(a, b), powOpt(b, a)]
-    } while (options[0].value === options[1].value)
-  }
-  const right = biggest(options)
-  return pick(options.length === 2 ? 'topicPickBigger' : 'topicPickBiggest', [], right, options.filter((o) => o !== right))
+  // same base: the exponents subtract
+  ruleDiv: [7, (level) => {
+    const b = rnd(2, 9)
+    const n = rnd(1, 3 + level)
+    const d = rnd(1, 3 + level)
+    return number([{ pow: [b, n + d] }, '÷', { pow: [b, n] }, '=', { pow: [b, '?'] }], d)
+  }],
 }
 
 // ---------------------------------------------------------------------------
-// Class 8: Pythagoras. Whole-number triples only, so every answer is whole.
+// Pythagoras, class 8. Whole-number triples only, so every answer is whole.
 // ---------------------------------------------------------------------------
 const EASY_TRIPLES = [[3, 4, 5], [6, 8, 10], [5, 12, 13]]
 const MID_TRIPLES = [...EASY_TRIPLES, [9, 12, 15], [12, 16, 20], [10, 24, 26], [8, 15, 17]]
 const TRIPLES = { 1: EASY_TRIPLES, 2: MID_TRIPLES, 3: [...MID_TRIPLES, [15, 20, 25], [7, 24, 25], [9, 40, 41]] }
 
-function pythagoras(level) {
-  let [a, b, c] = one(TRIPLES[level])
-  if (rnd(0, 1)) [a, b] = [b, a]
+function triple(level) {
+  const [a, b, c] = one(TRIPLES[level])
+  return rnd(0, 1) ? [b, a, c] : [a, b, c]
+}
 
-  // two in three tasks ask for a side; the hard level may hide a leg
-  if (rnd(0, 2)) {
+const PYTHAGORAS = {
+  // the hard level may hide a leg
+  side: [8, (level) => {
+    const [a, b, c] = triple(level)
     const hide = level === 3 ? one(['a', 'b', 'c']) : 'c'
     const sides = { a, b, c }
     return number([{ triangle: { ...sides, [hide]: '?' } }], sides[hide])
-  }
+  }],
 
   // Right-angled or not: a true triple, or one whose hypotenuse is one off,
   // which no whole-number triangle with those legs can be. "tak" always comes
   // first: a yes/no pair reads wrong shuffled, so this does not go through pick().
-  const real = rnd(0, 1) === 1
-  return {
-    kind: 'pick',
-    prompt: 'topicPickRight',
-    parts: [{ triangle: { a, b, c: real ? c : c + one([-1, 1]) } }],
-    options: [[{ t: 'yes' }], [{ t: 'no' }]],
-    answer: real ? 0 : 1,
-  }
+  right: [8, (level) => {
+    const [a, b, c] = triple(level)
+    const real = rnd(0, 1) === 1
+    return {
+      kind: 'pick',
+      prompt: 'topicPickRight',
+      parts: [{ triangle: { a, b, c: real ? c : c + one([-1, 1]) } }],
+      options: [[{ t: 'yes' }], [{ t: 'no' }]],
+      answer: real ? 0 : 1,
+    }
+  }],
 }
 
 // ---------------------------------------------------------------------------
-const GENERATORS = { fractions, decimals, percents, powers, pythagoras }
+const KINDS = { fractions: FRACTIONS, decimals: DECIMALS, percents: PERCENTS, powers: POWERS, pythagoras: PYTHAGORAS }
 
-export function topicTask(topic, level) {
-  if (!GENERATORS[topic] || !LEVELS.includes(level)) {
-    throw new Error(`no topic task for "${topic}" at level ${level}`)
+// the names of the kinds a class has in a topic
+export const kindsFor = (topic, cls) =>
+  Object.entries(KINDS[topic] ?? {}).filter(([, [from]]) => from <= cls).map(([type]) => type)
+
+export function topicTask(topic, level, cls) {
+  if (!KINDS[topic] || !LEVELS.includes(level) || !(cls >= FROM[topic] && cls <= 8)) {
+    throw new Error(`no topic task for "${topic}" at level ${level} in class ${cls}`)
   }
-  return GENERATORS[topic](level)
+  const type = one(kindsFor(topic, cls))
+  return { ...KINDS[topic][type][1](level, cls - FROM[topic]), type }
 }

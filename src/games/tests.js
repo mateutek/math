@@ -57,7 +57,7 @@ function make(id, cfg, level) {
   }
   // a topic: only typed tasks, a pick needs its tiles and paper has none
   for (;;) {
-    const task = topicTask(id, level)
+    const task = topicTask(id, level, cfg.id)
     if (task.kind === 'number') return { parts: task.parts, answer: task.answer }
   }
 }

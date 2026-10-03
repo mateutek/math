@@ -3,13 +3,11 @@
 // The evaluator in ./mathParts.js knows nothing about how a task was made: it
 // fills the answer into the '?' and checks that the equation on screen is true.
 import assert from 'node:assert/strict'
-import { CLASSES, TOPICS, gameOffered } from '../data/classes.js'
-import { LEVELS, topicTask, parseAnswer, sameNumber, triesFor } from './topics.js'
+import { CLASSES, TOPICS, FROM, gameOffered } from '../data/classes.js'
+import { LEVELS, topicTask, kindsFor, fracTop, parseAnswer, sameNumber, triesFor } from './topics.js'
 import { tokenValue, holds, isTriple } from './mathParts.js'
 
 const RUNS = 2000
-// topics whose generator exists yet
-const BUILT = TOPICS
 
 const isObject = (x) => x !== null && typeof x === 'object'
 const children = (x) => (Array.isArray(x) ? x : isObject(x) ? Object.values(x) : [])
@@ -65,17 +63,19 @@ function checkTask(task, where) {
   }
 }
 
-// what a level promises, beyond being right (the spec's level table)
+// what a level and a class promise, beyond being right. `year` is how long
+// the class has had the topic.
 const LEVEL_RULES = {
-  fractions(task, level) {
-    const top = { 1: 6 * 3, 2: 10 * 5, 3: 12 * 6 }[level]
+  fractions(task, level, year) {
+    const top = fracTop(level, year)
     for (const d of denominators(task.parts)) assert.ok(d === '?' || d <= top, `denominator ${d} past ${top}`)
   },
 
-  // one decimal place below level 3, two at it, in everything shown and asked
+  // one decimal place below level 3, two at it, in everything shown (an
+  // answer may have two: 0,3 × 0,4 = 0,12)
   decimals(task, level) {
     const places = level === 3 ? 100 : 10
-    const shown = [...task.parts, ...(task.options ?? []).flat(), task.kind === 'number' ? task.answer : 0]
+    const shown = [...task.parts, ...(task.options ?? []).flat()]
     for (const n of shown.filter((p) => typeof p === 'number')) {
       assert.ok(Math.abs(n * places - Math.round(n * places)) < 1e-9, `${n} has too many places for L${level}`)
     }
@@ -99,11 +99,14 @@ const LEVEL_RULES = {
     }
   },
 
-  // the easy level is squares only
-  powers(task, level) {
-    if (level !== 1) return
-    const pows = [...task.parts, ...(task.options ?? []).flat()].filter((p) => isObject(p) && p.pow)
-    for (const p of pows) assert.equal(p.pow[1], 2, 'level 1 is squares only')
+  // class 4 is squares and cubes of whole numbers, and no roots
+  powers(task, level, year) {
+    if (year !== 0) return
+    const shown = [...task.parts, ...(task.options ?? []).flat()]
+    for (const p of shown.filter(isObject)) {
+      assert.ok(p.root === undefined, 'class 4 has no roots')
+      if (p.pow) assert.ok([2, 3].includes(p.pow[1]) && Number.isInteger(p.pow[0]), `class 4 shows ${p.pow}`)
+    }
   },
 
   // below the hard level the unknown is always the hypotenuse
@@ -112,23 +115,43 @@ const LEVEL_RULES = {
   },
 }
 
-for (const topic of BUILT) {
-  for (const level of LEVELS) {
-    const kinds = new Set()
-    for (let i = 0; i < RUNS; i++) {
-      const task = topicTask(topic, level)
-      checkTask(task, `${topic} L${level}`)
-      LEVEL_RULES[topic]?.(task, level)
-      assert.equal(triesFor(task), task.kind === 'pick' ? task.options.length - 1 : 3, `${topic} L${level}: tries`)
-      assert.ok(triesFor(task) >= 1, `${topic} L${level}: at least one try`)
-      kinds.add(task.kind)
+for (const topic of TOPICS) {
+  for (let cls = FROM[topic]; cls <= 8; cls++) {
+    for (const level of LEVELS) {
+      const where = `${topic} class ${cls} L${level}`
+      const kinds = new Set()
+      const types = new Set()
+      for (let i = 0; i < RUNS; i++) {
+        const task = topicTask(topic, level, cls)
+        checkTask(task, where)
+        LEVEL_RULES[topic]?.(task, level, cls - FROM[topic])
+        assert.equal(triesFor(task), task.kind === 'pick' ? task.options.length - 1 : 3, `${where}: tries`)
+        assert.ok(triesFor(task) >= 1, `${where}: at least one try`)
+        kinds.add(task.kind)
+        types.add(task.type)
+      }
+      assert.deepEqual([...kinds].sort(), ['number', 'pick'], `${where} mixes both answer styles`)
+      // every kind the class has turns up, and nothing from a later class
+      assert.deepEqual([...types].sort(), kindsFor(topic, cls).sort(), `${where} kinds`)
     }
-    assert.deepEqual([...kinds].sort(), ['number', 'pick'], `${topic} L${level} mixes both answer styles`)
   }
 }
 
-assert.throws(() => topicTask('nonsense', 1))
-assert.throws(() => topicTask('fractions', 4))
+assert.throws(() => topicTask('nonsense', 1, 8))
+assert.throws(() => topicTask('fractions', 4, 8))
+assert.throws(() => topicTask('powers', 1, 3), 'class 3 has no topics')
+assert.throws(() => topicTask('pythagoras', 1, 7), 'Pythagoras waits for class 8')
+
+// the curriculum's order: roots and the power rules are class 7, the percent
+// a part is and the whole from a part too
+assert.deepEqual(kindsFor('powers', 4), ['square', 'cube', 'pickBiggest'])
+for (const k of ['root', 'rule', 'ruleDiv']) {
+  assert.ok(!kindsFor('powers', 6).includes(k) && kindsFor('powers', 7).includes(k), k)
+}
+for (const k of ['which', 'whole']) {
+  assert.ok(!kindsFor('percents', 6).includes(k) && kindsFor('percents', 7).includes(k), k)
+}
+assert.ok(!kindsFor('fractions', 4).includes('of') && kindsFor('fractions', 5).includes('of'))
 
 // typed answers: comma or dot, spaces, and nothing else
 assert.equal(parseAnswer('0,5'), 0.5)

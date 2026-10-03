@@ -5,7 +5,7 @@
 
 // The topics of classes 4 to 8, in school order, with the class that meets
 // each first. Every class after it keeps the earlier ones, as school does.
-const FROM = { fractions: 4, powers: 4, decimals: 5, percents: 6, pythagoras: 8 }
+export const FROM = { fractions: 4, powers: 4, decimals: 5, percents: 6, pythagoras: 8 }
 export const TOPICS = Object.keys(FROM)
 
 // `max`       biggest number + and - and the number games work with

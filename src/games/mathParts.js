@@ -3,7 +3,7 @@
 // theory.check.js (every formula in an article must be true).
 //
 // Tokens are the ones src/games/topics.js and src/data/theory.js produce:
-// numbers, the operator strings '+' '−' '×' '·' ':', the grouping strings
+// numbers, the operator strings '+' '−' '×' '·' ':' '÷', the grouping strings
 // '(' ')', the relations '=' '<' '>', a word token { t } that means "of" and
 // multiplies, and { frac } { pow } { root } { pct } { triangle }.
 const isObj = (x) => x !== null && typeof x === 'object'
@@ -24,9 +24,10 @@ const APPLY = {
   '×': (a, b) => a * b,
   '·': (a, b) => a * b,
   ':': (a, b) => a / b,
+  '÷': (a, b) => a / b,
 }
 // 2 binds tighter than 1, which is the whole of "kolejność działań"
-const PREC = { '+': 1, '−': 1, '×': 2, '·': 2, ':': 2 }
+const PREC = { '+': 1, '−': 1, '×': 2, '·': 2, ':': 2, '÷': 2 }
 
 // One side of a relation. A plain left-to-right walk would read 2 + 3 × 4 as
 // 20, so this is the smallest recursive descent that gets the article right:

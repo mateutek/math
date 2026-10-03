@@ -26,7 +26,7 @@ const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 // A pick of N tiles gets N - 1 tries: the last one would be the only tile
 // left, so guessing would pay as well as knowing. Typed answers keep three.
 const round = useRound(game.id, () => {
-  task.value = topicTask(game.id, level.value)
+  task.value = topicTask(game.id, level.value, settings.schoolClass)
   answer.value = ''
   if (task.value.kind === 'number') focusAnswer()
 }, () => (task.value ? triesFor(task.value) : 3))
