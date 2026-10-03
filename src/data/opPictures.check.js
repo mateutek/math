@@ -3,7 +3,7 @@
 // Every number a kid can pick, every step: the dots, the jumps and the
 // equations must all tell the same story.
 import assert from 'node:assert/strict'
-import { settle, rangeOf, allPicks, addPicture, subPicture, barsPicture, mulPicture, divPicture, KIDS } from './opPictures.js'
+import { settle, rangeOf, allPicks, LAST_STEP, addPicture, subPicture, barsPicture, mulPicture, divPicture, KIDS } from './opPictures.js'
 import { holds } from '../games/mathParts.js'
 
 const count = (list, kind) => list.filter((x) => x === kind).length
@@ -27,16 +27,18 @@ function checkLine(line, where) {
 for (const pick of allPicks('add')) {
   const { a, b } = pick
   assert.ok(a + b >= 11 && a + b <= 18, `add ${a} + ${b} does not cross ten`)
-  for (const step of [0, 1, 2]) {
+  for (let step = 0; step <= LAST_STEP; step++) {
     const p = addPicture(pick, step)
     const where = `add ${a} + ${b} step ${step}`
     checkLine(p.line, where)
     assert.equal(count(p.cells, 'start'), a, where)
-    assert.equal(count(p.cells, 'added'), [0, 10 - a, b][step], where)
+    assert.equal(count(p.cells, 'added'), [0, 10 - a, b, b][step], where)
     if (step) assert.ok(holds(p.eq), `${where}: ${p.eq.join(' ')}`)
   }
   // the bracket holds the split: its two parts add up to b
-  assert.deepEqual(addPicture(pick, 2).eq.slice(2, 7), ['(', 10 - a, '+', b - (10 - a), ')'])
+  assert.deepEqual(addPicture(pick, 3).eq.slice(2, 7), ['(', 10 - a, '+', b - (10 - a), ')'])
+  // each step starts where the one before it ended: 8 + 2 = 10, then 10 + 3
+  assert.equal(addPicture(pick, 2).eq[0], addPicture(pick, 1).eq.at(-1))
   // the whole sum: the first frame full, the rest in the second
   const done = addPicture(pick, 2)
   assert.ok(done.cells.slice(0, 10).every((c) => c !== 'empty'), `add ${a} + ${b}: the first frame is not full`)
@@ -46,15 +48,16 @@ for (const pick of allPicks('add')) {
 for (const pick of allPicks('sub')) {
   const { m, s } = pick
   assert.ok(m - s >= 2 && m - s <= 9, `sub ${m} − ${s} does not cross ten`)
-  for (const step of [0, 1, 2]) {
+  for (let step = 0; step <= LAST_STEP; step++) {
     const p = subPicture(pick, step)
     const where = `sub ${m} − ${s} step ${step}`
     checkLine(p.line, where)
     assert.equal(count(p.cells, 'start') + count(p.cells, 'gone'), m, where)
-    assert.equal(count(p.cells, 'gone'), [0, m - 10, s][step], where)
+    assert.equal(count(p.cells, 'gone'), [0, m - 10, s, s][step], where)
     if (step) assert.ok(holds(p.eq), `${where}: ${p.eq.join(' ')}`)
   }
-  assert.deepEqual(subPicture(pick, 2).eq.slice(2, 7), ['(', m - 10, '+', s - (m - 10), ')'])
+  assert.deepEqual(subPicture(pick, 3).eq.slice(2, 7), ['(', m - 10, '+', s - (m - 10), ')'])
+  assert.equal(subPicture(pick, 2).eq[0], subPicture(pick, 1).eq.at(-1))
   // after step 1 exactly ten are left, the first frame
   assert.equal(count(subPicture(pick, 1).cells, 'start'), 10)
 }

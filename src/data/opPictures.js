@@ -60,16 +60,21 @@ const range = (n) => Array.from({ length: n }, (_, i) => i)
 // jumps between them; `on` is false for a jump the step has not reached.
 const ticks = (lo, hi, keys) => range(hi - lo + 1).map((i) => ({ n: lo + i, key: keys.includes(lo + i) }))
 
+// The stepped sums go one move at a time, each starting where the last ended:
+// 0 the question, 1 to ten, 2 on from ten, 3 the whole sum with the split in
+// brackets. The pictures are complete from step 2; step 3 only writes it up.
+export const LAST_STEP = 3
+
 // 8 + 5: jump to 10, then the rest; two ten-frames fill the same way.
-// step 0 shows the question, 1 the jump to ten, 2 the whole sum.
-export function addPicture({ a, b }, step) {
+export function addPicture({ a, b }, s) {
+  const step = Math.min(s, 2)
   const sum = a + b
   const fill = 10 - a
   const rest = b - fill
   const added = [0, fill, b][step]
   return {
-    // the whole sum keeps the split in brackets: 8 + (2 + 3), the 5 in two parts
-    eq: [[a, '+', b, '=', '?'], [a, '+', fill, '=', 10], [a, '+', '(', fill, '+', rest, ')', '=', sum]][step],
+    // 8 + 5 = ?, 8 + 2 = 10, 10 + 3 = 13, and 8 + (2 + 3) = 13: the 5 in two parts
+    eq: [[a, '+', b, '=', '?'], [a, '+', fill, '=', 10], [10, '+', rest, '=', sum], [a, '+', '(', fill, '+', rest, ')', '=', sum]][s],
     line: {
       lo: a - 1,
       hi: sum + 1,
@@ -87,14 +92,15 @@ export function addPicture({ a, b }, step) {
 }
 
 // 13 − 5: cross out what is above ten, then the rest from the first frame.
-export function subPicture({ m, s }, step) {
+export function subPicture({ m, s }, st) {
+  const step = Math.min(st, 2)
   const units = m - 10
   const rest = s - units
   const res = m - s
   const gone = (k) => (step >= 1 && k >= 10 && k < m) || (step >= 2 && k >= 10 - rest && k < 10)
   return {
-    // 13 − (3 + 2): the 5 taken away in two parts
-    eq: [[m, '−', s, '=', '?'], [m, '−', units, '=', 10], [m, '−', '(', units, '+', rest, ')', '=', res]][step],
+    // 13 − 5 = ?, 13 − 3 = 10, 10 − 2 = 8, and 13 − (3 + 2) = 8
+    eq: [[m, '−', s, '=', '?'], [m, '−', units, '=', 10], [10, '−', rest, '=', res], [m, '−', '(', units, '+', rest, ')', '=', res]][st],
     line: {
       lo: res - 1,
       hi: m + 1,

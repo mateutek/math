@@ -4,7 +4,7 @@ import MathParts from '@/components/MathParts.vue'
 import NumStepper from '@/components/NumStepper.vue'
 import NumberLine from '@/components/NumberLine.vue'
 import TenFrames from '@/components/TenFrames.vue'
-import { settle, rangeOf, addPicture, subPicture, barsPicture, mulPicture, divPicture, KIDS } from '@/data/opPictures'
+import { settle, rangeOf, LAST_STEP, addPicture, subPicture, barsPicture, mulPicture, divPicture, KIDS } from '@/data/opPictures'
 import { t, tp } from '@/i18n'
 
 // The interactive pictures at the top of an operation article: the kid
@@ -17,8 +17,8 @@ const props = defineProps({
 
 const main = ref(settle(props.kind))
 const bars = ref(settle('bars'))
-// where a stepped picture is: 0 the question, 1 the jump to ten, 2 all of it
-const step = ref(2)
+// where a stepped sum is (see LAST_STEP): it opens finished
+const step = ref(LAST_STEP)
 const turned = ref(false)
 const round = ref(0)
 
@@ -28,7 +28,7 @@ function bump(group, key, delta) {
   const g = group === 'bars' ? bars : main
   g.value = settle(group, { ...g.value, [key]: g.value[key] + delta })
   if (group !== 'bars') {
-    step.value = 2
+    step.value = LAST_STEP
     round.value = 0
   }
 }
@@ -48,7 +48,7 @@ const pic = computed(() => {
 const barsPic = computed(() => barsPicture(bars.value))
 
 const stepped = computed(() => props.kind === 'add' || props.kind === 'sub')
-const next = () => (step.value = step.value === 2 ? 0 : step.value + 1)
+const next = () => (step.value = step.value === LAST_STEP ? 0 : step.value + 1)
 const back = () => (step.value = Math.max(0, step.value - 1))
 const deal = () => (round.value = pic.value.done ? 0 : round.value + 1)
 
@@ -101,7 +101,7 @@ const say = computed(() => {
     <div v-if="kind !== 'div'" class="kid-eq sm" aria-live="polite"><MathParts :parts="pic.eq" /></div>
     <div v-if="stepped" class="steps">
       <button type="button" class="kid-btn kid-btn-ghost" @click="back">{{ t('op_back') }}</button>
-      <button type="button" class="kid-btn kid-btn-primary" @click="next">{{ t(step === 2 ? 'op_again' : 'op_next') }}</button>
+      <button type="button" class="kid-btn kid-btn-primary" @click="next">{{ t(step === LAST_STEP ? 'op_again' : 'op_next') }}</button>
     </div>
   </section>
 
