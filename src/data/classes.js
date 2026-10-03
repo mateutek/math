@@ -8,6 +8,7 @@
 export const FROM = {
   fractions: 4,
   powers: 4,
+  geometry: 4,
   decimals: 4,
   negatives: 5,
   percents: 6,

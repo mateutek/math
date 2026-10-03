@@ -169,6 +169,17 @@
 .kid-eq .kid-mean { white-space: normal; text-align: center; }
 .kid-eq .paren { margin: 0 -.2em; }
 .kid-eq .word { font-family: var(--font-sans); font-size: .5em; font-weight: 700; color: var(--muted-foreground); }
+.kid-geo { width: 100%; max-width: 340px; height: auto; max-height: 42vh; overflow: visible; }
+.kid-geo .shape, .kid-geo line { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.kid-geo .shape { fill: color-mix(in srgb, var(--k-ink, var(--k-brand)) 10%, transparent); }
+.kid-geo line.dash { stroke-dasharray: 5 4; stroke-width: 1.8; }
+.kid-geo .mark { fill: none; stroke: var(--k-ink, currentColor); stroke-width: 2; }
+.kid-geo .tick { stroke: currentColor; stroke-width: 2; }
+.kid-geo text { fill: currentColor; stroke: none; font: 700 13px var(--font-mono); text-anchor: middle; dominant-baseline: middle; }
+.kid-geo text[text-anchor=start] { text-anchor: start; }
+.kid-geo text[text-anchor=end] { text-anchor: end; }
+.kid-geo text.ans { fill: var(--muted-foreground); }
+.kid-geo text.reveal { fill: var(--k-wrong); }
 .kid-tri { height: 3.4em; width: auto; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; }
 .kid-tri text { fill: currentColor; stroke: none; font: 700 16px var(--font-mono); }
 .kid-tri text.ans { fill: var(--muted-foreground); }

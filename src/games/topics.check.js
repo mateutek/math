@@ -26,6 +26,8 @@ const denominators = (x) =>
   isObject(x) && !Array.isArray(x) && x.frac ? [x.frac[1]] : children(x).flatMap(denominators)
 
 function checkTask(task, where) {
+  // a figure is measured by geometry.check.js
+  if (task.parts.some((p) => isObject(p) && p.fig)) return
   // a word problem is read back and worked out again by wordProblems.check.js
   if (task.story) {
     assert.deepEqual(task.parts, [], `${where}: a story draws no equation`)
@@ -197,7 +199,7 @@ assert.ok(!sameNumber(0.3, 0.31))
 // classes: class 4 meets fractions and powers, then a few topics a year, and only
 // a class that has reached a topic is offered its game
 for (const cfg of CLASSES) {
-  const four = ['fractions', 'powers', 'decimals']
+  const four = ['fractions', 'powers', 'geometry', 'decimals']
   const five = [...four, 'negatives']
   const want = { 4: four, 5: five, 6: [...five, 'percents', 'equations', 'average'] }
   const expected = cfg.id < 4 ? [] : cfg.id < 7 ? want[cfg.id] : cfg.id === 7 ? want[6] : TOPICS

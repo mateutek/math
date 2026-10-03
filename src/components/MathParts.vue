@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { t } from '@/i18n'
+import GeoFigure from '@/components/GeoFigure.vue'
 
 const props = defineProps({
   // the tokens of src/games/topics.js
@@ -49,6 +50,7 @@ const sides = (s) => `a = ${show(s.a)}, b = ${show(s.b)}, c = ${show(s.c)}`
     <span v-else-if="p.mean" class="kid-mean" role="img" :aria-label="t('meanOf') + ' ' + p.mean.map((v) => show(v)).join('; ')">
       <span class="word">{{ t('meanOf') }}</span>(<template v-for="(v, j) in p.mean" :key="j"><span :class="slot(v)">{{ show(v) }}</span><template v-if="j < p.mean.length - 1">; </template></template>)
     </span>
+    <GeoFigure v-else-if="p.fig" :fig="p.fig" :reveal="typeof reveal === 'number' ? reveal : null" />
     <!-- not to scale: one fixed right triangle, legs a and b, hypotenuse c -->
     <svg v-else-if="p.triangle" class="kid-tri" viewBox="0 0 150 100" role="img" :aria-label="sides(p.triangle)">
       <polygon points="34,80 130,80 34,14" />

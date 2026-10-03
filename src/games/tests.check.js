@@ -24,7 +24,8 @@ for (const cfg of CLASSES) {
   assert.ok(ids.includes('addition') && ids.includes('compare'), `class ${cfg.id}: ${ids}`)
   assert.equal(ids.includes('multiply'), cfg.mulMax > 0, `class ${cfg.id} multiply`)
   assert.equal(ids.includes('divide'), ids.includes('divide2'), `class ${cfg.id} division`)
-  for (const t of cfg.topics) assert.ok(ids.includes(t), `class ${cfg.id} lacks ${t}`)
+  // geometry prints later (its figures need a paper layout of their own)
+  for (const t of cfg.topics) assert.ok(t === 'geometry' || ids.includes(t), `class ${cfg.id} lacks ${t}`)
 
   for (const id of ids) {
     for (const level of [1, 2, 3]) {

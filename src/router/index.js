@@ -89,6 +89,7 @@ const routes = [
   { path: '/tematy/ulamki', name: 'fractions', component: Topic },
   { path: '/tematy/dziesietne', name: 'decimals', component: Topic },
   { path: '/tematy/procenty', name: 'percents', component: Topic },
+  { path: '/tematy/geometria', name: 'geometry', component: Topic },
   { path: '/tematy/ujemne', name: 'negatives', component: Topic },
   { path: '/tematy/rownania', name: 'equations', component: Topic },
   { path: '/tematy/srednia', name: 'average', component: Topic },

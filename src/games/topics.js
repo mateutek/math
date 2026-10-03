@@ -22,6 +22,7 @@ import { randomIntFromInterval as rnd } from '../helpers/helpers.js'
 import { TOPICS, FROM } from '../data/classes.js'
 import { shuffle } from './generators.js'
 import { storiesFor } from './wordProblems.js'
+import { GEOMETRY } from './geometry.js'
 
 export { TOPICS }
 export const LEVELS = [1, 2, 3]
@@ -633,6 +634,7 @@ const KINDS = Object.fromEntries(
     average: AVERAGE,
     powers: POWERS,
     pythagoras: PYTHAGORAS,
+    geometry: GEOMETRY,
   }).map(([topic, kinds]) => [topic, { ...kinds, ...storiesFor(topic) }]),
 )
 
