@@ -102,6 +102,7 @@ const view = computed(() => {
     box: `0 0 ${w} ${h}`,
     poly: L.poly ? L.poly.map((n) => P(n).join(',')).join(' ') : null,
     segs: L.segs.map(([a, b, dashed]) => ({ a: P(a), b: P(b), dashed })),
+    hints: L.hints.map(([a, b]) => ({ a: P(a), b: P(b) })),
     arcs,
     rights,
     edges,
@@ -120,6 +121,8 @@ const view = computed(() => {
   <svg class="kid-geo" :viewBox="view.box" role="img" :aria-label="view.aria">
     <polygon v-if="view.poly" :points="view.poly" class="shape" />
     <line v-for="(s, i) in view.segs" :key="'s' + i" :x1="s.a[0]" :y1="s.a[1]" :x2="s.b[0]" :y2="s.b[1]" :class="{ dash: s.dashed }" />
+    <!-- shown by the theory card on hover or its toggle (kid.css .kid-tfig) -->
+    <line v-for="(s, i) in view.hints" :key="'h' + i" :x1="s.a[0]" :y1="s.a[1]" :x2="s.b[0]" :y2="s.b[1]" class="hint" />
     <path v-for="(d, i) in view.ticks" :key="'t' + i" :d="d" class="tick" />
     <path v-for="(d, i) in view.rights" :key="'r' + i" :d="d" class="mark" />
     <path v-for="(a, i) in view.arcs" :key="'a' + i" :d="a.d" class="mark" />

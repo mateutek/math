@@ -33,6 +33,8 @@ const rest = (values, sum) => sum - values.filter(num).reduce((s, v) => s + v, 0
 //   edges   [{ a, b, label, t, inner }]: a length label at fraction t of a->b,
 //           inside the figure for a height (`inner`), outside otherwise
 //   ticks   [[a, b]] equal-length marks; rights [{ at, from, to }] square marks
+//   hints   [[a, b]] dashed helper lines a theory card shows on hover or on
+//           its toggle, hidden otherwise (a quad's diagonal: `diagonal: true`)
 const LAYOUT = {
   // one angle, for "what kind of angle is it"
   angle: ({ deg }) => ({
@@ -101,7 +103,7 @@ const LAYOUT = {
   // A quadrilateral drawn from its four angles. Walking A B C D A the heading
   // turns by 180 minus each angle; AB is 6 cm, BC is tried in steps and CD and
   // DA solved so the outline closes, keeping the most even-sided result.
-  quad: ({ angles }) => {
+  quad: ({ angles, diagonal }) => {
     const [, B, C, D] = angles.map((v) => (num(v) ? v : rest(angles, 360)))
     const heads = [0, 180 - B, 360 - B - C, 540 - B - C - D].map((d) => pol(1, d))
     let best = null
@@ -125,6 +127,7 @@ const LAYOUT = {
       pts: { A: [0, 0], B: pB, C: pC, D: pD },
       poly: ['A', 'B', 'C', 'D'],
       arcs: corners(['A', 'B', 'C', 'D']).map((c, i) => ({ ...c, label: angles[i] })),
+      hints: diagonal ? [['A', 'C']] : [],
     }
   },
 
@@ -203,7 +206,7 @@ const LAYOUT = {
 }
 
 export function layout(fig) {
-  return { poly: null, segs: [], arcs: [], edges: [], ticks: [], rights: [], ...LAYOUT[fig.shape](fig) }
+  return { poly: null, segs: [], arcs: [], edges: [], ticks: [], rights: [], hints: [], ...LAYOUT[fig.shape](fig) }
 }
 
 // ---------------------------------------------------------------------------

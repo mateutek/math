@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watchEffect } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { ArrowRight } from 'lucide-vue-next'
 import MathParts from '@/components/MathParts.vue'
@@ -32,6 +32,16 @@ const practise = computed(() => {
   return id && gameOffered(id, classConfig.value) ? path : null
 })
 
+// cards whose helper line (a quad's diagonal) is switched on; a new article
+// starts with all of them off
+const shown = ref(new Set())
+watch(article, () => (shown.value = new Set()))
+function toggle(h) {
+  const next = new Set(shown.value)
+  if (!next.delete(h)) next.add(h)
+  shown.value = next
+}
+
 const note = (n) => (typeof n === 'string' ? { term: null, text: n } : n)
 const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
 </script>
@@ -47,7 +57,13 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
     <div class="kid-tcards">
       <section v-for="card in article.cards" :key="card.h" class="kid-panel" :style="{ '--g': article.color, '--k-ink': article.ink }">
         <h2>{{ t(card.h) }}</h2>
-        <div v-if="card.fig" class="kid-tfig"><GeoFigure :fig="card.fig" /></div>
+        <div v-if="card.fig" class="kid-tfig" :class="{ show: shown.has(card.h) }">
+          <GeoFigure :fig="card.fig" />
+          <!-- touch has no hover, so it gets a switch; kid.css hides it where a mouse can hover -->
+          <button v-if="card.fig.diagonal" type="button" class="kid-crumb" :aria-pressed="shown.has(card.h)" @click="toggle(card.h)">
+            {{ t('showDiagonal') }}
+          </button>
+        </div>
         <div v-if="card.parts" class="kid-eq sm"><MathParts :parts="card.parts" /></div>
         <div v-if="card.bars" class="kid-strip" aria-hidden="true">
           <span v-for="(on, i) in segments(card.bars[0], card.bars[1])" :key="i" :class="{ on }"></span>

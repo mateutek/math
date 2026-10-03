@@ -939,7 +939,14 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 /* an article's cards: one column on a phone, two on desktop, the two in a row
    as tall as each other */
 .kid-tcards { display: grid; gap: 14px; align-items: stretch; }
-.kid-tfig { display: flex; justify-content: center; color: var(--foreground); }
+.kid-tfig { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--foreground); }
+.kid-tfig .kid-crumb[aria-pressed="true"] { background: var(--k-brand-soft); border-color: var(--k-brand-soft); color: var(--k-brand-on-soft); }
+/* a helper line (a quad's diagonal) waits for hover or the card's switch */
+.kid-geo line.hint { stroke: var(--k-ink, currentColor); stroke-dasharray: 6 5; stroke-width: 2; opacity: 0; transition: opacity .2s ease; }
+.kid-tfig:hover .kid-geo line.hint, .kid-tfig.show .kid-geo line.hint { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .kid-geo line.hint { transition: none; } }
+/* a mouse hovers the figure to see it, so the switch is only for touch */
+@media (hover: hover) and (pointer: fine) { .kid-tfig .kid-crumb { display: none; } }
 /* the grid tiles carry an example under the name, which may be long */
 .kid-tgrid .best { max-width: 100%; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); }
 .kid-tsec { display: flex; flex-direction: column; gap: 8px; }
