@@ -22,9 +22,9 @@ const answer = ref('')
 const answerInput = ref(null)
 const level = computed(() => settings.topicLevel[game.id])
 
-// a long equation (x on both sides, a mean of five numbers) steps down a size
-// to fit a phone; each number of a mean counts as a number and its separator
-const long = computed(() => task.value.parts.reduce((n, p) => n + (p?.mean ? p.mean.length * 2 : 1), 0) > 7)
+// a long equation (x on both sides) steps down a size to fit a phone, and so
+// does any mean: "średnia(48; 159; 66)" is long even with three numbers
+const long = computed(() => task.value.parts.some((p) => p?.mean) || task.value.parts.length > 7)
 
 const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 
