@@ -168,7 +168,7 @@ const say = computed(() => {
       <div class="kid-eq sm"><MathParts :parts="[...pic.sum, '=', main.r * main.c]" /></div>
       <p>{{ say.groups }}</p>
     </section>
-    <section class="kid-panel wide">
+    <section class="kid-panel">
       <h2>{{ t('op_swapH') }}</h2>
       <!-- the dots shrink with the bigger number, so two 10 × 10 fit a phone -->
       <div class="kid-opswap" :data-size="Math.max(main.r, main.c) > 6 ? 's' : Math.max(main.r, main.c) > 4 ? 'm' : 'l'">
@@ -182,7 +182,7 @@ const say = computed(() => {
       <div class="kid-eq sm"><MathParts :parts="[...pic.swap[0].eq, '=', ...pic.swap[1].eq, '=', main.r * main.c]" /></div>
       <p>{{ t('op_swapNote') }}</p>
     </section>
-    <section class="kid-panel wide kid-opmul">
+    <section class="kid-panel kid-opmul">
       <h2>{{ tp('op_hopsH', main.c) }}</h2>
       <NumberLine :line="pic.line" />
       <p>{{ say.hops }}</p>

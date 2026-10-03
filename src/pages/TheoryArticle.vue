@@ -55,7 +55,7 @@ const segments = (n, d) => Array.from({ length: d }, (_, i) => i < n)
       <span class="kid-class-pill">{{ tp('classLabel', article.cls) }}</span>
     </div>
 
-    <div class="kid-tcards" :style="{ '--g': article.color, '--k-ink': article.ink }">
+    <div class="kid-tcards" :class="{ explore: article.explore }" :style="{ '--g': article.color, '--k-ink': article.ink }">
       <!-- keyed: a new article starts its pictures from their own numbers -->
       <OpExplorer v-if="article.explore" :key="article.id" :kind="article.explore" />
       <!-- under the pictures, the article's own cards take the whole row -->

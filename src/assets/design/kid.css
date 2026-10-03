@@ -990,7 +990,8 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-oparray span.light { background: color-mix(in oklab, var(--k-op-mul) 55%, var(--k-card)); }
 .kid-oparray.dense { grid-template-columns: repeat(var(--cols), 18px); gap: 6px; }
 .kid-oparray.dense span { width: 18px; height: 18px; }
-.kid-opswap { display: flex; justify-content: center; align-items: flex-start; gap: 16px; }
+/* grids of different heights stand on one line, so their labels line up */
+.kid-opswap { display: flex; justify-content: center; align-items: flex-end; gap: 16px; }
 .kid-opswap .side { display: flex; flex-direction: column; align-items: center; gap: 8px; font: 700 18px var(--font-mono); }
 .kid-opswap .kid-oparray { align-self: auto; }
 .kid-opswap .lab { display: flex; align-items: center; gap: 6px; }
@@ -1109,8 +1110,9 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   .kid-texp .kid-btn { height: 52px; }
   .kid-tcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kid-tcards > .wide { grid-column: 1 / -1; }
-  /* an odd last card takes the whole row rather than leave a hole */
-  .kid-tcards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  /* an odd last card takes the whole row rather than leave a hole; a page
+     with pictures sets its widths itself (its controls row breaks the count) */
+  .kid-tcards:not(.explore) > :last-child:nth-child(odd) { grid-column: 1 / -1; }
   /* .kid-tcols .pick (0-2-0) outranks .kid-phone-only (0-1-0), so
      the phone chip picker keeps showing on desktop; match its specificity */
   .kid-tcols .pick { display: none; }
