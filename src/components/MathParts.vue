@@ -1,25 +1,37 @@
 <script setup>
+import { computed } from 'vue'
 import { t } from '@/i18n'
 
 const props = defineProps({
   // the tokens of src/games/topics.js
   parts: { type: Array, required: true },
   // the answer, put in the slot once the kid is out of tries (or on a printed
-  // answer key, where compare's is a sign); null until then
-  reveal: { type: [Number, String], default: null },
+  // answer key, where compare's is a sign); null until then. A list fills a
+  // task with several top-level slots (17 ÷ 5 = ? r ?), one value each.
+  reveal: { type: [Number, String, Array], default: null },
 })
 
 // Polish writes decimals with a comma
 const fmt = (n) => String(n).replace('.', ',')
 // any value that may be the '?' slot
-const show = (x) => (x === '?' ? (props.reveal === null ? '?' : fmt(props.reveal)) : fmt(x))
+// i is the token's index, for picking its value out of a list reveal
+const show = (x, i) => {
+  if (x !== '?') return fmt(x)
+  if (props.reveal === null) return '?'
+  return fmt(Array.isArray(props.reveal) ? props.reveal[nth.value[i]] : props.reveal)
+}
+// which top-level slot each token is: 0, 1, ... for '?', null otherwise
+const nth = computed(() => {
+  let k = 0
+  return props.parts.map((p) => (p === '?' ? k++ : null))
+})
 const slot = (x) => ({ ans: x === '?', reveal: x === '?' && props.reveal !== null })
 const sides = (s) => `a = ${show(s.a)}, b = ${show(s.b)}, c = ${show(s.c)}`
 </script>
 
 <template>
   <template v-for="(p, i) in parts" :key="i">
-    <span v-if="typeof p === 'number' || p === '?'" :class="slot(p)">{{ show(p) }}</span>
+    <span v-if="typeof p === 'number' || p === '?'" :class="slot(p)">{{ show(p, i) }}</span>
     <span v-else-if="typeof p === 'string'" :class="{ op: p !== '=' }">{{ p }}</span>
     <span v-else-if="p.t" class="word">{{ t(p.t) }}</span>
     <span v-else-if="p.frac" class="kid-frac" role="img" :aria-label="show(p.frac[0]) + '/' + show(p.frac[1])">

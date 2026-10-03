@@ -31,6 +31,8 @@ export const sectionsFor = (cfg) => SECTIONS.filter((s) => gameOffered(s.id, cfg
 // "34 + 28" from the generators as tokens, numbers kept as numbers
 const tokens = (text) => text.split(' ').map((s) => (/^\d+$/.test(s) ? Number(s) : s))
 
+const REST = { t: 'restShort' }
+
 const OPS = { addition: '+', subtraction: '−', multiply: '×', divide2: '÷' }
 
 function make(id, cfg, level) {
@@ -39,9 +41,10 @@ function make(id, cfg, level) {
     return { parts: [e.a, e.op, e.b, '=', '?'], answer: e.result }
   }
   if (id === 'divide') {
-    // one blank, the kid writes both: "3 r 2"
+    // two blanks, quotient and remainder, with the "r" printed between them;
+    // the answer is one value per blank, in order
     const e = remainderExpr(cfg)
-    return { parts: [e.a, '÷', e.b, '=', '?'], answer: `${e.result} r ${e.rest}` }
+    return { parts: [e.a, '÷', e.b, '=', '?', REST, '?'], answer: [e.result, e.rest] }
   }
   if (id === 'compare') {
     const r = compareRound(cfg)
@@ -77,14 +80,14 @@ export function question(id, cfg, level, taken = []) {
 export const editable = (q) => !q.parts.some((p) => p && p.triangle)
 
 // the keyboard's signs, as the app prints them; "z" and "of" are the word
-const KEYS = { '-': '−', '*': '×', ':': '÷', '/': '÷', z: { t: 'of' }, of: { t: 'of' } }
+const KEYS = { '-': '−', '*': '×', ':': '÷', '/': '÷', z: { t: 'of' }, of: { t: 'of' }, r: { t: 'restShort' } }
 const num = (s) => (s === '?' ? '?' : Number(s.replace(',', '.')))
 const fmt = (x) => (typeof x === 'number' ? String(x).replace('.', ',') : x)
 
 // `of` is the word for { t: 'of' } in the language on screen
 function tokenText(p, of) {
   if (typeof p !== 'object') return fmt(p)
-  if (p.t) return of
+  if (p.t) return p.t === 'of' ? of : 'r'
   if (p.frac) return `${fmt(p.frac[0])}/${fmt(p.frac[1])}`
   if (p.pow) return `${fmt(p.pow[0])}^${fmt(p.pow[1])}`
   if (p.root !== undefined) return `√${fmt(p.root)}`
@@ -110,10 +113,10 @@ function readToken(m) {
 // the '?' anywhere in a token
 const blanks = (x) => (x === '?' ? 1 : x && typeof x === 'object' ? Object.values(x).reduce((n, v) => n + blanks(v), 0) : 0)
 
-// text back into a question's parts; null unless it has exactly one '?'.
+// text back into a question's parts; null without a '?' to fill in.
 // Spaces are optional: "34+?=62" reads the same. No answer comes with it: the
 // builder is for kids and never shows one (a parent panel will add them).
 export function fromText(text) {
   const parts = [...String(text).matchAll(TOKEN)].map(readToken)
-  return blanks(parts) === 1 ? parts : null
+  return blanks(parts) ? parts : null
 }

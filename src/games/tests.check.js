@@ -32,13 +32,13 @@ for (const cfg of CLASSES) {
       for (let i = 0; i < 200; i++) {
         const q = question(id, cfg, level, taken)
         taken.push(q)
-        assert.equal(slots(q.parts), 1, `${id}: ${JSON.stringify(q.parts)}`)
+        assert.equal(slots(q.parts), id === 'divide' ? 2 : 1, `${id}: ${JSON.stringify(q.parts)}`)
         assert.ok(q.answer !== undefined && q.answer !== null, `${id} has no answer`)
         if (id === 'divide') {
           // a = quotient * b + rest, the rest below the divisor
           const [a, , b] = q.parts
-          const [quot, r, rest] = q.answer.split(' ')
-          assert.ok(r === 'r' && a === quot * b + Number(rest) && rest < b, `divide: ${JSON.stringify(q)}`)
+          const [quot, rest] = q.answer
+          assert.ok(a === quot * b + rest && rest >= 0 && rest < b, `divide: ${JSON.stringify(q)}`)
         }
         if (['addition', 'subtraction', 'multiply', 'divide2', 'missing', 'compare'].includes(id)) {
           assert.ok(holds(q.parts, q.answer), `${id}: ${JSON.stringify(q)}`)
@@ -71,8 +71,7 @@ assert.deepEqual(fromText('3/4 of 20 = ?'), [{ frac: [3, 4] }, { t: 'of' }, 20, 
 assert.deepEqual(fromText('sqrt 81=?'), [{ root: 81 }, '=', '?'])
 assert.deepEqual(fromText('12 : 4 = ?'), [12, '÷', 4, '=', '?'])
 assert.equal(fromText('34 + 28 ='), null) // no blank
-assert.equal(fromText('? + ? = 4'), null) // two blanks
-assert.equal(fromText('?/? = 1/2'), null)
+assert.deepEqual(fromText('17 : 5 = ? r ?'), [17, '÷', 5, '=', '?', { t: 'restShort' }, '?'])
 assert.ok(editable({ parts: [34, '+', '?', '=', 62] }))
 assert.ok(!editable({ parts: [{ triangle: { a: 3, b: 4, c: '?' } }] }))
 // every generated question that is editable survives the trip out and back
