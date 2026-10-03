@@ -936,8 +936,9 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-crumb.here { background: var(--k-brand-soft); border-color: var(--k-brand-soft); color: var(--k-brand-on-soft); }
 .kid-crumb:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
 .kid-menu .sym { width: 36px; flex: none; font-family: var(--font-mono); font-weight: 700; }
-/* an article's cards: one column on a phone, two on desktop */
-.kid-tcards { display: grid; gap: 14px; align-items: start; }
+/* an article's cards: one column on a phone, two on desktop, the two in a row
+   as tall as each other */
+.kid-tcards { display: grid; gap: 14px; align-items: stretch; }
 .kid-tfig { display: flex; justify-content: center; color: var(--foreground); }
 /* the grid tiles carry an example under the name, which may be long */
 .kid-tgrid .best { max-width: 100%; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); }
