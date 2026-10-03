@@ -26,6 +26,11 @@ const denominators = (x) =>
   isObject(x) && !Array.isArray(x) && x.frac ? [x.frac[1]] : children(x).flatMap(denominators)
 
 function checkTask(task, where) {
+  // a word problem is read back and worked out again by wordProblems.check.js
+  if (task.story) {
+    assert.deepEqual(task.parts, [], `${where}: a story draws no equation`)
+    return
+  }
   for (const d of [...denominators(task.parts), ...denominators(task.options ?? [])]) {
     assert.ok(d === '?' || d > 0, `${where}: a zero denominator`)
   }
@@ -169,6 +174,10 @@ for (const k of ['which', 'whole']) {
   assert.ok(!kindsFor('percents', 6).includes(k) && kindsFor('percents', 7).includes(k), k)
 }
 assert.ok(!kindsFor('fractions', 4).includes('of') && kindsFor('fractions', 5).includes('of'))
+// the word problems are dealt out by the topic they practise
+assert.ok(kindsFor('decimals', 4).includes('change') && !kindsFor('decimals', 4).includes('times'))
+assert.ok(kindsFor('percents', 6).includes('discount') && !kindsFor('percents', 6).includes('priceBefore'))
+assert.ok(kindsFor('fractions', 7).includes('probability') && kindsFor('equations', 6).includes('speed'))
 
 // typed answers: comma or dot, spaces, and nothing else
 assert.equal(parseAnswer('0,5'), 0.5)
@@ -188,8 +197,9 @@ assert.ok(!sameNumber(0.3, 0.31))
 // classes: class 4 meets fractions and powers, then a few topics a year, and only
 // a class that has reached a topic is offered its game
 for (const cfg of CLASSES) {
-  const five = ['fractions', 'powers', 'decimals', 'negatives']
-  const want = { 4: ['fractions', 'powers'], 5: five, 6: [...five, 'percents', 'equations', 'average'] }
+  const four = ['fractions', 'powers', 'decimals']
+  const five = [...four, 'negatives']
+  const want = { 4: four, 5: five, 6: [...five, 'percents', 'equations', 'average'] }
   const expected = cfg.id < 4 ? [] : cfg.id < 7 ? want[cfg.id] : cfg.id === 7 ? want[6] : TOPICS
   assert.deepEqual(cfg.topics, expected, `class ${cfg.id} topics`)
   for (const topic of TOPICS) assert.equal(gameOffered(topic, cfg), cfg.topics.includes(topic))

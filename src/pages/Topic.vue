@@ -6,12 +6,13 @@ import GameCard from '@/components/GameCard.vue'
 import MathParts from '@/components/MathParts.vue'
 import { useRound } from '@/composables/useRound'
 import { LEVELS, topicTask, parseAnswer, sameNumber, triesFor } from '@/games/topics'
+import { storyText } from '@/games/wordProblems'
 import { GAMES } from '@/data/games'
 import settings from '@/store/settings'
 import { needed } from '@/store/village'
 import { t } from '@/i18n'
 
-// One page for the five topic games of classes 4 to 8. The route name is the
+// One page for the topic games of classes 4 to 8. The route name is the
 // topic id; its row in GAMES has the colours. App.vue keys the router view by
 // route name, so every topic gets a page of its own.
 const game = GAMES.find((g) => g.id === useRoute().name)
@@ -43,10 +44,12 @@ function setLevel(n) {
 }
 
 // A right answer pays what the village needs most. The level multiplies it
-// only on a first try: after a miss a two-tile pick is a sure thing.
+// only on a first try: after a miss a two-tile pick is a sure thing. A word
+// problem takes longer to read, so above the easy level it pays one more.
 function settle(right) {
   if (right) {
-    round.correct(needed.value, false, round.strikes ? 1 : level.value)
+    const times = level.value + (task.value.story && level.value > 1 ? 1 : 0)
+    round.correct(needed.value, false, round.strikes ? 1 : times)
     round.newTask()
   } else {
     round.wrong()
@@ -84,6 +87,8 @@ function pickOption(i) {
     </div>
 
     <p v-if="task.prompt" class="kid-prompt">{{ t(task.prompt) }}</p>
+    <!-- a word problem: the sentence is made in the language on screen -->
+    <p v-if="task.story" class="kid-story">{{ storyText(task, settings.lang) }}</p>
     <div v-if="task.parts.length" class="kid-eq" :class="{ sm: long }">
       <MathParts :parts="task.parts" :reveal="task.kind === 'number' && round.out ? task.answer : null" />
     </div>
@@ -104,6 +109,8 @@ function pickOption(i) {
           :disabled="round.out"
           @keyup.enter="check"
         />
+        <!-- the unit of a word problem's answer, so it is never typed -->
+        <span v-if="task.unit" class="kid-unit">{{ task.unit }}</span>
         <!-- a phone's number pad has no minus, so topics with signs bring one;
              it is there for every task of the topic, so it gives no sign away -->
         <button v-if="game.signed" type="button" class="kid-btn kid-btn-ghost" :disabled="round.out" :aria-label="t('signToggle')" @click="flipSign">±</button>

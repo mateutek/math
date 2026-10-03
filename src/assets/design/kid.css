@@ -203,7 +203,11 @@
 /* answer fields */
 .kid-fields { display: flex; gap: 12px; }
 /* the answer field and, in topics with signs, its ± key (Topic.vue) */
-.kid-signed { display: flex; gap: 8px; }
+.kid-signed { display: flex; gap: 8px; align-items: center; }
+.kid-unit { flex: none; font-family: var(--font-mono); font-weight: 700; font-size: 20px; color: var(--muted-foreground); }
+/* a word problem: a sentence or three where the equation would stand */
+.kid-story { flex: 1; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 4px; text-align: center; text-wrap: balance; font-weight: 600; font-size: 19px; line-height: 1.45; }
+@media (min-width: 1024px) { .kid-story { font-size: 22px; } }
 .kid-signed .kid-btn { flex: none; width: 56px; padding: 0; font-size: 24px; }
 .kid-fields .kid-field { flex: 1; }
 .kid-field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--muted-foreground); }

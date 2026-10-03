@@ -8,7 +8,9 @@
 // A task with an { x } has no '?': its prompt asks for x.
 //   { kind: 'number', parts, answer }                 one '?', typed
 //   { kind: 'pick', prompt, parts, options, answer }  answer indexes options
-// Every task also carries `type`, the name of the kind that made it.
+// Every task also carries `type`, the name of the kind that made it. A word
+// problem carries `story` instead of an equation (see wordProblems.js); its
+// `parts` is empty.
 // Decimals are built as whole hundredths and divided by 100 at the last moment,
 // so no task ever carries a 0.30000000000000004.
 //
@@ -19,6 +21,7 @@
 import { randomIntFromInterval as rnd } from '../helpers/helpers.js'
 import { TOPICS, FROM } from '../data/classes.js'
 import { shuffle } from './generators.js'
+import { storiesFor } from './wordProblems.js'
 
 export { TOPICS }
 export const LEVELS = [1, 2, 3]
@@ -170,7 +173,7 @@ const FRACTIONS = {
 }
 
 // ---------------------------------------------------------------------------
-// Decimals, from class 5. Everything is counted in hundredths until it is shown.
+// Decimals, from class 4. Everything is counted in hundredths until it is shown.
 // ---------------------------------------------------------------------------
 const dec = (hundredths) => hundredths / 100
 const decOpt = (h) => ({ parts: [dec(h)], value: dec(h) })
@@ -189,13 +192,13 @@ function decOperand(level, year) {
 const DEC_DENOMS = { 1: [10], 2: [2, 5, 10], 3: [4, 20, 25, 50, 100] }
 
 const DECIMALS = {
-  add: [5, (level, year) => {
+  add: [4, (level, year) => {
     const a = decOperand(level, year)
     const b = decOperand(level, year)
     return number([dec(a), '+', dec(b), '=', '?'], dec(a + b))
   }],
 
-  sub: [5, (level, year) => {
+  sub: [4, (level, year) => {
     const x = decOperand(level, year)
     const y = decOperand(level, year)
     const [hi, lo] = x > y ? [x, y] : [y, x]
@@ -208,7 +211,7 @@ const DECIMALS = {
     return number([dec(a), '×', k, '=', '?'], dec(a * k))
   }],
 
-  fromFrac: [5, (level) => {
+  fromFrac: [4, (level) => {
     const d = one(DEC_DENOMS[level])
     const n = rnd(1, d - 1)
     return number([{ frac: [n, d] }, '=', '?'], dec((n * 100) / d))
@@ -217,7 +220,7 @@ const DECIMALS = {
   // Level 1 compares tenths from anywhere below 1. Above it the three sit
   // close to one shared number, in tenths at level 2 and hundredths at level
   // 3, so the places have to be read, not just the first digit.
-  pickBiggest: [5, (level) => {
+  pickBiggest: [4, (level) => {
     let options
     if (level === 1) {
       options = distinct(3, () => decOpt(rnd(1, 9) * 10))
@@ -619,16 +622,19 @@ const PYTHAGORAS = {
 }
 
 // ---------------------------------------------------------------------------
-const KINDS = {
-  fractions: FRACTIONS,
-  decimals: DECIMALS,
-  negatives: NEGATIVES,
-  percents: PERCENTS,
-  equations: EQUATIONS,
-  average: AVERAGE,
-  powers: POWERS,
-  pythagoras: PYTHAGORAS,
-}
+// each topic's own kinds and the word problems it deals out (wordProblems.js)
+const KINDS = Object.fromEntries(
+  Object.entries({
+    fractions: FRACTIONS,
+    decimals: DECIMALS,
+    negatives: NEGATIVES,
+    percents: PERCENTS,
+    equations: EQUATIONS,
+    average: AVERAGE,
+    powers: POWERS,
+    pythagoras: PYTHAGORAS,
+  }).map(([topic, kinds]) => [topic, { ...kinds, ...storiesFor(topic) }]),
+)
 
 // the names of the kinds a class has in a topic
 export const kindsFor = (topic, cls) =>
@@ -639,5 +645,5 @@ export function topicTask(topic, level, cls) {
     throw new Error(`no topic task for "${topic}" at level ${level} in class ${cls}`)
   }
   const type = one(kindsFor(topic, cls))
-  return { ...KINDS[topic][type][1](level, cls - FROM[topic]), type }
+  return { parts: [], ...KINDS[topic][type][1](level, cls - FROM[topic]), type }
 }
