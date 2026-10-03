@@ -97,6 +97,8 @@ const routes = [
   { path: '/teoria', name: 'theory', component: Theory, meta: { full: true } },
   { path: '/teoria/tabliczka', name: 'theoryTable', component: () => import('@/pages/TheoryTable.vue'), meta: { full: true } },
   { path: '/teoria/:slug', name: 'theoryArticle', component: () => import('@/pages/TheoryArticle.vue'), meta: { full: true } },
+  // the printable test builder; full like theory, it lays out its own columns
+  { path: '/testy', name: 'tests', component: () => import('@/pages/TestBuilder.vue'), meta: { full: true } },
   // the consent banner links here; bare like the class picker (no tabs, no
   // settings), and reachable before a class is picked (see the guard below)
   { path: '/prywatnosc', name: 'privacy', component: () => import('@/pages/Privacy.vue'), meta: { bare: true } },

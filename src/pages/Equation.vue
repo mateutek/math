@@ -5,8 +5,7 @@ import { Check } from 'lucide-vue-next'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import GameCard from '@/components/GameCard.vue'
 import { useRound } from '@/composables/useRound'
-import { expr } from '@/games/generators'
-import { randomIntFromInterval } from '@/helpers/helpers'
+import { expr, remainderExpr } from '@/games/generators'
 import { GAMES } from '@/data/games'
 import { t } from '@/i18n'
 
@@ -25,16 +24,8 @@ const answerInput = ref(null)
 
 const focusAnswer = () => nextTick(() => answerInput.value?.focus())
 
-function remainderTask(cfg) {
-  // does not go through expr(): a divisor out of the times table and a
-  // dividend inside the class ceiling
-  const b = randomIntFromInterval(2, 10)
-  const a = randomIntFromInterval(b + 1, cfg.mulMax)
-  return { a, b, result: Math.floor(a / b), rest: a % b }
-}
-
 const round = useRound(game.id, (cfg) => {
-  task.value = withRest ? remainderTask(cfg) : expr(game.symbol, cfg)
+  task.value = withRest ? remainderExpr(cfg) : expr(game.symbol, cfg)
   answer.value = ''
   rest.value = ''
   focusAnswer()

@@ -41,6 +41,15 @@ export function expr(op, cfg) {
   return op === '×' ? make(x, y, op, x * y) : make(x * y, y, op, x)
 }
 
+// Division with a remainder (the `divide` game and its test section). Does not
+// go through expr(): a divisor out of the times table and a dividend inside the
+// class ceiling.
+export function remainderExpr(cfg) {
+  const b = rnd(2, 10)
+  const a = rnd(b + 1, cfg.mulMax)
+  return { a, b, result: Math.floor(a / b), rest: a % b }
+}
+
 const randomExpr = (cfg) => expr(cfg.ops[rnd(0, cfg.ops.length - 1)], cfg)
 
 export function tilesRound(cfg) {

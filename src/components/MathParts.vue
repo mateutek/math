@@ -4,8 +4,9 @@ import { t } from '@/i18n'
 const props = defineProps({
   // the tokens of src/games/topics.js
   parts: { type: Array, required: true },
-  // the answer, put in the slot once the kid is out of tries; null until then
-  reveal: { type: Number, default: null },
+  // the answer, put in the slot once the kid is out of tries (or on a printed
+  // answer key, where compare's is a sign); null until then
+  reveal: { type: [Number, String], default: null },
 })
 
 // Polish writes decimals with a comma

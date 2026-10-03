@@ -1,7 +1,8 @@
 <script setup>
 import { computed, defineAsyncComponent, watchEffect } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
-import { Home, Gamepad2, BookOpen } from 'lucide-vue-next'
+import { Home, Gamepad2, BookOpen, Printer, ChevronUp } from 'lucide-vue-next'
+import { DropdownMenuRoot, DropdownMenuTrigger, DropdownMenuPortal, DropdownMenuContent, DropdownMenuItem } from 'reka-ui'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
 import NextGoal from '@/components/NextGoal.vue'
@@ -29,6 +30,7 @@ const year = new Date().getFullYear()
 
 const onVillage = computed(() => route.path === '/')
 const onTheory = computed(() => route.path === '/teoria' || route.path.startsWith('/teoria/'))
+const onTests = computed(() => route.path === '/testy')
 // the class picker brings its own bare frame: logo and wordmark, nothing else
 const bare = computed(() => route.meta.bare === true)
 // theory lays out its own rail and columns, so it takes the same bare branch
@@ -36,12 +38,20 @@ const full = computed(() => route.meta.full === true)
 
 const tabs = computed(() => [
   { to: '/', key: 'village', icon: Home, active: onVillage.value, dot: affordable.value },
-  { to: '/graj', key: 'play', icon: Gamepad2, active: !onVillage.value && !onTheory.value, dot: false },
+  { to: '/graj', key: 'play', icon: Gamepad2, active: !onVillage.value && !onTheory.value && !onTests.value, dot: false },
   { to: '/teoria', key: 'theory', icon: BookOpen, active: onTheory.value, dot: false },
+  { to: '/testy', key: 'tests', icon: Printer, active: onTests.value, dot: false },
 ])
 
-// which of the three columns the sliding blue pill stands in
-const pill = computed(() => (onVillage.value ? '' : onTheory.value ? 'third' : 'second'))
+// which of the four columns the sliding blue pill stands in
+const pill = computed(() =>
+  onVillage.value ? '' : onTheory.value ? 'third' : onTests.value ? 'fourth' : 'second',
+)
+// the phone bar has three: Theory and Tests share the last one, as a menu,
+// and the tab shows whichever of the two the kid is on
+const learnTabs = computed(() => tabs.value.slice(2))
+const learn = computed(() => learnTabs.value.find((x) => x.active) ?? learnTabs.value[0])
+const phonePill = computed(() => (pill.value === 'fourth' ? 'third' : pill.value))
 
 // the game being played, matched at a path boundary so `/dzielenie` does not
 // also match `/dzielenie2`
@@ -117,11 +127,26 @@ watchEffect(() => {
 
     <!-- phone tab bar; outside the sticky header so it stays pinned -->
     <nav v-if="!bare" class="kid-tabs" aria-label="Main">
-      <span class="kid-tab-pill" :class="pill" aria-hidden="true"></span>
-      <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+      <span class="kid-tab-pill" :class="phonePill" aria-hidden="true"></span>
+      <RouterLink v-for="tab in tabs.slice(0, 2)" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
         <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}
         <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
       </RouterLink>
+      <DropdownMenuRoot :modal="false">
+        <DropdownMenuTrigger class="kid-tab kid-tab-more" :class="{ active: learn.active }">
+          <component :is="learn.icon" :size="20" /> {{ t(learn.key) }}
+          <ChevronUp :size="14" aria-hidden="true" />
+        </DropdownMenuTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuContent class="kid-menu" side="top" align="end" :side-offset="10">
+            <DropdownMenuItem v-for="tab in learnTabs" :key="tab.key" as-child>
+              <RouterLink :to="tab.to" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+                <component :is="tab.icon" :size="18" /> {{ t(tab.key) }}
+              </RouterLink>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
     </nav>
 
     <!-- outside the router view, on every page, including bare ones -->
