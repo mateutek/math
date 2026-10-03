@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { BUILDINGS, SHOP_RATE } from '../data/buildings.js'
 import {
-  fresh, applyReward, applyBuild, applyTrade, nextBuilding, goalFor, touchDay, encode, decode,
+  fresh, saveClass, applyReward, applyBuild, applyTrade, nextBuilding, goalFor, touchDay, encode, decode,
   neededMaterial,
 } from './villageLogic.js'
 
@@ -39,8 +39,13 @@ assert.equal(goalFor(maxed, 'hut'), null)
 assert.equal(applyBuild(maxed, 'hut'), null)
 assert.equal(nextBuilding(maxed).id, 'well')
 
-// 5. export then import round-trips
-assert.deepEqual(decode(encode(built)), built)
+// 5. export then import round-trips, and the save names its class
+assert.deepEqual(decode(encode(built, 4)), built)
+assert.equal(saveClass(encode(built, 4)), 4)
+assert.equal(saveClass(encode(built, 0)), 0)
+assert.equal(saveClass(btoa(JSON.stringify(built))), null) // a save from before classes
+assert.equal(saveClass(encode(built, 99)), null)
+assert.equal(saveClass('not base64!!'), null)
 
 // 6. garbage never gets through
 const bad = [

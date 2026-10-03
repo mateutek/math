@@ -89,9 +89,28 @@ export function recordStreak(game, schoolClass, n) {
 
 export const build = (id) => commit(logic.applyBuild(village, id))
 export const trade = (kind) => commit(logic.applyTrade(village, kind))
-export const importSave = (str) => commit(logic.decode(str))
+// the class a pasted save belongs to: its own, or the class on screen for an
+// old save that carries none
+export const saveClassOf = (str) => logic.saveClass(str) ?? settings.schoolClass
 
-export const exportSave = () => logic.encode(village)
+// A save goes to its own class. Another class's save is written under that
+// class first and then the game switches to it, so the kid sees what loaded;
+// the class watcher above reads it back from storage.
+export function importSave(str) {
+  const state = logic.decode(str)
+  if (!state) return false
+  const schoolClass = saveClassOf(str)
+  if (schoolClass === settings.schoolClass) return commit(state)
+  try {
+    localStorage.setItem(keyFor(schoolClass), JSON.stringify(state))
+  } catch {
+    return false
+  }
+  settings.schoolClass = schoolClass
+  return true
+}
+
+export const exportSave = () => logic.encode(village, settings.schoolClass)
 export const checkSave = (str) => logic.decode(str) !== null
 export const reset = () => set(logic.fresh())
 

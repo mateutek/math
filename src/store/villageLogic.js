@@ -2,6 +2,7 @@
 // under plain node (see villageLogic.check.js). Every function returns a new
 // state object and never mutates its input.
 import { BUILDINGS, MATERIALS, SHOP_RATE } from '../data/buildings.js'
+import { CLASSES } from '../data/classes.js'
 
 export const fresh = () => ({
   v: 1,
@@ -118,7 +119,20 @@ export function touchDay(state, today) {
 }
 
 // State is ASCII only (ids, numbers, dates), so plain btoa is safe.
-export const encode = (state) => btoa(JSON.stringify(state))
+// A save carries the class its village belongs to (each class builds its own,
+// see village.js). validate() drops the field, saveClass() reads it.
+export const encode = (state, schoolClass) => btoa(JSON.stringify({ ...state, schoolClass }))
+
+// the class a save belongs to, or null for a save made before classes had
+// villages of their own (or one whose class is not a real class)
+export function saveClass(str) {
+  try {
+    const { schoolClass } = JSON.parse(atob(str.trim()))
+    return CLASSES.some((c) => c.id === schoolClass) ? schoolClass : null
+  } catch {
+    return null
+  }
+}
 
 export function decode(str) {
   try {

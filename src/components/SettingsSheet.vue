@@ -7,14 +7,13 @@ import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
 import settings, { classConfig } from '@/store/settings'
-import { exportSave, checkSave, importSave, reset } from '@/store/village'
+import { exportSave, checkSave, importSave, saveClassOf, reset } from '@/store/village'
 import { t, tp } from '@/i18n'
 import LangSwitch from '@/components/LangSwitch.vue'
 
 // "Klasa 2", or "Zerówka" for the pre-school class
-const className = computed(() =>
-  classConfig.value.id === 0 ? t('classZero') : tp('classLabel', classConfig.value.id),
-)
+const nameOf = (id) => (id === 0 ? t('classZero') : tp('classLabel', id))
+const className = computed(() => nameOf(classConfig.value.id))
 
 // reads the whole village, so it re-computes whenever anything in it changes
 const saveString = computed(() => exportSave())
@@ -27,7 +26,12 @@ function onLoad() {
   // the pasted text is untrusted: validate first, only then ask to overwrite
   importFailed.value = !checkSave(pasted.value)
   if (importFailed.value) return
-  if (!window.confirm(t('confirmImport'))) return
+  // a save from another class replaces that class's village and switches to it
+  const schoolClass = saveClassOf(pasted.value)
+  const ask = schoolClass === settings.schoolClass
+    ? t('confirmImport')
+    : tp('confirmImportClass', schoolClass, { name: nameOf(schoolClass) })
+  if (!window.confirm(ask)) return
   importSave(pasted.value)
   pasted.value = ''
 }
