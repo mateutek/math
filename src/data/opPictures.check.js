@@ -81,6 +81,10 @@ for (const pick of allPicks('mul')) {
   }
   const p = mulPicture(pick, false)
   assert.equal(p.groups.reduce((s, g) => s + g, 0), pick.r * pick.c)
+  // the two swapped arrays: the same dots, rows and columns traded
+  const [one, two] = p.swap
+  assert.ok(one.rows * one.cols === two.rows * two.cols && one.rows === two.cols && one.cols === two.rows)
+  assert.ok(holds([...one.eq, '=', ...two.eq]), `swap ${one.eq.join(' ')}`)
   if (pick.r <= 5) assert.ok(holds([...p.sum, '=', pick.r * pick.c]), `mul sum ${p.sum.join(' ')}`)
 }
 

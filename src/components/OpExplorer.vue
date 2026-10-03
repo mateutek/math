@@ -168,6 +168,20 @@ const say = computed(() => {
       <div class="kid-eq sm"><MathParts :parts="[...pic.sum, '=', main.r * main.c]" /></div>
       <p>{{ say.groups }}</p>
     </section>
+    <section class="kid-panel wide">
+      <h2>{{ t('op_swapH') }}</h2>
+      <!-- the dots shrink with the bigger number, so two 10 × 10 fit a phone -->
+      <div class="kid-opswap" :data-size="Math.max(main.r, main.c) > 6 ? 's' : Math.max(main.r, main.c) > 4 ? 'm' : 'l'">
+        <div v-for="(g, i) in pic.swap" :key="i" class="side">
+          <div class="kid-oparray" :style="{ '--cols': g.cols }" aria-hidden="true">
+            <span v-for="d in g.rows * g.cols" :key="d" :class="{ light: Math.floor((d - 1) / g.cols) % 2 === 1 }"></span>
+          </div>
+          <div class="lab"><MathParts :parts="g.eq" /></div>
+        </div>
+      </div>
+      <div class="kid-eq sm"><MathParts :parts="[...pic.swap[0].eq, '=', ...pic.swap[1].eq, '=', main.r * main.c]" /></div>
+      <p>{{ t('op_swapNote') }}</p>
+    </section>
     <section class="kid-panel wide kid-opmul">
       <h2>{{ tp('op_hopsH', main.c) }}</h2>
       <NumberLine :line="pic.line" />

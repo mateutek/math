@@ -76,8 +76,8 @@ for (const a of ARTICLES) {
   needsKey(`th_${a.id}_ex`, where)
   if (a.practise) needsKey(`th_${a.id}_cta`, where)
 
-  // an article with pictures (explore) needs fewer cards of its own
-  assert.ok(a.cards.length >= (a.explore ? 1 : 2) && a.cards.length <= 5, `${where}: ${a.cards.length} cards`)
+  // an article with pictures (explore) may need no cards of its own
+  assert.ok(a.cards.length >= (a.explore ? 0 : 2) && a.cards.length <= 5, `${where}: ${a.cards.length} cards`)
   for (const [i, card] of a.cards.entries()) {
     const cw = `${where} card ${i + 1}`
     needsKey(card.h, cw)

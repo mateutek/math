@@ -139,6 +139,11 @@ export function mulPicture({ r, c }, turned) {
     dots: range(rows * cols).map((i) => Math.floor(i / cols) % 2 === 1),
     eq: turned ? [c, '×', r, '=', p] : [r, '×', c, '=', p],
     groups: range(r).map(() => c),
+    // side by side: r rows of c, and the same turned, c rows of r
+    swap: [
+      { rows: r, cols: c, eq: [r, '×', c] },
+      { rows: c, cols: r, eq: [c, '×', r] },
+    ],
     // a long sum is shortened: 5 + 5 + … + 5
     sum: r <= 5 ? range(r).flatMap((i) => (i ? ['+', c] : [c])) : [c, '+', c, '+', '…', '+', c],
     line: {

@@ -990,6 +990,17 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-oparray span.light { background: color-mix(in oklab, var(--k-op-mul) 55%, var(--k-card)); }
 .kid-oparray.dense { grid-template-columns: repeat(var(--cols), 18px); gap: 6px; }
 .kid-oparray.dense span { width: 18px; height: 18px; }
+.kid-opswap { display: flex; justify-content: center; align-items: flex-start; gap: 16px; }
+.kid-opswap .side { display: flex; flex-direction: column; align-items: center; gap: 8px; font: 700 18px var(--font-mono); }
+.kid-opswap .kid-oparray { align-self: auto; }
+.kid-opswap .lab { display: flex; align-items: center; gap: 6px; }
+.kid-opswap .lab .op { color: var(--k-ink, var(--k-op-mul)); }
+.kid-opswap[data-size="l"] .kid-oparray { grid-template-columns: repeat(var(--cols), 18px); gap: 6px; padding: 10px; }
+.kid-opswap[data-size="l"] .kid-oparray span { width: 18px; height: 18px; }
+.kid-opswap[data-size="m"] .kid-oparray { grid-template-columns: repeat(var(--cols), 12px); gap: 4px; padding: 8px; }
+.kid-opswap[data-size="m"] .kid-oparray span { width: 12px; height: 12px; }
+.kid-opswap[data-size="s"] .kid-oparray { grid-template-columns: repeat(var(--cols), 8px); gap: 3px; padding: 8px; }
+.kid-opswap[data-size="s"] .kid-oparray span { width: 8px; height: 8px; }
 .kid-opgroups { display: grid; grid-template-columns: repeat(var(--per), minmax(0, 1fr)); gap: 8px; }
 .kid-opgroups > div { padding: 10px 6px; border-radius: 14px; border: 2px solid color-mix(in oklab, var(--k-op-mul) 35%, var(--k-card)); background: color-mix(in oklab, var(--k-op-mul) 10%, var(--k-card)); display: grid; grid-template-columns: repeat(2, 18px); gap: 5px; justify-content: center; align-content: center; }
 .kid-opgroups > div span { width: 18px; height: 18px; border-radius: 50%; background: var(--k-op-mul); }

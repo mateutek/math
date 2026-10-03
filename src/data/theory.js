@@ -73,9 +73,8 @@ export const ARTICLES = [
     ink: 'var(--k-ink-mul, #4f46e5)',
     practise: '/mnozenie',
     explore: 'mul',
-    cards: [
-      { h: 'th_mulAdd_h2', parts: [4, '×', 3, '=', 3, '×', 4], notes: ['th_mulAdd_n2'] },
-    ],
+    // the swap card is one of the pictures now, on the kid's own numbers
+    cards: [],
   },
   {
     id: 'divMul',
