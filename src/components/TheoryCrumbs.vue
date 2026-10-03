@@ -26,7 +26,7 @@ const sections = THEORY_GROUPS.map((key) => ({ key, first: pages.find((p) => p.g
 <template>
   <nav class="kid-crumbs" :aria-label="t('crumbs')">
     <RouterLink to="/teoria">{{ t('theory') }}</RouterLink>
-    <ChevronRight :size="16" class="sep" aria-hidden="true" />
+    <ChevronRight :size="16" class="crumb-sep" aria-hidden="true" />
 
     <DropdownMenuRoot :modal="false">
       <DropdownMenuTrigger class="kid-crumb">
@@ -40,7 +40,7 @@ const sections = THEORY_GROUPS.map((key) => ({ key, first: pages.find((p) => p.g
         </DropdownMenuContent>
       </DropdownMenuPortal>
     </DropdownMenuRoot>
-    <ChevronRight :size="16" class="sep" aria-hidden="true" />
+    <ChevronRight :size="16" class="crumb-sep" aria-hidden="true" />
 
     <DropdownMenuRoot :modal="false">
       <DropdownMenuTrigger class="kid-crumb here" aria-current="page">

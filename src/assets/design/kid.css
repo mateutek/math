@@ -931,7 +931,7 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-crumbs a { padding: 6px 4px; color: var(--muted-foreground); text-decoration: none; border-radius: 8px; }
 .kid-crumbs a:hover { color: var(--k-brand-on-soft); }
 .kid-crumbs svg { flex: none; width: 16px; height: 16px; }
-.kid-crumbs .sep { color: var(--muted-foreground); }
+.kid-crumbs .crumb-sep { color: var(--muted-foreground); }
 .kid-crumb { min-height: 36px; padding: 0 10px; display: inline-flex; align-items: center; gap: 4px; border: 1.5px solid var(--k-card-border); border-radius: 999px; background: var(--k-card); color: var(--foreground); font: inherit; cursor: pointer; }
 .kid-crumb.here { background: var(--k-brand-soft); border-color: var(--k-brand-soft); color: var(--k-brand-on-soft); }
 .kid-crumb:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
