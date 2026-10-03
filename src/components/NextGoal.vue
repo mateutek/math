@@ -77,12 +77,12 @@ function onBuild() {
       </button>
       <RouterLink v-else-if="affordable" to="/" class="kid-btn kid-btn-primary">{{ t('readyToBuild') }}</RouterLink>
 
-      <p v-if="short" class="kid-goal-hint">
+      <!-- only on the village page: beside a game the bar already says what is
+           missing, and which games pay what no longer holds (a topic pays
+           whatever the goal lacks) -->
+      <p v-if="short && canBuild" class="kid-goal-hint">
         {{ tp('need_' + short.kind, short.need - short.have) }}
-        <template v-if="canBuild">
-          <RouterLink to="/graj">{{ t('play_' + short.kind) }}</RouterLink> {{ t('goalOrTrade') }}
-        </template>
-        <template v-else>{{ t('from_' + short.kind) }}</template>
+        <RouterLink to="/graj">{{ t('play_' + short.kind) }}</RouterLink> {{ t('goalOrTrade') }}
       </p>
       <RouterLink v-if="!canBuild && !affordable" to="/" class="kid-btn kid-btn-ghost">{{ t('seeVillage') }}</RouterLink>
     </template>
