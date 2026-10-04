@@ -51,7 +51,7 @@ export function startTour() {
     doneBtnText: t('tourDone'),
     // kid-root brings the theme's --k-* variables into the body-level popover
     popoverClass: 'kid-root kid-tour',
-    steps: steps.map((s) => ({ element: shown(s.key), popover: { description: t(s.text) } })),
+    steps: steps.map((s) => ({ element: () => shown(s.key), popover: { description: t(s.text) } })),
     onPopoverRender(popover, { state }) {
       const text = t(steps[state.activeIndex].text)
       // no voice for this language on this device: text only

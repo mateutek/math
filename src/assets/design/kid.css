@@ -1349,7 +1349,7 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   border-radius: var(--k-btn-radius); font: inherit; font-weight: 700; text-shadow: none;
   border: var(--k-border-w) solid var(--k-card-border); background: var(--k-card); color: inherit; }
 .driver-popover.kid-tour .driver-popover-navigation-btns .driver-popover-next-btn { background: var(--k-brand); color: var(--k-brand-fg); border-color: transparent; }
-.driver-popover.kid-tour .driver-popover-close-btn { color: var(--muted-foreground); width: 36px; height: 36px; border-radius: 50%; }
+.driver-popover.kid-tour .driver-popover-close-btn { color: var(--muted-foreground); width: 44px; height: 44px; border-radius: 50%; }
 .driver-popover.kid-tour .driver-popover-close-btn:focus { outline: none; }
 .driver-popover.kid-tour .driver-popover-close-btn:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; border-radius: 50%; }
 .driver-popover.kid-tour .driver-popover-arrow-side-top { border-top-color: var(--k-card); }
@@ -1371,6 +1371,6 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-offer-btns { display: flex; gap: 10px; justify-content: flex-end; }
 .kid-offer-btns .kid-btn { min-height: 44px; padding: 0 18px; }
 .kid-sheet-titlebar { display: flex; align-items: center; gap: 8px; padding-right: 40px; }
-.kid-help { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+.kid-help { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
   border: var(--k-border-w) solid var(--k-card-border); background: var(--k-brand-soft); color: var(--k-brand); cursor: pointer; }
 .kid-help:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }

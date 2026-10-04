@@ -32,6 +32,7 @@ either (kid-facing screens never show answers).
   `null` before that (first-ever pick) and `tourSeen` is not set, the Play page
   opens a small dialog (reka-ui Dialog, already installed):
   "Want me to show you around?" with **Yes** and **Skip**.
+- The offer waits until the consent banner is answered.
 - Either answer sets `localStorage.tourSeen = '1'`. The offer never comes back.
 - Changing the class later from Settings does not offer the tour again.
 
@@ -52,7 +53,7 @@ On `/graj`, in this order. One short sentence each, all through `t()` (PL + EN).
 | 3 | Materials counter (header) | Good answers earn materials. |
 | 4 | Village tab | Build your village with them. |
 | 5 | Play tab | All the games are here. |
-| 6 | Theory tab | Stuck? See how it works. |
+| 6 | Theory tab | Here you learn how to work things out. Step by step, with pictures. |
 | 7 | Tests tab | Practice sheets to print, with a parent. |
 | 8 | Side column (Next goal / Rewards) | What you are saving for, and what this game pays. |
 | 9 | Settings gear | Change class, language or theme, or replay this tour. |
@@ -87,14 +88,14 @@ On `/graj`, in this order. One short sentence each, all through `t()` (PL + EN).
 
 - Route `/dla-rodzicow` (name `parents`), lazy-loaded `src/pages/Parents.vue`,
   laid out like `Privacy.vue`.
-- Sections:
-  1. What the app is for, in two sentences.
-  2. What each class practises: the same list the class picker builds, for all
-     classes (reuse the logic from `ClassPicker.vue`, moved into a small shared
-     function if needed).
-  3. How rewards work: good answers earn materials, materials build the village.
+- Sections, in order:
+  1. Lead: what the app is for, in two sentences.
+  2. How rewards work: good answers earn materials, materials build the village.
+  3. Theory: how the Theory tab explains each topic.
   4. Tests: printable practice sheets from the Tests tab.
   5. Privacy: one line plus a link to `/prywatnosc`.
+  6. What each class practises, as a per-class accordion, last: the same list the
+     class picker builds, for all classes (shared logic with `ClassPicker.vue`).
 - Linked from:
   - under the Start button on the class picker: "Parent? Read how it works"
   - a row in the Settings sheet

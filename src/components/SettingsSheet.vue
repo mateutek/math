@@ -16,13 +16,20 @@ const route = useRoute()
 const router = useRouter()
 const open = ref(false)
 
-// the tour lives on the Play page: close the sheet, get there, wait for it to
-// render, then start
+// the tour lives on the Play page: close the sheet, get there, then start once
+// the sheet has given focus back (else its focus scope steals it from the tour)
+let pendingTour = false
 async function replay() {
+  pendingTour = true
   open.value = false
   if (route.name !== 'play') await router.push('/graj')
-  await nextTick()
-  startTour()
+}
+
+function onCloseFocus(e) {
+  if (!pendingTour) return
+  e.preventDefault()
+  pendingTour = false
+  nextTick(startTour)
 }
 
 // "Klasa 2", or "Zerówka" for the pre-school class
@@ -66,7 +73,7 @@ const themes = [
     <SheetTrigger as-child>
       <button class="kid-gear" data-tour="settings" :aria-label="t('settings')"><SlidersHorizontal :size="20" /></button>
     </SheetTrigger>
-    <SheetContent class="kid-root kid-sheet">
+    <SheetContent class="kid-root kid-sheet" @close-auto-focus="onCloseFocus">
       <SheetHeader class="kid-sheet-head">
         <div class="kid-sheet-titlebar">
           <SheetTitle class="kid-sheet-title">{{ t('settings') }}</SheetTitle>
