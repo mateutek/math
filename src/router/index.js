@@ -106,6 +106,9 @@ const routes = [
   // the consent banner links here; bare like the class picker (no tabs, no
   // settings), and reachable before a class is picked (see the guard below)
   { path: '/prywatnosc', name: 'privacy', component: () => import('@/pages/Privacy.vue'), meta: { bare: true } },
+  // the parents' explainer; bare like privacy and, like it, open before a
+  // class is picked (see the guard below)
+  { path: '/dla-rodzicow', name: 'parents', component: () => import('@/pages/Parents.vue'), meta: { bare: true } },
   // GET /en and /pl only ever switch the language (see the guard below); they
   // need their own route so the catch-all does not redirect them first
   { path: '/en', name: 'langEn' },
@@ -132,10 +135,10 @@ router.beforeEach((to) => {
     settings.lang = to.name === 'langEn' ? 'en' : 'pl'
     return { path: '/', replace: true }
   }
-  // first run: nothing works until a class is picked, except the privacy page
-  // the consent banner links to (unknown route names are always offered by
-  // gameOffered, so it needs no exemption of its own)
-  if (settings.schoolClass === null && to.name !== 'classPicker' && to.name !== 'privacy') return { name: 'classPicker' }
+  // first run: nothing works until a class is picked, except the privacy and parents pages
+  // (the consent banner links to the first; unknown route names are always
+  // offered by gameOffered, so they need no exemption of their own)
+  if (settings.schoolClass === null && !['classPicker', 'privacy', 'parents'].includes(to.name)) return { name: 'classPicker' }
   if (!gameOffered(to.name, classConfig.value)) return '/graj'
 })
 
