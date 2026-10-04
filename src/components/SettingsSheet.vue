@@ -75,14 +75,13 @@ const themes = [
     </SheetTrigger>
     <SheetContent class="kid-root kid-sheet" @close-auto-focus="onCloseFocus">
       <SheetHeader class="kid-sheet-head">
-        <div class="kid-sheet-titlebar">
-          <SheetTitle class="kid-sheet-title">{{ t('settings') }}</SheetTitle>
-          <button type="button" class="kid-help" :aria-label="t('tourReplay')" :title="t('tourReplay')" @click="replay">
-            <CircleHelp :size="20" :stroke-width="2.2" />
-          </button>
-        </div>
+        <SheetTitle class="kid-sheet-title">{{ t('settings') }}</SheetTitle>
         <SheetDescription class="kid-sheet-desc">{{ t('settingsDesc') }}</SheetDescription>
       </SheetHeader>
+
+      <button type="button" class="kid-btn kid-btn-ghost kid-how" @click="replay">
+        <CircleHelp :size="18" :stroke-width="2.2" /> {{ t('tourReplay') }}
+      </button>
 
       <div class="kid-set">
         <span class="kid-set-label">{{ t('language') }}</span>
