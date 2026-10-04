@@ -84,13 +84,13 @@ watchEffect(() => {
         <!-- from 768px the tabs live here; below that see the fixed bar -->
         <nav v-if="!bare" class="kid-nav-top" aria-label="Main">
           <span class="kid-tab-pill" :class="pill" aria-hidden="true"></span>
-          <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+          <RouterLink v-for="tab in tabs" :key="tab.key" :to="tab.to" class="kid-tab" :data-tour="'tab-' + tab.key" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
             <component :is="tab.icon" :size="18" /> {{ t(tab.key) }}
             <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
           </RouterLink>
         </nav>
 
-        <RouterLink v-if="!bare" to="/" class="kid-mats">
+        <RouterLink v-if="!bare" to="/" class="kid-mats" data-tour="materials">
           <span v-for="k in MATERIALS" :key="k" class="kid-mat" role="img" :aria-label="`${t(k)}: ${village.materials[k]}`">
             <MaterialIcon :kind="k" />
             <AnimatedInteger :value="village.materials[k]" aria-hidden="true" />
@@ -110,7 +110,7 @@ watchEffect(() => {
         <!-- keyed: the equation games share one page component, and each needs
              its own instance, not a patched copy of the last one -->
         <div class="kid-col-main"><RouterView :key="route.name" /></div>
-        <aside class="kid-col-side kid-desktop-only">
+        <aside class="kid-col-side kid-desktop-only" data-tour="side">
           <NextGoal />
           <!-- a topic has no material of its own: it pays what the village
                needs, times the level the kid is playing at -->
@@ -129,12 +129,12 @@ watchEffect(() => {
     <!-- phone tab bar; outside the sticky header so it stays pinned -->
     <nav v-if="!bare" class="kid-tabs" aria-label="Main">
       <span class="kid-tab-pill" :class="phonePill" aria-hidden="true"></span>
-      <RouterLink v-for="tab in tabs.slice(0, 2)" :key="tab.key" :to="tab.to" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
+      <RouterLink v-for="tab in tabs.slice(0, 2)" :key="tab.key" :to="tab.to" :data-tour="'tab-' + tab.key" class="kid-tab" :class="{ active: tab.active }" :aria-current="tab.active ? 'page' : undefined">
         <component :is="tab.icon" :size="20" /> {{ t(tab.key) }}
         <span v-if="tab.dot" class="kid-dot" aria-hidden="true"></span>
       </RouterLink>
       <DropdownMenuRoot :modal="false">
-        <DropdownMenuTrigger class="kid-tab kid-tab-more" :class="{ active: learn.active }">
+        <DropdownMenuTrigger data-tour="tab-more" class="kid-tab kid-tab-more" :class="{ active: learn.active }">
           <component :is="learn.icon" :size="20" /> {{ t(learn.key) }}
           <ChevronUp :size="14" aria-hidden="true" />
         </DropdownMenuTrigger>

@@ -17,5 +17,5 @@ const descriptor = computed(() => {
 </script>
 
 <template>
-  <p class="kid-class-cap"><span class="cls">{{ name }}</span>{{ descriptor }}</p>
+  <p class="kid-class-cap" data-tour="class"><span class="cls">{{ name }}</span>{{ descriptor }}</p>
 </template>
