@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { ArrowRight } from 'lucide-vue-next'
 import settings from '@/store/settings'
 import { CLASSES, configFor } from '@/data/classes'
-import { GAMES } from '@/data/games'
+import { practiceRows } from '@/data/practice'
 import { t, tp } from '@/i18n'
 
 const router = useRouter()
@@ -18,18 +18,7 @@ const heading = computed(() =>
 )
 
 // the "W klasie N ćwiczysz" list, read straight off the class table
-const practice = computed(() => [
-  { sym: '+ −', ink: 'var(--k-ink-add, #15803d)', text: tp('practiceAdd', cfg.value.max) },
-  ...(cfg.value.mulMax
-    ? [{ sym: '× ÷', ink: 'var(--k-ink-mul, #4f46e5)', text: tp('practiceMul', cfg.value.mulMax) }]
-    : []),
-  { sym: '< >', ink: 'var(--k-ink-div2, #0f766e)', text: tp('practiceCompare', cfg.value.max) },
-  { sym: '?', ink: 'var(--k-ink-missing, #1f4fc4)', text: tp('practiceMissing', cfg.value.max) },
-  ...cfg.value.topics.map((id) => {
-    const game = GAMES.find((g) => g.id === id)
-    return { sym: game.symbol, ink: game.ink, text: t('practice_' + id) }
-  }),
-])
+const practice = computed(() => practiceRows(cfg.value))
 
 function start() {
   settings.schoolClass = picked.value
@@ -78,5 +67,6 @@ function start() {
     <button type="button" class="kid-btn kid-btn-primary go" @click="start">
       {{ t('classStart') }} <ArrowRight :size="18" />
     </button>
+    <RouterLink to="/dla-rodzicow" class="kid-picker-parents">{{ t('parentsLink') }}</RouterLink>
   </div>
 </template>

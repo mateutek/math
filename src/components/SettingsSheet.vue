@@ -128,6 +128,7 @@ const themes = [
         <button class="kid-btn kid-danger" @click="onReset">{{ t('resetVillage') }}</button>
       </div>
 
+      <RouterLink to="/dla-rodzicow" class="kid-set-hint kid-priv-link">{{ t('parents') }}</RouterLink>
       <RouterLink to="/prywatnosc" class="kid-set-hint kid-priv-link">{{ t('privacy') }}</RouterLink>
     </SheetContent>
   </Sheet>

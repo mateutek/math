@@ -1311,6 +1311,13 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 }
 .kid-privacy-choice .kid-btn { align-self: flex-start; height: 44px; padding: 0 20px; }
 .kid-privacy-choice .kid-btn:focus-visible { outline: 3px solid var(--k-brand-deep); outline-offset: 2px; }
+.kid-parents-class { border: var(--k-border-w) solid var(--k-card-border); border-radius: 14px; background: var(--k-card); }
+.kid-parents-class summary { cursor: pointer; padding: 12px 14px; font-weight: 800; min-height: 44px; }
+.kid-parents-class summary:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; border-radius: 14px; }
+.kid-parents-class .rows { display: grid; grid-template-columns: 44px 1fr; gap: 6px 10px; padding: 0 14px 14px; font-size: 14.5px; }
+.kid-parents-class .sym { font-weight: 800; text-align: center; }
+.kid-picker-parents { align-self: center; margin-top: 10px; font-size: 14px; color: var(--muted-foreground); text-decoration: underline; text-underline-offset: 2px; }
+.kid-picker-parents:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
 
 /* settings sheet: the small-print link to the privacy page, after the reset
    button (which margin-top: auto still anchors to the bottom, see .kid-set) */
