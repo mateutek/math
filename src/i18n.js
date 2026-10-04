@@ -1168,7 +1168,7 @@ export const messages = {
     tourSettings: 'Change your class, language or look here. The ? button shows this tour again.',
     parents: 'For parents',
     parentsLink: 'Parent? See how it works',
-    parentsLead: 'Liczbowo is a maths practice game from kindergarten to grade 8. The problems match the class, and good answers let your child build a village.',
+    parentsLead: 'Sumbury is a maths practice game from kindergarten to grade 8. The problems match the class, and good answers let your child build a village.',
     parentsClassesH: 'What each class practises',
     parentsRewardsH: 'How rewards work',
     parentsRewardsP: 'Every good answer earns materials. With them your child builds and upgrades the village. Day streaks and records encourage regular practice.',
