@@ -124,7 +124,7 @@ watchEffect(() => {
       </div>
     </main>
 
-    <footer v-if="!bare" class="kid-foot">© <a href="https://conrivo.pl" target="_blank" rel="noopener">Conrivo</a> - {{ year }}</footer>
+    <footer v-if="!bare" class="kid-foot">© <a href="https://conrivo.pl" target="_blank" rel="noopener">Conrivo</a> - {{ year }} · <RouterLink to="/dla-rodzicow">{{ t('parents') }}</RouterLink></footer>
 
     <!-- phone tab bar; outside the sticky header so it stays pinned -->
     <nav v-if="!bare" class="kid-tabs" aria-label="Main">

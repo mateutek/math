@@ -1351,3 +1351,17 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-tour-say { min-width: 44px; min-height: 44px; border-radius: var(--k-btn-radius);
   border: var(--k-border-w) solid var(--k-card-border); background: var(--k-brand-soft); font-size: 20px; cursor: pointer; }
 .kid-tour button:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+
+/* the tour offer after the first class pick */
+.kid-offer-overlay { position: fixed; inset: 0; background: rgb(0 0 0 / 0.45); z-index: 50; }
+.kid-offer { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 51;
+  width: min(360px, calc(100vw - 32px)); background: var(--k-card); color: var(--foreground);
+  border-radius: var(--k-card-radius); box-shadow: var(--k-card-shadow); padding: 22px; }
+.kid-offer-title { margin: 0; font-size: 20px; font-weight: 800; }
+.kid-offer-text { margin: 8px 0 18px; font-size: 15px; color: var(--muted-foreground); }
+.kid-offer-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.kid-offer-btns .kid-btn { min-height: 44px; padding: 0 18px; }
+.kid-sheet-titlebar { display: flex; align-items: center; gap: 8px; padding-right: 40px; }
+.kid-help { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  border: var(--k-border-w) solid var(--k-card-border); background: var(--k-brand-soft); color: var(--k-brand); cursor: pointer; }
+.kid-help:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }

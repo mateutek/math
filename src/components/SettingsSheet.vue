@@ -1,15 +1,29 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, computed, nextTick } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useClipboard } from '@vueuse/core'
-import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon, ChevronRight } from 'lucide-vue-next'
+import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon, ChevronRight, CircleHelp } from 'lucide-vue-next'
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
 import settings, { classConfig } from '@/store/settings'
 import { exportSave, checkSave, importSave, saveClassOf, reset } from '@/store/village'
+import { startTour } from '@/composables/useTour'
 import { t, tp } from '@/i18n'
 import LangSwitch from '@/components/LangSwitch.vue'
+
+const route = useRoute()
+const router = useRouter()
+const open = ref(false)
+
+// the tour lives on the Play page: close the sheet, get there, wait for it to
+// render, then start
+async function replay() {
+  open.value = false
+  if (route.name !== 'play') await router.push('/graj')
+  await nextTick()
+  startTour()
+}
 
 // "Klasa 2", or "Zerówka" for the pre-school class
 const nameOf = (id) => (id === 0 ? t('classZero') : tp('classLabel', id))
@@ -48,13 +62,18 @@ const themes = [
 </script>
 
 <template>
-  <Sheet>
+  <Sheet v-model:open="open">
     <SheetTrigger as-child>
-      <button class="kid-gear" :aria-label="t('settings')"><SlidersHorizontal :size="20" /></button>
+      <button class="kid-gear" data-tour="settings" :aria-label="t('settings')"><SlidersHorizontal :size="20" /></button>
     </SheetTrigger>
     <SheetContent class="kid-root kid-sheet">
       <SheetHeader class="kid-sheet-head">
-        <SheetTitle class="kid-sheet-title">{{ t('settings') }}</SheetTitle>
+        <div class="kid-sheet-titlebar">
+          <SheetTitle class="kid-sheet-title">{{ t('settings') }}</SheetTitle>
+          <button type="button" class="kid-help" :aria-label="t('tourReplay')" :title="t('tourReplay')" @click="replay">
+            <CircleHelp :size="20" :stroke-width="2.2" />
+          </button>
+        </div>
         <SheetDescription class="kid-sheet-desc">{{ t('settingsDesc') }}</SheetDescription>
       </SheetHeader>
 

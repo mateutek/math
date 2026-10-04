@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import TourOffer from '@/components/TourOffer.vue'
 import ClassChip from '@/components/ClassChip.vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
 import village, { next, streakKey } from '@/store/village'
@@ -67,5 +68,6 @@ function caption(id) {
         </RouterLink>
       </div>
     </section>
+    <TourOffer />
   </div>
 </template>

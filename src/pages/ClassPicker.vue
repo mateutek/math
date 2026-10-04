@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-vue-next'
 import settings from '@/store/settings'
 import { CLASSES, configFor } from '@/data/classes'
 import { practiceRows } from '@/data/practice'
+import { offerTour, tourSeen } from '@/composables/useTour'
 import { t, tp } from '@/i18n'
 
 const router = useRouter()
@@ -21,6 +22,8 @@ const heading = computed(() =>
 const practice = computed(() => practiceRows(cfg.value))
 
 function start() {
+  // a first-ever pick (no class yet) is when the Play page offers the tour
+  if (settings.schoolClass === null && !tourSeen()) offerTour.value = true
   settings.schoolClass = picked.value
   router.push('/graj')
 }
