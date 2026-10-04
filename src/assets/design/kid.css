@@ -1371,3 +1371,15 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-offer-btns { display: flex; gap: 10px; justify-content: flex-end; }
 .kid-offer-btns .kid-btn { min-height: 44px; padding: 0 18px; }
 .kid-how { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+
+/* landscape phones only: short and touch, so tablets and short desktop windows
+   are left alone; above the tour (driver.js sits at 1e9) and every dialog */
+.kid-rotate { display: none; }
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .kid-rotate { display: flex; position: fixed; inset: 0; z-index: 1000000001; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px; background: var(--k-page); color: var(--foreground); padding: 24px; text-align: center; }
+  .kid-rotate p { margin: 0; font-size: 20px; font-weight: 800; }
+  .kid-rotate svg { color: var(--k-brand); animation: kid-rotate-hint 2.4s ease-in-out infinite; }
+}
+@keyframes kid-rotate-hint { 0%, 30% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0deg); } }
+@media (prefers-reduced-motion: reduce) { .kid-rotate svg { animation: none; } }

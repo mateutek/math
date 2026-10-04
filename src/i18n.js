@@ -598,6 +598,7 @@ export const messages = {
     parentsTestsH: 'Testy do druku',
     parentsTestsP: 'W zakładce Testy złożysz arkusz zadań do wydrukowania, dopasowany do klasy.',
     parentsPrivacyP: 'Postępy zostają na tym urządzeniu. Statystyki zbieramy tylko za Twoją zgodą.',
+    rotatePhone: 'Obróć telefon pionowo',
   },
   en: {
     appNameA: 'Sum',
@@ -1177,6 +1178,7 @@ export const messages = {
     parentsTestsH: 'Printable tests',
     parentsTestsP: 'The Tests tab builds a printable worksheet that matches the class.',
     parentsPrivacyP: 'Progress stays on this device. We collect statistics only with your consent.',
+    rotatePhone: 'Turn your phone upright',
   },
 }
 

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, defineAsyncComponent, watchEffect } from 'vue'
 import { useRoute, RouterLink, RouterView } from 'vue-router'
-import { Home, Gamepad2, BookOpen, Printer, ChevronUp } from 'lucide-vue-next'
+import { Home, Gamepad2, BookOpen, Printer, ChevronUp, Smartphone } from 'lucide-vue-next'
 import { DropdownMenuRoot, DropdownMenuTrigger, DropdownMenuPortal, DropdownMenuContent, DropdownMenuItem } from 'reka-ui'
 import AnimatedInteger from '@/components/animatedInteger.vue'
 import MaterialIcon from '@/components/MaterialIcon.vue'
@@ -152,6 +152,10 @@ watchEffect(() => {
 
     <!-- outside the router view, on every page, including bare ones -->
     <ConsentBanner />
+
+    <!-- phones on their side get this instead of a squashed board; CSS alone
+         decides when (see .kid-rotate), so turning back loses nothing -->
+    <div class="kid-rotate" role="alert"><Smartphone :size="56" aria-hidden="true" /><p>{{ t('rotatePhone') }}</p></div>
 
     <component :is="DevPanel" v-if="DevPanel" />
   </div>
