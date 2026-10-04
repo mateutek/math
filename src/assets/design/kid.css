@@ -327,7 +327,7 @@
   --k-body: #12141c;
   --k-scrim: rgba(6, 7, 11, .8);
 }
-:root[data-theme="night"] .kid-page, :root[data-theme="night"] .kid-sheet, :root[data-theme="night"] .kid-menu {
+:root[data-theme="night"] .kid-page, :root[data-theme="night"] .kid-sheet, :root[data-theme="night"] .kid-menu, :root[data-theme="night"] .kid-offer, :root[data-theme="night"] .kid-tour {
   --k-page: #12141c; --k-card: #1b1e2a; --k-card-border: #2a2e3d;
   --k-card-shadow: 0 10px 24px rgba(0, 0, 0, .45);
   --k-brand-soft: #1c2745; --k-brand-deep: #8fb0ff;
@@ -1316,7 +1316,9 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-parents-class summary:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; border-radius: 14px; }
 .kid-parents-class .rows { display: grid; grid-template-columns: 44px 1fr; gap: 6px 10px; padding: 0 14px 14px; font-size: 14.5px; }
 .kid-parents-class .sym { font-weight: 800; text-align: center; }
-.kid-picker-parents { align-self: center; margin-top: 10px; font-size: 14px; color: var(--muted-foreground); text-decoration: underline; text-underline-offset: 2px; }
+.kid-parents p a { color: var(--k-brand-deep); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
+.kid-parents p a:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+.kid-picker-parents { align-self: center; margin-top: 10px; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 16px; font-weight: 700; color: var(--k-brand-deep); text-decoration: underline; text-underline-offset: 2px; }
 .kid-picker-parents:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
 
 /* settings sheet: the small-print link to the privacy page, after the reset
@@ -1338,7 +1340,8 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 /* the kid tour (driver.js popover); kid-root on it brings the theme tokens */
 .driver-popover.kid-tour { background: var(--k-card); color: var(--foreground);
   border: var(--k-border-w) solid var(--k-card-border); border-radius: var(--k-card-radius);
-  box-shadow: var(--k-card-shadow); padding: 18px 18px 14px; max-width: 320px; font-family: inherit; }
+  box-shadow: var(--k-card-shadow); padding: 18px 18px 14px; max-width: 320px; font-family: inherit;
+  height: auto; overflow: visible; gap: 0; }
 .kid-tour .driver-popover-description { font-size: 17px; line-height: 1.45; font-weight: 600; color: inherit; }
 .kid-tour .driver-popover-footer { gap: 8px; margin-top: 14px; align-items: center; }
 .kid-tour .driver-popover-progress-text { color: var(--muted-foreground); font-size: 13px; }
@@ -1347,7 +1350,10 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   border: var(--k-border-w) solid var(--k-card-border); background: var(--k-card); color: inherit; }
 .kid-tour .driver-popover-next-btn { background: var(--k-brand); color: var(--k-brand-fg); border-color: transparent; }
 .kid-tour .driver-popover-close-btn { color: var(--muted-foreground); width: 36px; height: 36px; }
-.kid-tour .driver-popover-arrow { border-color: var(--k-card); }
+.driver-popover.kid-tour .driver-popover-arrow-side-top { border-top-color: var(--k-card); }
+.driver-popover.kid-tour .driver-popover-arrow-side-bottom { border-bottom-color: var(--k-card); }
+.driver-popover.kid-tour .driver-popover-arrow-side-left { border-left-color: var(--k-card); }
+.driver-popover.kid-tour .driver-popover-arrow-side-right { border-right-color: var(--k-card); }
 .kid-tour-say { min-width: 44px; min-height: 44px; border-radius: var(--k-btn-radius);
   border: var(--k-border-w) solid var(--k-card-border); background: var(--k-brand-soft); font-size: 20px; cursor: pointer; }
 .kid-tour button:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; }
@@ -1356,7 +1362,8 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-offer-overlay { position: fixed; inset: 0; background: rgb(0 0 0 / 0.45); z-index: 50; }
 .kid-offer { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 51;
   width: min(360px, calc(100vw - 32px)); background: var(--k-card); color: var(--foreground);
-  border-radius: var(--k-card-radius); box-shadow: var(--k-card-shadow); padding: 22px; }
+  border-radius: var(--k-card-radius); box-shadow: var(--k-card-shadow); padding: 22px;
+  height: auto; overflow: visible; gap: 0; }
 .kid-offer-title { margin: 0; font-size: 20px; font-weight: 800; }
 .kid-offer-text { margin: 8px 0 18px; font-size: 15px; color: var(--muted-foreground); }
 .kid-offer-btns { display: flex; gap: 10px; justify-content: flex-end; }

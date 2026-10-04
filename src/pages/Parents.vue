@@ -31,19 +31,6 @@ const classes = computed(() => CLASSES.filter((c) => c.available).map((c) => ({
     <p>{{ t('parentsLead') }}</p>
 
     <section>
-      <h2>{{ t('parentsClassesH') }}</h2>
-      <!-- native disclosure: one class open at a time is enough to read -->
-      <details v-for="c in classes" :key="c.id" class="kid-parents-class">
-        <summary>{{ c.name }}</summary>
-        <div class="rows">
-          <template v-for="row in c.rows" :key="row.sym">
-            <span class="sym" :style="{ color: row.ink }">{{ row.sym }}</span>
-            <span>{{ row.text }}</span>
-          </template>
-        </div>
-      </details>
-    </section>
-    <section>
       <h2>{{ t('parentsRewardsH') }}</h2>
       <p>{{ t('parentsRewardsP') }}</p>
     </section>
@@ -58,6 +45,19 @@ const classes = computed(() => CLASSES.filter((c) => c.available).map((c) => ({
     <section>
       <h2>{{ t('privacy') }}</h2>
       <p>{{ t('parentsPrivacyP') }} <RouterLink to="/prywatnosc">{{ t('privacyTitle') }}</RouterLink></p>
+    </section>
+    <section>
+      <h2>{{ t('parentsClassesH') }}</h2>
+      <!-- native disclosure: one class open at a time is enough to read -->
+      <details v-for="c in classes" :key="c.id" class="kid-parents-class">
+        <summary>{{ c.name }}</summary>
+        <div class="rows">
+          <template v-for="row in c.rows" :key="row.sym">
+            <span class="sym" :style="{ color: row.ink }">{{ row.sym }}</span>
+            <span>{{ row.text }}</span>
+          </template>
+        </div>
+      </details>
     </section>
   </div>
 </template>

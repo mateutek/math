@@ -35,7 +35,10 @@ function shown(key) {
     .find((el) => el.getClientRects().length > 0) ?? null
 }
 
+let active = null
+
 export function startTour() {
+  if (active?.isActive()) return
   const steps = resolveSteps(TOUR_STEPS, (key) => shown(key) !== null)
   if (!steps.length) return
   const autoRead = settings.schoolClass !== null && settings.schoolClass <= READ_ALOUD_MAX_CLASS
@@ -68,5 +71,6 @@ export function startTour() {
       synth?.cancel()
     },
   })
+  active = tour
   tour.drive()
 }
