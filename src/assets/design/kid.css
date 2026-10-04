@@ -1342,14 +1342,16 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
   border: var(--k-border-w) solid var(--k-card-border); border-radius: var(--k-card-radius);
   box-shadow: var(--k-card-shadow); padding: 18px 18px 14px; max-width: 320px; font-family: inherit;
   height: auto; overflow: visible; gap: 0; }
-.kid-tour .driver-popover-description { font-size: 17px; line-height: 1.45; font-weight: 600; color: inherit; }
+.kid-tour .driver-popover-description { padding-right: 32px; font-size: 17px; line-height: 1.45; font-weight: 600; color: inherit; }
 .kid-tour .driver-popover-footer { gap: 8px; margin-top: 14px; align-items: center; }
 .kid-tour .driver-popover-progress-text { color: var(--muted-foreground); font-size: 13px; }
 .kid-tour .driver-popover-navigation-btns button { min-height: 44px; padding: 0 16px;
   border-radius: var(--k-btn-radius); font: inherit; font-weight: 700; text-shadow: none;
   border: var(--k-border-w) solid var(--k-card-border); background: var(--k-card); color: inherit; }
-.kid-tour .driver-popover-next-btn { background: var(--k-brand); color: var(--k-brand-fg); border-color: transparent; }
-.kid-tour .driver-popover-close-btn { color: var(--muted-foreground); width: 36px; height: 36px; }
+.driver-popover.kid-tour .driver-popover-navigation-btns .driver-popover-next-btn { background: var(--k-brand); color: var(--k-brand-fg); border-color: transparent; }
+.driver-popover.kid-tour .driver-popover-close-btn { color: var(--muted-foreground); width: 36px; height: 36px; border-radius: 50%; }
+.driver-popover.kid-tour .driver-popover-close-btn:focus { outline: none; }
+.driver-popover.kid-tour .driver-popover-close-btn:focus-visible { outline: 3px solid var(--k-brand); outline-offset: 2px; border-radius: 50%; }
 .driver-popover.kid-tour .driver-popover-arrow-side-top { border-top-color: var(--k-card); }
 .driver-popover.kid-tour .driver-popover-arrow-side-bottom { border-bottom-color: var(--k-card); }
 .driver-popover.kid-tour .driver-popover-arrow-side-left { border-left-color: var(--k-card); }
