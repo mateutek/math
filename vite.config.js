@@ -15,6 +15,8 @@ const EN_HEAD = [
   ['name="description" content="Matematyka, która buduje wioskę"', 'name="description" content="Maths that builds a village"'],
   ['property="og:title" content="Liczbowo"', 'property="og:title" content="Sumbury"'],
   ['property="og:description" content="Matematyka, która buduje wioskę"', 'property="og:description" content="Maths that builds a village"'],
+  ['https://matematyka-sp.netlify.app/og.png', 'https://matematyka-sp.netlify.app/og-en.png'],
+  ['content="Liczbowo - matematyka, która buduje wioskę"', 'content="Sumbury - maths that builds a village"'],
   ["We're sorry but Liczbowo doesn't work properly", "We're sorry but Sumbury doesn't work properly"],
 ]
 
