@@ -40,3 +40,29 @@
   src: url('/fonts/geist-mono-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
+/* NV Disleksio (an OpenDyslexic fork by Nico Verbruggen), the font behind the
+   dyslexia switch in settings. Subset to latin + Polish, SIL OFL 1.1, copy at
+   public/fonts/OFL-Disleksio.txt. Browsers only download a face something
+   uses, so nobody pays for it until the switch is on. */
+@font-face {
+  font-family: 'Disleksio';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/fonts/disleksio-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Disleksio';
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+  src: url('/fonts/disleksio-bold.woff2') format('woff2');
+}
+
+/* numbers too: kids read the sums as much as the words */
+:root[data-font="dyslexic"] {
+  --font-sans: "Disleksio", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Disleksio", ui-monospace, monospace;
+}

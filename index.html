@@ -27,6 +27,8 @@
                 t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day';
             }
             document.documentElement.dataset.theme = t;
+            // the dyslexia font, likewise before paint so text never jumps
+            if (localStorage.getItem('dyslexicFont') === '1') document.documentElement.dataset.font = 'dyslexic';
         })();
     </script>
     <!-- Geist and Geist Mono are self-hosted from public/fonts, see src/assets/design/fonts.css -->

@@ -2,7 +2,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useClipboard } from '@vueuse/core'
-import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon, ChevronRight, CircleHelp } from 'lucide-vue-next'
+import { SlidersHorizontal, Timer, Copy, Monitor, Sun, Moon, ChevronRight, CircleHelp, Type } from 'lucide-vue-next'
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from '@/components/ui/sheet'
@@ -111,6 +111,19 @@ const themes = [
           </button>
         </div>
         <p class="kid-theme-hint">{{ t('themeHint') }}</p>
+      </div>
+
+      <div class="kid-set">
+        <span class="kid-zegar"><Type :size="17" :stroke-width="2.2" /> {{ t('dyslexicFont') }}</span>
+        <button
+          class="kid-switch-btn"
+          role="switch"
+          :aria-checked="settings.dyslexicFont"
+          :aria-label="t('dyslexicFont')"
+          @click="settings.dyslexicFont = !settings.dyslexicFont"
+        >
+          <span class="kid-switch" :aria-checked="settings.dyslexicFont"></span>
+        </button>
       </div>
 
       <div class="kid-set">

@@ -38,7 +38,7 @@ for (const step of TOUR_STEPS) {
   'tourNext', 'tourBack', 'tourDone', 'tourRead', 'tourProgress',
   'parents', 'parentsLink', 'parentsLead', 'parentsClassesH',
   'parentsRewardsH', 'parentsRewardsP', 'parentsTheoryH', 'parentsTheoryP',
-  'parentsTestsH', 'parentsTestsP', 'parentsPrivacyP',
+  'parentsTestsH', 'parentsTestsP', 'parentsPrivacyP', 'dyslexicFont',
 ].forEach(needsKey)
 
 // desktop: everything visible, all nine steps in order

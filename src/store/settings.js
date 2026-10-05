@@ -33,6 +33,8 @@ const settings = reactive({
     ? Number(localStorage.getItem('mapRotation'))
     : 0,
   topicLevel: loadTopicLevels(),
+  // swaps every font for NV Disleksio (see fonts.css)
+  dyslexicFont: localStorage.getItem('dyslexicFont') === '1',
   // the resolved theme. Everything visual reads the CSS variables under
   // <html data-theme>; this flag is only for the few things CSS cannot set,
   // such as the map viewBox and the night-only sky.
@@ -76,6 +78,18 @@ watch(
     localStorage.setItem('topicLevel', JSON.stringify(value))
   },
   { deep: true },
+)
+
+// index.html sets the same attribute before first paint; this keeps it in step
+// when the switch flips
+watch(
+  () => settings.dyslexicFont,
+  (value) => {
+    localStorage.setItem('dyslexicFont', value ? '1' : '0')
+    if (value) document.documentElement.dataset.font = 'dyslexic'
+    else delete document.documentElement.dataset.font
+  },
+  { immediate: true },
 )
 
 watch(
