@@ -1241,8 +1241,8 @@ a.kid-tab:nth-of-type(4) { grid-column: 4; }
 .kid-paper .brand b { color: #2f6bed; }
 .kid-paper .meta { margin-left: auto; font-size: 12px; font-weight: 600; color: #33415c; }
 .kid-paper h1 { margin: 10px 0 0; font-size: 22px; font-weight: 800; }
-.kid-paper .fields { display: grid; grid-template-columns: minmax(0, 1fr) 140px 120px; gap: 16px; margin-top: 18px; font-size: 12px; color: #33415c; }
-.kid-paper .fields span { display: flex; align-items: flex-end; gap: 6px; }
+.kid-paper .fields { display: grid; grid-template-columns: minmax(0, 1fr) 140px max-content; gap: 16px; margin-top: 18px; font-size: 12px; color: #33415c; }
+.kid-paper .fields span { display: flex; align-items: flex-end; gap: 6px; white-space: nowrap; }
 .kid-paper .fields i { flex: 1; height: 18px; border-bottom: 1px solid #0b1020; }
 .kid-paper .fields i.pts { flex: none; width: 32px; }
 .kid-paper section { break-inside: avoid-page; }
