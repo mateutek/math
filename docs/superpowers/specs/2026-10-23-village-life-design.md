@@ -232,3 +232,57 @@ logic.
 - The building-to-character pairing.
 - How depth sorting is wired into `VillageMap.vue`.
 - Exact speeds, idle frequency, fade-in.
+
+## Add-on (2026-10-23, agreed after the first pass): roaming animals, windmill, wind
+
+The user asked for all three during the build. They come after Task 7.
+
+**Roaming animals.** Replaces the road rule for pets and the cow's pasture
+rule.
+- Every animal except the fox and bunny has a home patch: the cells within
+  a Chebyshev radius of its home building's current-tier cells.
+  - dog: around the hut, radius 4
+  - cat: around the bakery, radius 4
+  - cow: around the farm, radius 3
+  - **chick** (new, `animal-chick`, clips `walk` + `eat`): around the farm,
+    radius 3
+- Inside its patch an animal may stand on grass or road. It never stands on
+  any plot cell (`PLOT_CELLS`), a tree cell (`DECOR_CELLS`), or the river
+  column (the bridge included).
+- The cow and the chick rest with `eat`. The dog and the cat rest with
+  `idle`.
+- The chick arrives with the farm.
+- The fox and bunny keep the wood rule. Villagers keep the road rule.
+
+**Turning windmill.** In every mill tier, the blades are the single
+`fantasy-town/windmill` piece. That model is centred on its own hub and
+spins about its local x axis.
+- The designer renders each mill tier as two images:
+  - the mill without that piece, which replaces today's `mill_t<n>_<F>.png`
+    and its json;
+  - the blades alone, as an actor-shaped export `mill_t<n>_blades` with one
+    clip `spin`. Frames cover one symmetric turn of the blades: 90 degrees
+    for four blades, checked by eye.
+- While the blades are rendered, the rest of the mill is drawn depth-only
+  (no colour). Blades behind the house are hidden in the render itself.
+- Both images anchor on the world origin, so stacking the blades image on
+  top of the mill lines up exactly.
+- In the game, the blades are a second object right after the mill in the
+  painter order. Reduced motion shows the blades' still PNG.
+
+**Wind.** Gusts drawn on top of the map: thin white lines at about 40%
+opacity, each with one or two curls.
+- Each gust is a short streak that travels along its path, curls, and fades
+  from the tail.
+- Gusts appear at random spots and random intervals (1.5 to 4 s), all
+  drifting the same way across the screen. At most 3 are on screen at once.
+- They are inline SVG animated with CSS (`pathLength="1"`, an animated
+  `stroke-dashoffset`), with no per-frame JS. They never take pointer
+  events.
+- Reduced motion: no gusts.
+- Trees leaning with a gust is NOT part of this. It's a possible later
+  extra.
+
+**Later, its own project:** a forester building with villagers chopping trees
+and saplings growing. Open question for the user: does it produce wood for
+the kid?

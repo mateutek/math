@@ -270,3 +270,99 @@ Start: `git switch -c village-life` from `main`.
 - [ ] **Step 2:** Adjust `BRIDGE_DECK` so feet sit on the deck of each bridge tier. Use the dev panel to switch tiers.
 - [ ] **Step 3:** Run `npm run check`, `npm run lint` and `npm run build`. Expected: all pass. Then commit: in the designer, `git add src/actors.js` with the message "Tune actor sizes against the hut". In math, `git add public/village/actors src/data/villageActors.json src/components/VillageLife.vue` with the message "Tune walker sizes and the bridge deck".
 - [ ] **Step 4:** Finish with superpowers:finishing-a-development-branch. Per the user's standing preference, reviewed work is pushed and `main` is fast-forwarded.
+
+---
+
+## Part C: add-on (roaming animals, windmill, wind)
+
+See the spec's "Add-on" section. These tasks run after Task 7.
+
+### Task 8: Animals roam their home patch
+
+**Files:**
+- Designer: modify `src/actors.js` (add `animal-chick`, clips `['walk', 'eat']`, scale like the other pets, tuned against the cow).
+- Math: re-render with `node scripts/renderActors.mjs animal-chick` (from the designer), then run `npm run sprites`. Modify `src/data/villageLife.js` and `src/data/villageLife.check.js`.
+
+**Interfaces:**
+- Consumes: Task 4's module.
+- Produces:
+  - `PETS` entries become `{ id, actor, after, ground, home?, radius? }`. `ground` is `'road' | 'yard' | 'wood'`, where `'yard'` replaces `'pasture'`. The entries are:
+    - dog: `after: 'hut'`, `ground: 'yard'`, `radius: 4`
+    - cat: `after: 'bakery'`, `ground: 'yard'`, `radius: 4`
+    - cow: `after: 'farm'`, `ground: 'yard'`, `radius: 3`
+    - chick: actor `'animal-chick'`, `after: 'farm'`, `ground: 'yard'`, `radius: 3`
+    - fox, bunny: unchanged
+  - `Walker` gains `homeId` (a building id or null) and `radius`.
+  - `canStand(walker, a, b, tiers)`: the first argument is now the walker. Callers inside the module and in the check change with it. `VillageLife.vue` does not call it.
+  - Yard rule: the cell is in the grid, its column is not `RIVER_COL`, it is not in `PLOT_CELLS` or `DECOR_CELLS`, and it is within Chebyshev `radius` of a cell of `cellsOf(homeId, tiers[homeId])` offset by `PLOTS[homeId]`.
+  - `rest` is `'eat'` for the cow and the chick, and `'idle'` otherwise.
+
+- [ ] **Step 1:** Update the check. A full village gives `12 + 6` walkers. Every yard walker over the 2000 s simulation stays within its radius of its home building and never stands on `PLOT_CELLS`, `DECOR_CELLS` or the river column. The dog leaves the road at least once, which proves it roams. Run `node src/data/villageLife.check.js`; expected: FAIL.
+- [ ] **Step 2:** Implement. Run `npm run check`; expected: all pass.
+- [ ] **Step 3:** Add the chick in the designer and render it. Run `npm run sprites` and `du -sh public/village/actors` (must be under 5 MB). Then commit:
+  - Designer: `git add src/actors.js` with the message "Add the chick actor".
+  - Math: `git add src/data/villageLife.js src/data/villageLife.check.js src/data/villageActors.json public/village/actors` with the message "Let the animals roam around their homes".
+
+### Task 9: The windmill turns
+
+**Files:**
+- Designer:
+  - Create `src/renderSplit.js` (in the browser, it splits one piece out of a design) and `scripts/renderMill.mjs`.
+  - Modify `src/main.jsx` (`window.__exportMill`), `src/api.js` and `README.md`.
+  - Do NOT edit `src/renderViews.js` or `src/models.js`; importing them is fine.
+- Math: modify `src/data/villageMap.js` (`mapItems`, `allSpriteFiles`), `src/data/villageMap.check.js` if needed, `src/components/VillageMap.vue` (reduced-motion still for spinning objects), and the generated `public/village/buildings/mill_t*`, `public/village/actors/mill_t*_blades*`, `src/data/villageSprites.json` and `src/data/villageActors.json`.
+
+**Interfaces:**
+- Consumes:
+  - `renderViews(design)` and the existing `/api/export/<name>` route for the mill body.
+  - The actor route `/api/actor/<name>` (Task 3) for the blades. The body is `{ meta: { id, clips: { spin: { fps, frames, views } } }, clips: { spin: { N|E|S|W: [png data URLs] } } }`.
+  - `frameTimes`, `unionBounds` and `FPS` (Task 2).
+- Produces:
+  - `buildings/mill_t<n>_<F>.png` without blades, plus its json.
+  - `actors/mill_t<n>_blades_spin_<F>.webp` and `.png`, plus `actors/mill_t<n>_blades.json`.
+  - In `mapItems`, for a built mill, an extra object right after the mill object:
+    `{ key: 'mill.blades', file: 'actors/mill_t<tier>_blades_spin_<F>.webp', x, y, w, h, a, b, level: 1, i, state: '', spin: true }`.
+    - `F = FACES[r]`.
+    - `x`, `y`, `w` and `h` are computed like `artBox`, from the `villageActors.json` row `[w, h, ax, ay]` at the mill's anchor cell.
+    - `a` and `b` are the mill object's own (front cell). Its `i` is larger than the mill's, so it sorts directly after it.
+
+- [ ] **Step 1: Write `exportMill(tier)` in the designer.**
+  1. Load `designs/mill_t<tier>.json`. Export the body by calling `exportViews('mill_t<tier>', design without the windmill piece)` from `src/api.js`.
+  2. Build the full group with `buildGroup`. Set every non-blade mesh's material to `colorWrite = false` (it keeps writing depth), so it stays as an invisible occluder.
+  3. Spin the blade piece by `rotation.x` from 0 up to, but not including, `Math.PI / 2` over `frameTimes(1, FPS)`. Confirm by eye that the blades have 4-fold symmetry; if not, use the real symmetry angle.
+  4. For each facing `k`, turn the group by `viewAngle(k)` and render the frames. Crop each facing to `unionBounds`, with the anchor at canvas centre minus crop offset, exactly like `renderActor.js`. Then POST to the actor route.
+- [ ] **Step 2:** Add `scripts/renderMill.mjs`, shaped like `renderActors.mjs`, to run `exportMill` for tiers 1 to 3. Run it from the designer, then run `npm run sprites` in math. Expected: three mill bodies and three blade sets, and `villageActors.json` now lists `mill_t1_blades` through `mill_t3_blades`.
+- [ ] **Step 3: Add the blade object in `mapItems`, and blade files in `allSpriteFiles`.** In `villageMap.check.js`, assert that `mapItems(r, { mill: t })` for every r and t contains `'mill.blades'` immediately after `'mill'` in `objects`. Assert also that the existing "every sprite file exists" check covers the blade files. Run `npm run check`; expected: pass.
+- [ ] **Step 4: Reduced motion in `VillageMap.vue`.** With `matchMedia('(prefers-reduced-motion: reduce)')`, objects with `spin` load `.png` in place of `.webp`. The warm-cache loop must not try to swap facings on these files. Use a `/_[NESW](?=\.(png|webp)$)/` regex, or skip `spin` objects.
+- [ ] **Step 5: Check in the browser.**
+  - At every rotation and every mill tier, the blades turn and sit on the mill's hub.
+  - Blades behind the house are hidden.
+  - There is no gap or doubled edge between the blades and the house.
+  - With reduced motion on, the blades are still.
+- [ ] **Step 6:** Run `npm run check`, `npm run lint` and `npm run build`; all must pass. Then commit:
+  - Designer: `git add src/renderSplit.js scripts/renderMill.mjs src/main.jsx src/api.js README.md` with the message "Render the windmill blades as their own spinning sprite".
+  - Math: `git add src/data/villageMap.js src/data/villageMap.check.js src/components/VillageMap.vue src/data/villageSprites.json src/data/villageActors.json public/village/buildings/mill_t* public/village/actors/mill_t*` with the message "Turn the windmill".
+
+### Task 10: Wind gusts
+
+**Files:**
+- Create: `src/components/VillageWind.vue`
+- Modify: `src/components/VillageMap.vue` (mount it inside `.kid-map-world`, right after `.kid-map-art`) and `src/assets/design/kid.css` (`.kid-wind` rules, plus `display: none` in the reduced-motion block).
+
+**Interfaces:**
+- `VillageWind.vue` takes no props. It fills its parent (`position: absolute; inset: 0; pointer-events: none`).
+
+- [ ] **Step 1: Implement.**
+  - **Paths:** 3 hand-drawn gust shapes, as SVG path `d` strings in a `0 0 200 60` box. Each is a gentle line with one or two curls.
+  - **Each gust:** an absolutely positioned `<svg>` at a random `left` and `top` (in % of the world box). Its width is 15-25% of the box, and it has one `<path pathLength="1">`.
+  - **Stroke:** white, `stroke-opacity: .4`, `stroke-width` around 2 px (`vector-effect: non-scaling-stroke`), round caps.
+  - **Animation:** `stroke-dasharray: .35 1` with `stroke-dashoffset` animating from `.35` to `-1` over about 3 s, ease-in-out, plus a fade in and out over the same span.
+  - **Direction:** all gusts drift left to right. Mirror a shape so the line still flows left to right.
+  - **Timing:** a `setTimeout` chain spawns a gust every `1500 + rand * 2500` ms, with at most 3 alive. Each gust is removed on `animationend`. Clear the timer on unmount.
+  - **Reduced motion:** no timer at all. The CSS also hides `.kid-wind`.
+- [ ] **Step 2: Check in the browser.**
+  - Gusts draw, curl and fade, at every zoom level and in night mode.
+  - Taps and drags on the map still work.
+  - There are never more than 3 at once.
+  - With reduced motion on, there are none.
+- [ ] **Step 3:** Run `npm run check`, `npm run lint` and `npm run build`; all must pass. Then commit with `git add src/components/VillageWind.vue src/components/VillageMap.vue src/assets/design/kid.css` and the message "Blow a little wind across the village".
