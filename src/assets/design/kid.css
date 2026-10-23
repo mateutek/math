@@ -310,6 +310,8 @@
   --k-map-glow: drop-shadow(0 0 1.5px #ffffff) drop-shadow(0 0 4px var(--k-brand));
   --k-chip-built-bg: #dcfce7; --k-chip-built-fg: #15803d;
   --k-chip-plan-bg: #efece4;
+  /* white gusts vanish on bright grass and the cream page; a soft sky blue reads */
+  --k-wind: #3f78b0; --k-wind-o: .38;
 }
 
 /* ---- NIGHT -----------------------------------------------------------------
@@ -349,6 +351,7 @@
   --k-chip-built-bg: #163826; --k-chip-built-fg: #86efac;
   --k-chip-plan-bg: #262a38;
   --k-star: #f1efe8; --k-moon: #f4e9c1;
+  --k-wind: #ffffff; --k-wind-o: .4;
   /* The material icons no longer flip after dark: NightVillage and
      NightDesktopTiles draw them in exactly the day colours, so these repeat the
      day values rather than leaving the tokens untokened. */
@@ -573,7 +576,7 @@
 /* a mirrored shape curls the other way but still drifts left to right */
 .kid-wind svg.flip { transform: scaleY(-1); }
 .kid-wind path {
-  fill: none; stroke: #fff; stroke-opacity: .4; stroke-width: 2px; stroke-linecap: round;
+  fill: none; stroke: var(--k-wind, #fff); stroke-opacity: var(--k-wind-o, .4); stroke-width: 2px; stroke-linecap: round;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: .35 1; stroke-dashoffset: .35; opacity: 0;
   animation: kid-wind-blow 3s ease-in-out forwards;
