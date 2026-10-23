@@ -6,6 +6,7 @@ import {
   PROJ, PATH_ROW, RIVER_COL, PLOTS, PLOT_CELLS, DECOR_CELLS, cellsOf, groundAt, rotFace, rotOffset,
 } from './villageMap.js'
 import { CAST, canStand, cast, faceOf, spawn, tick } from './villageLife.js'
+import ACTORS from './villageActors.json' with { type: 'json' }
 
 const N = PROJ.GRID
 
@@ -34,6 +35,14 @@ assert.deepEqual(cast({}).map((w) => w.id).sort(), ['bunny', 'fox'])
 assert.equal(cast(full).length, 12 + 6)
 assert.equal(new Set(Object.values(CAST)).size, 12)
 assert.equal(Object.keys(CAST).length, 12)
+
+// every walker has its clips in all four facings; a missing row throws inside
+// the animation frame and stops everyone
+for (const w of cast(full)) {
+  for (const clip of ['walk', w.rest]) {
+    for (const F of 'NESW') assert.equal(ACTORS[w.actor]?.[clip]?.[F]?.length, 4, `${w.id} ${w.actor} ${clip} ${F}`)
+  }
+}
 
 const cheb = (a, b, [x, y]) => Math.max(Math.abs(a - x), Math.abs(b - y))
 const nearHome = (a, b, w, tiers) =>
