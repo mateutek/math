@@ -27,7 +27,7 @@ for (const step of [[0, 1], [-1, 0], [0, -1], [1, 0]]) {
 }
 
 const full = Object.fromEntries(BUILDINGS.map((d) => [d.id, 1]))
-const { bridge, ...noBridge } = full
+const noBridge = { ...full, bridge: 0 } // unbuilt, as the map stores it
 
 // cast size: empty village has only the wood animals; full has 12 villagers + 5 pets
 assert.deepEqual(cast({}).map((w) => w.id).sort(), ['bunny', 'fox'])
