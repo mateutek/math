@@ -70,7 +70,9 @@ function draw(w, s) {
   const F = rotFace(s.face, props.rotation)
   const clip = still ? w.rest : s.clip
   const [vw, vh, ax, ay] = ACTORS[w.actor][clip][F]
-  const deck = Math.round(a) === RIVER_COL && Math.round(b) === PATH_ROW ? BRIDGE_DECK[props.tiers.bridge] || 0 : 0
+  // the lift fades in over the cell before the bridge, so feet ride up onto the deck
+  const onto = 1 - Math.min(1, Math.max(Math.abs(a - RIVER_COL), Math.abs(b - PATH_ROW)))
+  const deck = (BRIDGE_DECK[props.tiers.bridge] || 0) * onto
   const [x, y] = props.place(cellX(ra, rb) - ax * SCALE, cellY(ra, rb) + GROUND_DY - ay * SCALE - deck)
   const st = img.style
   st.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`
@@ -100,8 +102,10 @@ function frame(now) {
   raf = requestAnimationFrame(frame)
 }
 
-// reduced motion: no loop, just still figures redrawn when the map changes
-if (still) watch([() => props.rotation, () => props.u, () => props.tiers], drawAll, { flush: 'post' })
+// reduced motion: no loop, just still figures redrawn when the map changes.
+// place is a new function every parent render, so a resize that moves the
+// origin without changing u still redraws
+if (still) watch([() => props.rotation, () => props.place, () => props.tiers], drawAll, { flush: 'post' })
 
 onMounted(() => {
   if (still) return drawAll()
