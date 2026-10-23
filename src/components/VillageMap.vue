@@ -304,15 +304,18 @@ onUnmounted(() => {
 
 <template>
   <div ref="root" class="kid-map" :class="{ full }" @keydown.esc="onEsc">
-    <div v-if="settings.night" class="kid-map-sky" aria-hidden="true">
-      <span
-        v-for="(s, i) in STARS"
-        :key="i"
-        class="star"
-        :class="{ tw: i % 3 === 0 }"
-        :style="{ left: s[0] + '%', top: s[1] + '%', width: s[2] * 2 + 'px', height: s[2] * 2 + 'px', '--twd': i * 0.4 + 's' }"
-      ></span>
-      <span class="moon"></span>
+    <div class="kid-map-sky" aria-hidden="true">
+      <template v-if="settings.night">
+        <span
+          v-for="(s, i) in STARS"
+          :key="i"
+          class="star"
+          :class="{ tw: i % 3 === 0 }"
+          :style="{ left: s[0] + '%', top: s[1] + '%', width: s[2] * 2 + 'px', height: s[2] * 2 + 'px', '--twd': i * 0.4 + 's' }"
+        ></span>
+        <span class="moon"></span>
+      </template>
+      <span v-else class="sun"></span>
     </div>
 
     <div

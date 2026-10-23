@@ -662,15 +662,57 @@
 }
 .kid-map-pill button:disabled { opacity: .35; cursor: default; }
 .kid-map-pill .n { min-width: 40px; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--muted-foreground); }
-/* night sky, drawn behind the map. Only every third star twinkles. */
+/* the sky, drawn behind the map. Only every third star twinkles. */
 .kid-map-sky { position: absolute; inset: 0; pointer-events: none; }
 .kid-map-sky .star { position: absolute; border-radius: 999px; background: var(--k-star, #f1efe8); opacity: .8; }
 .kid-map-sky .star.tw { animation: kid-map-twinkle 3.6s ease-in-out var(--twd, 0s) infinite; }
+/* Moon and sun ride the same arc keyframes, each with its own reach: rise
+   low at the left, peak, set low at the right, faded out at both ends so the
+   loop's jump back is never seen. left/top are where they rest without motion. */
+.kid-map-sky .moon, .kid-map-sky .sun {
+  position: absolute; border-radius: 999px;
+  animation:
+    kid-sky-x var(--sky-t) linear infinite,
+    kid-sky-y var(--sky-t) infinite,
+    kid-sky-fade var(--sky-t) linear infinite;
+}
+/* The lit part is the disc minus a cut circle (a mask, so it works on any
+   sky). The cut slides off to the right to fill the moon by the
+   peak, jumps unseen to the left while full, and slides back in to wane. */
+@property --phase { syntax: '<percentage>'; inherits: false; initial-value: 72%; }
 .kid-map-sky .moon {
-  position: absolute; left: 12%; top: 14px; width: 26px; height: 26px; border-radius: 999px;
-  box-shadow: -7px 4px 0 0 var(--k-moon, #f4e9c1);
+  --sky-t: 90s; --sky-x0: 4%; --sky-x1: 88%; --sky-low: 64px; --sky-high: 10px;
+  left: 12%; top: 14px; width: 26px; height: 26px; background: var(--k-moon, #f4e9c1);
+  -webkit-mask: radial-gradient(circle at var(--phase) 38%, transparent 12.5px, #000 13px);
+  mask: radial-gradient(circle at var(--phase) 38%, transparent 12.5px, #000 13px);
+  animation:
+    kid-sky-x var(--sky-t) linear infinite,
+    kid-sky-y var(--sky-t) infinite,
+    kid-sky-fade var(--sky-t) linear infinite,
+    kid-moon-phase var(--sky-t) linear infinite;
+}
+/* lower and wider than the moon, and slower */
+.kid-map-sky .sun {
+  --sky-t: 120s; --sky-x0: -3%; --sky-x1: 94%; --sky-low: 96px; --sky-high: 30px;
+  left: 14%; top: 30px; width: 30px; height: 30px;
+  background: radial-gradient(circle, #fff6c8, #ffd25a 62%);
+  box-shadow: 0 0 18px 6px rgba(255, 200, 80, .45);
 }
 @keyframes kid-map-twinkle { 50% { opacity: .25; } }
+@keyframes kid-sky-x { from { left: var(--sky-x0); } to { left: var(--sky-x1); } }
+/* ease out on the way up, ease in on the way down: a rounded arch, not a tent */
+@keyframes kid-sky-y {
+  0% { top: var(--sky-low); animation-timing-function: cubic-bezier(.3, .6, .5, 1); }
+  50% { top: var(--sky-high); animation-timing-function: cubic-bezier(.5, 0, .7, .4); }
+  100% { top: var(--sky-low); }
+}
+@keyframes kid-sky-fade { 0%, 100% { opacity: 0; } 7%, 93% { opacity: 1; } }
+@keyframes kid-moon-phase {
+  0% { --phase: 72%; }
+  49.9% { --phase: 160%; }
+  50% { --phase: -60%; }
+  100% { --phase: 28%; }
+}
 
 /* ============================================================================
    GOAL CARD, SHOP, BUILDING LIST
@@ -734,7 +776,7 @@
 .kid-blist li.next .dot { background: transparent; border: 2px solid var(--k-brand-line); }
 
 @media (prefers-reduced-motion: reduce) {
-  .kid-map-art img.next, .kid-map-sky .star.tw { animation: none; }
+  .kid-map-art img.next, .kid-map-sky .star.tw, .kid-map-sky .moon, .kid-map-sky .sun { animation: none; }
   .kid-map-art img.walker.born { animation: none; }
   .kid-wind { display: none; }
   .kid-tab-pill { transition: none; }
