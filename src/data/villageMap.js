@@ -208,10 +208,10 @@ const DECOR_PIECES = ['tree_pine', 'tree_single', 'tree_multiple', 'tree_pineLar
 const hash = (a, b) => (Math.imul(a + 1, 73856093) ^ Math.imul(b + 1, 19349663)) >>> 0
 
 // every cell any tier of any building can stand on
-export const PLOT_CELLS =BUILDINGS.flatMap((d) =>
+export const PLOT_CELLS = BUILDINGS.flatMap((d) =>
   d.cost.flatMap((_, i) => cellsOf(d.id, i + 1).map(([dx, dy]) => [PLOTS[d.id][0] + dx, PLOTS[d.id][1] + dy])),
 )
-export const nearPlot =(a, b) => PLOT_CELLS.some(([x, y]) => Math.abs(a - x) < 3 && Math.abs(b - y) < 3)
+export const nearPlot = (a, b) => PLOT_CELLS.some(([x, y]) => Math.abs(a - x) < 3 && Math.abs(b - y) < 3)
 
 export const DECOR = (() => {
   const out = []
@@ -233,7 +233,7 @@ export const DECOR = (() => {
 // lily. Plots and tree cells stay plain, so nothing pokes through what stands
 // there, and so does the water next to the bridge.
 const GRASSES = ['flowers', 'meadow', 'mushrooms', 'stones', 'tufts', 'bushes']
-export const DECOR_CELLS =new Set(DECOR.map(([a, b]) => `${a},${b}`))
+export const DECOR_CELLS = new Set(DECOR.map(([a, b]) => `${a},${b}`))
 
 export function tileAt(a, b) {
   const [name, facing] = groundAt(a, b)

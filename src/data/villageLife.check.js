@@ -44,13 +44,12 @@ const key = (a, b) => `${a},${b}`
 const tower = cast(noBridge).find((w) => w.id === 'tower')
 assert.ok(spawn(tower, noBridge, seeded(1)).a > RIVER_COL)
 
-// no bridge, no walkers on an unbuilt plot or without a cell: spawn gives null
+// pasture with no farm built has no allowed cell, so spawn gives null
 assert.equal(spawn({ ...tower, ground: 'pasture' }, {}, seeded(1)), null)
 
 for (const [name, tiers] of [['full', full], ['noBridge', noBridge]]) {
   const rand = seeded(7)
-  let west = false
-  let east = false
+  const sides = {} // per road walker: which banks of the river it has stood on
   for (const w of cast(tiers)) {
     const s = spawn(w, tiers, rand)
     assert.ok(canStand(w.ground, s.a, s.b, tiers), `${name} ${w.id} spawn`)
@@ -60,8 +59,7 @@ for (const [name, tiers] of [['full', full], ['noBridge', noBridge]]) {
       if (s.to) assert.ok(canStand(w.ground, s.to[0], s.to[1], tiers), `${name} ${w.id} to ${s.to}`)
       if (w.ground === 'road') {
         if (name === 'noBridge') assert.ok(!(s.a === RIVER_COL && s.b === PATH_ROW), 'swam')
-        if (s.a < RIVER_COL) west = true
-        if (s.a > RIVER_COL) east = true
+        if (s.a !== RIVER_COL) (sides[w.id] ??= new Set()).add(s.a < RIVER_COL)
       }
       if (w.id === 'cow') {
         assert.ok(nearFarm(s.a, s.b, tiers) && !PLOT_CELLS.some(([x, y]) => x === s.a && y === s.b), 'cow')
@@ -74,7 +72,9 @@ for (const [name, tiers] of [['full', full], ['noBridge', noBridge]]) {
     tick(s, w, tiers, 600, rand)
     assert.ok(canStand(w.ground, s.a, s.b, tiers), `${name} ${w.id} after 600s`)
   }
-  if (name === 'full') assert.ok(west && east, 'someone crosses the bridge')
+  const crossers = Object.values(sides).filter((v) => v.size === 2).length
+  if (name === 'full') assert.ok(crossers > 0, 'a walker crosses the bridge')
+  else assert.equal(crossers, 0, 'nobody crosses without a bridge')
 }
 
 // tiers changing under a walker: it keeps to cells that are allowed now
