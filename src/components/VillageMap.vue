@@ -6,6 +6,7 @@ import { goalFor, canAfford } from '@/store/villageLogic'
 import settings from '@/store/settings'
 import { PROJ, LIFT, PATH_COL, PATH_ROW, cellX, cellY, mapItems, rotCell } from '@/data/villageMap'
 import { t } from '@/i18n'
+import VillageLife from './VillageLife.vue'
 
 const emit = defineEmits(['select', 'built'])
 
@@ -39,6 +40,7 @@ const tiers = computed(() =>
   Object.fromEntries(village.buildings.map((b) => [b.id, b.tier])),
 )
 const items = computed(() => mapItems(settings.mapRotation, tiers.value, next.value?.id ?? null))
+const depths = computed(() => items.value.objects.map((o) => o.a + o.b))
 
 // the board's eight stars, as percentages of the map box
 const STARS = [
@@ -56,9 +58,10 @@ const sprite = (s) => ({
 
 const ground = computed(() => items.value.ground.map((s) => ({ ...s, box: sprite(s) })))
 const objects = computed(() =>
-  items.value.objects.map((s) => ({
+  items.value.objects.map((s, i) => ({
     ...s,
-    box: sprite(s),
+    // walkers slot in between, on the odd z-indexes (see VillageLife)
+    box: { ...sprite(s), zIndex: 2 * (i + 1) },
     lit: s.id && s.id === selected.value,
   })),
 )
@@ -348,6 +351,14 @@ onUnmounted(() => {
             decoding="async"
             :class="[s.state, { lit: s.lit }]"
             :style="s.box"
+          />
+          <VillageLife
+            :rotation="settings.mapRotation"
+            :tiers="tiers"
+            :depths="depths"
+            :place="(x, y) => [px(x), py(y)]"
+            :u="u"
+            :url="url"
           />
         </div>
 

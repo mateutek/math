@@ -567,6 +567,10 @@
   /* smooth-shaded 3D art that is only ever downscaled: never pixelated */
   image-rendering: auto;
 }
+.kid-map-art { isolation: isolate; } /* object and walker z-indexes stay under labels, hits and the pin */
+.kid-map-art img.walker { will-change: transform; left: 0; top: 0; }
+.kid-map-art img.walker.born { animation: kid-walker-in .8s ease-out; }
+@keyframes kid-walker-in { from { opacity: 0; } }
 .kid-map-art img.plan { opacity: .5; }
 .kid-map-art img.next { animation: kid-map-pulse 1.6s ease-in-out infinite; }
 .kid-map-art img.lit { filter: var(--k-map-glow); }
@@ -716,6 +720,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .kid-map-art img.next, .kid-map-sky .star.tw { animation: none; }
+  .kid-map-art img.walker.born { animation: none; }
   .kid-tab-pill { transition: none; }
   .kid-bar .fill, .kid-picker .cls { transition: none; }
 }
