@@ -75,15 +75,16 @@ export const GROUND_DY = PROJ.GROUND * SCALE - HALF
 // a designer sprite's box in map units: its anchor px lands on the ground
 // centre of cell (a, b). Sizes and anchors come from the render, never from here.
 export function artBox(id, tier, facing, a, b) {
-  const [w, h, ax, ay] = SPRITES[`${id}_t${tier}`][facing]
-  return {
-    file: artFile(id, tier, facing),
-    x: cellX(a, b) - ax * SCALE,
-    y: cellY(a, b) + GROUND_DY - ay * SCALE,
-    w: w * SCALE,
-    h: h * SCALE,
-  }
+  return { file: artFile(id, tier, facing), ...anchoredBox(SPRITES[`${id}_t${tier}`][facing], a, b) }
 }
+
+// a rendered [w, h, ax, ay] row placed with its anchor px on cell (a, b)'s ground
+const anchoredBox = ([w, h, ax, ay], a, b) => ({
+  x: cellX(a, b) - ax * SCALE,
+  y: cellY(a, b) + GROUND_DY - ay * SCALE,
+  w: w * SCALE,
+  h: h * SCALE,
+})
 
 // a kit piece's box: the shared 256 x 352 canvas, lifted one LIFT per level
 const kitBox = (name, facing, a, b, level) => ({
@@ -356,19 +357,16 @@ export function mapItems(rotation, tiers = {}, nextId = null) {
       // The mill's blades are their own looping sprite, drawn right on top of
       // the bladeless body: same front cell, next in order.
       if (def.id === 'mill') {
-        const [w, h, ax, ay] = ACTORS[`mill_t${tier}_blades`].spin[FACES[r]]
         objects.push({
           key: 'mill.blades',
           file: bladeFile(tier, FACES[r]),
-          x: cellX(anchor[0], anchor[1]) - ax * SCALE,
-          y: cellY(anchor[0], anchor[1]) + GROUND_DY - ay * SCALE,
-          w: w * SCALE,
-          h: h * SCALE,
+          ...anchoredBox(ACTORS[`mill_t${tier}_blades`].spin[FACES[r]], anchor[0], anchor[1]),
           a: front[0],
           b: front[1],
           level: 1,
           i: objects.length,
           state: '',
+          id: def.id,
           spin: true,
         })
       }

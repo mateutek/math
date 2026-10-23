@@ -65,8 +65,7 @@ const objects = computed(() =>
     file: s.spin && still ? s.file.replace(/\.webp$/, '.png') : s.file,
     // walkers slot in between, on the odd z-indexes (see VillageLife)
     box: { ...sprite(s), zIndex: 2 * (i + 1) },
-    // the blades glow with their mill
-    lit: !!selected.value && (s.spin ? 'mill' : s.id) === selected.value,
+    lit: s.id && s.id === selected.value,
   })),
 )
 
