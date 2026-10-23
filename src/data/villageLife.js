@@ -26,9 +26,10 @@ export const CAST = {
 
 // A pet turns up once the building it follows is built; null means from the start.
 export const PETS = [
-  { id: 'dog', actor: 'animal-dog', after: 'hut', ground: 'road' },
-  { id: 'cat', actor: 'animal-cat', after: 'bakery', ground: 'road' },
-  { id: 'cow', actor: 'animal-cow', after: 'farm', ground: 'pasture' },
+  { id: 'dog', actor: 'animal-dog', after: 'hut', ground: 'yard', radius: 4 },
+  { id: 'cat', actor: 'animal-cat', after: 'bakery', ground: 'yard', radius: 4 },
+  { id: 'cow', actor: 'animal-cow', after: 'farm', ground: 'yard', radius: 3 },
+  { id: 'chick', actor: 'animal-chick', after: 'farm', ground: 'yard', radius: 3 },
   { id: 'fox', actor: 'animal-fox', after: null, ground: 'wood' },
   { id: 'bunny', actor: 'animal-bunny', after: null, ground: 'wood' },
 ]
@@ -37,33 +38,36 @@ export function cast(tiers) {
   const out = []
   for (const { id } of BUILDINGS) {
     if (!(tiers[id] >= 1)) continue
-    out.push({ id, actor: CAST[id], ground: 'road', home: PLOTS[id], speed: 0.8, rest: 'idle' })
+    out.push({ id, actor: CAST[id], ground: 'road', home: PLOTS[id], homeId: id, radius: null, speed: 0.8, rest: 'idle' })
   }
   for (const p of PETS) {
     if (p.after && !(tiers[p.after] >= 1)) continue
     out.push({
-      id: p.id, actor: p.actor, ground: p.ground, home: p.ground === 'road' ? PLOTS[p.after] : null,
-      speed: 0.5, rest: p.id === 'cow' ? 'eat' : 'idle',
+      id: p.id, actor: p.actor, ground: p.ground, home: null, homeId: p.after, radius: p.radius ?? null,
+      speed: 0.5, rest: p.id === 'cow' || p.id === 'chick' ? 'eat' : 'idle',
     })
   }
   return out
 }
 
-export function canStand(ground, a, b, tiers) {
+export function canStand(walker, a, b, tiers) {
+  const { ground } = walker
   if (a < 0 || b < 0 || a >= N || b >= N) return false
+  if (ground === 'yard') {
+    // a patch around the home building: grass or road, never a plot, a tree or the river
+    const { homeId, radius } = walker
+    if (a === RIVER_COL || !(tiers[homeId] >= 1) || DECOR_CELLS.has(`${a},${b}`)) return false
+    if (PLOT_CELLS.some(([x, y]) => x === a && y === b)) return false
+    const [ha, hb] = PLOTS[homeId]
+    return cellsOf(homeId, tiers[homeId]).some(([dx, dy]) => Math.max(Math.abs(a - ha - dx), Math.abs(b - hb - dy)) <= radius)
+  }
   const [name] = groundAt(a, b)
   if (ground === 'road') {
     return name === 'grass_path' || name === 'grass_pathCrossing' || (a === RIVER_COL && b === PATH_ROW && tiers.bridge >= 1)
   }
-  if (name !== 'grass_center') return false
-  if (ground === 'pasture') {
-    if (!(tiers.farm >= 1) || PLOT_CELLS.some(([x, y]) => x === a && y === b)) return false
-    const [fa, fb] = PLOTS.farm
-    return cellsOf('farm', tiers.farm).some(([dx, dy]) => Math.max(Math.abs(a - fa - dx), Math.abs(b - fb - dy)) <= 3)
-  }
   // wood: the rim, clear of trees, plots, roads and the river
   return (
-    Math.min(a, b, N - 1 - a, N - 1 - b) < 5 &&
+    name === 'grass_center' && Math.min(a, b, N - 1 - a, N - 1 - b) < 5 &&
     !DECOR_CELLS.has(`${a},${b}`) && !nearPlot(a, b) &&
     Math.abs(a - PATH_COL) > 1 && Math.abs(b - PATH_ROW) > 1 && Math.abs(a - RIVER_COL) > 1
   )
@@ -71,16 +75,16 @@ export function canStand(ground, a, b, tiers) {
 
 const STEPS = [[0, 1], [-1, 0], [0, -1], [1, 0]]
 
-export const moves = (ground, [a, b], tiers) =>
-  STEPS.map(([dx, dy]) => [a + dx, b + dy]).filter(([x, y]) => canStand(ground, x, y, tiers))
+export const moves = (walker, [a, b], tiers) =>
+  STEPS.map(([dx, dy]) => [a + dx, b + dy]).filter(([x, y]) => canStand(walker, x, y, tiers))
 
 // MAP directions, matching how the sprites were rendered.
 const FACES = 'NESW'
 export const faceOf = ([dx, dy]) => FACES[STEPS.findIndex(([x, y]) => x === dx && y === dy)]
 
 // Straight on weighs 3, each turn 1, and back only when nothing else is left.
-function choose(ground, [a, b], face, tiers, rand) {
-  const opts = moves(ground, [a, b], tiers)
+function choose(walker, [a, b], face, tiers, rand) {
+  const opts = moves(walker, [a, b], tiers)
   if (!opts.length) return null
   const [fx, fy] = STEPS[FACES.indexOf(face)]
   const fwd = opts.filter(([x, y]) => x - a === fx && y - b === fy)
@@ -92,7 +96,7 @@ function choose(ground, [a, b], face, tiers, rand) {
 export function spawn(walker, tiers, rand) {
   const { ground, home } = walker
   const cells = []
-  for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (canStand(ground, a, b, tiers)) cells.push([a, b])
+  for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (canStand(walker, a, b, tiers)) cells.push([a, b])
   if (!cells.length) return null
   let at
   if (ground === 'road') {
@@ -106,7 +110,7 @@ export function spawn(walker, tiers, rand) {
   if (ground === 'road') {
     // wander 0-3 cells so villagers sharing a home don't pile up
     for (let i = Math.floor(rand() * 4); i > 0; i--) {
-      const next = choose(ground, [state.a, state.b], state.face, tiers, rand)
+      const next = choose(walker, [state.a, state.b], state.face, tiers, rand)
       if (!next) break
       state.face = faceOf([next[0] - state.a, next[1] - state.b])
       state.a = next[0]
@@ -118,7 +122,7 @@ export function spawn(walker, tiers, rand) {
 }
 
 function pick(state, walker, tiers, rand) {
-  const next = choose(walker.ground, [state.a, state.b], state.face, tiers, rand)
+  const next = choose(walker, [state.a, state.b], state.face, tiers, rand)
   state.from = [state.a, state.b]
   state.t = 0
   state.to = next
@@ -138,7 +142,7 @@ function step(state, walker, tiers, dt, rand) {
     return
   }
   // tiers changed under us: drop the target and look again
-  if (state.to && !canStand(walker.ground, state.to[0], state.to[1], tiers)) state.to = null
+  if (state.to && !canStand(walker, state.to[0], state.to[1], tiers)) state.to = null
   if (!state.to) {
     pick(state, walker, tiers, rand)
     return
