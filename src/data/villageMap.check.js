@@ -196,6 +196,15 @@ for (const [key, meta] of Object.entries(SPRITES)) {
 }
 const missing = allSpriteFiles().filter((f) => !existsSync(join(dir, f)))
 assert.deepEqual(missing, [], 'sprite files present in public/village')
+// the mill's blades: drawn right after the mill, and their files are in that list
+for (let r = 0; r < 4; r++) {
+  for (let t = 1; t <= 3; t++) {
+    const keys = mapItems(r, { mill: t }).objects.map((o) => o.key)
+    assert.equal(keys[keys.indexOf('mill') + 1], 'mill.blades', `blades follow the mill at r${r} t${t}`)
+    const file = `actors/mill_t${t}_blades_spin_${'NESW'[r]}`
+    assert.ok(allSpriteFiles().includes(file + '.webp') && allSpriteFiles().includes(file + '.png'), file)
+  }
+}
 // the wood is generated: it must exist, stay on the land and never double up
 assert.ok(DECOR.length > N, 'the land has trees')
 assert.equal(new Set(DECOR.map((d) => `${d[0]},${d[1]}`)).size, DECOR.length)

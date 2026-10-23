@@ -12,6 +12,7 @@
 // cell and stepping every facing, never CSS-rotating the map.
 import { BUILDINGS } from './buildings.js'
 import SPRITES from './villageSprites.json' with { type: 'json' }
+import ACTORS from './villageActors.json' with { type: 'json' }
 
 // ---------------------------------------------------------------------------
 // Projection
@@ -64,6 +65,9 @@ export const spriteFile = (name, facing) => `${name}_${facing}.png`
 
 // a designer sprite; ground tiles only have tier 1
 export const artFile = (id, tier, facing = 'N') => `buildings/${id}_t${tier}_${facing}.png`
+
+// the mill's spinning blades, an animated WebP; the same name in .png is its first frame
+export const bladeFile = (tier, facing) => `actors/mill_t${tier}_blades_spin_${facing}.webp`
 
 // where the ground is, below cellY: the centre of a level 0 block's top face
 export const GROUND_DY = PROJ.GROUND * SCALE - HALF
@@ -349,6 +353,25 @@ export function mapItems(rotation, tiers = {}, nextId = null) {
         state: '',
         id: def.id,
       })
+      // The mill's blades are their own looping sprite, drawn right on top of
+      // the bladeless body: same front cell, next in order.
+      if (def.id === 'mill') {
+        const [w, h, ax, ay] = ACTORS[`mill_t${tier}_blades`].spin[FACES[r]]
+        objects.push({
+          key: 'mill.blades',
+          file: bladeFile(tier, FACES[r]),
+          x: cellX(anchor[0], anchor[1]) - ax * SCALE,
+          y: cellY(anchor[0], anchor[1]) + GROUND_DY - ay * SCALE,
+          w: w * SCALE,
+          h: h * SCALE,
+          a: front[0],
+          b: front[1],
+          level: 1,
+          i: objects.length,
+          state: '',
+          spin: true,
+        })
+      }
       // how far the image rises above the label cell, in stack levels
       const label = labelCell(cells)
       top = labelLevel = Math.max(1.2, (cellY(label[0], label[1]) - box.y) / LIFT)
@@ -387,5 +410,10 @@ export function allSpriteFiles() {
   return [...FACES].flatMap((f) => [
     ...[...kit].map((n) => spriteFile(n, f)),
     ...art.map(([id, tier]) => artFile(id, tier, f)),
+    ...BUILDINGS.find((d) => d.id === 'mill').cost.flatMap((_, i) => {
+      const tier = i + 1
+      const webp = bladeFile(tier, f)
+      return [webp, webp.replace(/webp$/, 'png')] // the png is the still, for reduced motion
+    }),
   ])
 }

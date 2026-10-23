@@ -57,12 +57,16 @@ const sprite = (s) => ({
 })
 
 const ground = computed(() => items.value.ground.map((s) => ({ ...s, box: sprite(s) })))
+// reduced motion: the mill's blades stand still, on their first frame
+const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 const objects = computed(() =>
   items.value.objects.map((s, i) => ({
     ...s,
+    file: s.spin && still ? s.file.replace(/\.webp$/, '.png') : s.file,
     // walkers slot in between, on the odd z-indexes (see VillageLife)
     box: { ...sprite(s), zIndex: 2 * (i + 1) },
-    lit: s.id && s.id === selected.value,
+    // the blades glow with their mill
+    lit: !!selected.value && (s.spin ? 'mill' : s.id) === selected.value,
   })),
 )
 
@@ -285,9 +289,9 @@ onMounted(() => {
   // warm the cache for the other three facings of every piece on the map, so
   // the first turn does not flash. Once, in idle time, and never awaited.
   const warm = () => {
-    const files = new Set([...items.value.ground, ...items.value.objects].map((s) => s.file))
+    const files = new Set([...ground.value, ...objects.value].map((s) => s.file))
     for (const file of files) {
-      for (const facing of 'NESW') new Image().src = url(file.replace(/_[NESW](?=\.png$)/, `_${facing}`))
+      for (const facing of 'NESW') new Image().src = url(file.replace(/_[NESW](?=\.(png|webp)$)/, `_${facing}`))
     }
   }
   ;(window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1500)))(warm)
