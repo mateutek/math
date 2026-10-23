@@ -7,6 +7,7 @@ import settings from '@/store/settings'
 import { PROJ, LIFT, PATH_COL, PATH_ROW, cellX, cellY, mapItems, rotCell } from '@/data/villageMap'
 import { t } from '@/i18n'
 import VillageLife from './VillageLife.vue'
+import VillageWind from './VillageWind.vue'
 
 const emit = defineEmits(['select', 'built'])
 
@@ -364,6 +365,7 @@ onUnmounted(() => {
             :url="url"
           />
         </div>
+        <VillageWind />
 
         <ul v-if="z >= LABELS_FROM" class="kid-map-labels" aria-hidden="true">
           <li v-for="l in labels" :key="l.id" :class="{ built: l.built }" :style="l.style">

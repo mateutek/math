@@ -568,6 +568,21 @@
   image-rendering: auto;
 }
 .kid-map-art { isolation: isolate; } /* object and walker z-indexes stay under labels, hits and the pin */
+.kid-wind { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.kid-wind svg { position: absolute; aspect-ratio: 200 / 60; height: auto; overflow: visible; pointer-events: none; }
+/* a mirrored shape curls the other way but still drifts left to right */
+.kid-wind svg.flip { transform: scaleY(-1); }
+.kid-wind path {
+  fill: none; stroke: #fff; stroke-opacity: .4; stroke-width: 2px; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: .35 1; stroke-dashoffset: .35; opacity: 0;
+  animation: kid-wind-blow 3s ease-in-out forwards;
+}
+@keyframes kid-wind-blow {
+  0% { stroke-dashoffset: .35; opacity: 0; }
+  25%, 70% { opacity: 1; }
+  100% { stroke-dashoffset: -1; opacity: 0; }
+}
 .kid-map-art img.walker { will-change: transform; left: 0; top: 0; }
 .kid-map-art img.walker.born { animation: kid-walker-in .8s ease-out; }
 @keyframes kid-walker-in { from { opacity: 0; } }
@@ -721,6 +736,7 @@
 @media (prefers-reduced-motion: reduce) {
   .kid-map-art img.next, .kid-map-sky .star.tw { animation: none; }
   .kid-map-art img.walker.born { animation: none; }
+  .kid-wind { display: none; }
   .kid-tab-pill { transition: none; }
   .kid-bar .fill, .kid-picker .cls { transition: none; }
 }
