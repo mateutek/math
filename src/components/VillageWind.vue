@@ -17,7 +17,8 @@ let id = 0
 let timer = 0
 
 function blow() {
-  if (gusts.value.length < MAX) {
+  // a hidden tab never plays the animation, so gusts would pile up for the return
+  if (!document.hidden && gusts.value.length < MAX) {
     gusts.value.push({
       id: id++,
       d: PATHS[Math.floor(Math.random() * PATHS.length)],
