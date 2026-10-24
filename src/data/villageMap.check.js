@@ -121,7 +121,7 @@ for (let r = 0; r < 4; r++) {
       assert.ok(before(list[i - 1], list[i]), `draw order at ${i} of rotation ${r}`)
     }
   }
-  assert.equal(buildings.length, BUILDINGS.length)
+  assert.equal(buildings.length, BUILDINGS.length - 1)
 }
 
 // 5. every building fits the grid at every tier and every rotation, and no two
@@ -178,7 +178,8 @@ for (const [id, cell] of Object.entries(PLOTS)) {
   assert.ok(BUILDINGS.some((d) => d.id === id), `${id} is a real building`)
   assert.ok(cell[0] >= 0 && cell[0] < N && cell[1] >= 0 && cell[1] < N)
 }
-assert.equal(Object.keys(PLOTS).length, BUILDINGS.length)
+// every building has a plot but the roads, which pave the ground instead
+assert.deepEqual(BUILDINGS.filter((d) => !PLOTS[d.id]).map((d) => d.id), ['roads'])
 // every ground piece the plan uses has a tile to draw it
 for (const c of cells) assert.ok(TILES[groundAt(c[0], c[1])[0]], `tile for ${c}`)
 

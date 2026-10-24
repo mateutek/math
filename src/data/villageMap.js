@@ -224,7 +224,7 @@ const DECOR_PIECES = ['tree_pine', 'tree_single', 'tree_multiple', 'tree_pineLar
 const hash = (a, b) => (Math.imul(a + 1, 73856093) ^ Math.imul(b + 1, 19349663)) >>> 0
 
 // every cell any tier of any building can stand on
-export const PLOT_CELLS = BUILDINGS.flatMap((d) =>
+export const PLOT_CELLS = BUILDINGS.filter((d) => PLOTS[d.id]).flatMap((d) =>
   d.cost.flatMap((_, i) => cellsOf(d.id, i + 1).map(([dx, dy]) => [PLOTS[d.id][0] + dx, PLOTS[d.id][1] + dy])),
 )
 export const nearPlot = (a, b) => PLOT_CELLS.some(([x, y]) => Math.abs(a - x) < 3 && Math.abs(b - y) < 3)
@@ -389,6 +389,8 @@ function labelCell(cells) {
  */
 export function mapItems(rotation, tiers = {}, nextId = null) {
   const r = ((rotation % 4) + 4) % 4
+  // how far the roads building has paved every path, as a tile tier
+  const pave = 1 + Math.min(tiers.roads || 0, ROAD_TIERS)
   const ground = []
   const objects = []
   const buildings = []
@@ -399,7 +401,7 @@ export function mapItems(rotation, tiers = {}, nextId = null) {
     for (let b = 0; b < PROJ.GRID; b++) {
       const [tile, facing] = tileAt(a, b)
       const [ra, rb] = rotCell([a, b], r)
-      const box = artBox(tile, 1, rotFace(facing, r), ra, rb)
+      const box = artBox(tile, PAVED.has(tile) ? pave : 1, rotFace(facing, r), ra, rb)
       ground.push({
         key: `g${a}.${b}`,
         file: box.file,
@@ -431,6 +433,7 @@ export function mapItems(rotation, tiers = {}, nextId = null) {
   }
 
   for (const def of BUILDINGS) {
+    if (!PLOTS[def.id]) continue // roads: drawn as the ground above
     const tier = tiers[def.id] || 0
     const anchor = rotCell(PLOTS[def.id], r)
     const status = tier ? 'built' : def.id === nextId ? 'next' : 'plan'
@@ -500,11 +503,15 @@ export function mapItems(rotation, tiers = {}, nextId = null) {
   return { ground, objects, buildings }
 }
 
+// the path tiles the roads building paves: tier 1 is dirt, one more per roads tier
+const PAVED = new Set(PATH_PIECES.map((n) => TILES[n][0]))
+const ROAD_TIERS = BUILDINGS.find((d) => d.id === 'roads').cost.length
+
 // every sprite file the map can ever ask for, in all four facings
 export function allSpriteFiles() {
   const kit = new Set([...DECOR.map((d) => d[2]), ...Object.values(GHOST).map((g) => g[0])])
   const art = [
-    ...Object.values(TILES).map(([tile]) => [tile, 1]),
+    ...Object.values(TILES).flatMap(([tile]) => (PAVED.has(tile) ? [1, 2, 3].slice(0, ROAD_TIERS + 1) : [1]).map((t) => [tile, t])),
     ...GRASSES.map((g) => [`tile-grass-${g}`, 1]),
     ['tile-river-lily', 1],
     ...BUILDINGS.flatMap((d) => d.cost.map((_, i) => [d.id, i + 1])),

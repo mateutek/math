@@ -37,7 +37,7 @@ export const PETS = [
 export function cast(tiers) {
   const out = []
   for (const { id } of BUILDINGS) {
-    if (!(tiers[id] >= 1)) continue
+    if (!(tiers[id] >= 1) || !CAST[id]) continue // roads bring nobody
     out.push({ id, actor: CAST[id], ground: 'road', home: PLOTS[id], homeId: id, radius: null, speed: 0.8, rest: 'idle' })
   }
   for (const p of PETS) {

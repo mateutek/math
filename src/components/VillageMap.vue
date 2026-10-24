@@ -4,7 +4,9 @@ import { Maximize, Minimize, Minus, Plus, RotateCw, X } from 'lucide-vue-next'
 import village, { build, next } from '@/store/village'
 import { goalFor, canAfford } from '@/store/villageLogic'
 import settings from '@/store/settings'
-import { PROJ, LIFT, PATH_COL, PATH_ROW, RIVER_COL, cellX, cellY, mapItems, rotCell, rotOffset, tileAt } from '@/data/villageMap'
+import {
+  PROJ, LIFT, GROUND_DY, PATH_COL, PATH_ROW, RIVER_COL, cellX, cellY, groundAt, mapItems, rotCell, rotOffset, tileAt,
+} from '@/data/villageMap'
 import { t } from '@/i18n'
 import VillageLife from './VillageLife.vue'
 import VillageWind from './VillageWind.vue'
@@ -116,8 +118,16 @@ const statusKey = { built: 'stBuilt', next: 'stNext', plan: 'stPlan' }
 // whole footprint; what you can actually click is one upright slab per cell,
 // the board's 40 x (top + 20) column, so a tall tower never swallows the plot
 // next to it. Nearer buildings come last, so they win where slabs overlap.
+// The roads have no plot: they answer a tap on any road (see onWorldClick),
+// and for the keyboard they get one flat slab on the crossroads.
+const roads = computed(() => {
+  const tier = village.buildings.find((b) => b.id === 'roads')?.tier ?? 0
+  const status = tier ? 'built' : next.value?.id === 'roads' ? 'next' : 'plan'
+  return { id: 'roads', tier, status, cells: [rotCell([PATH_COL, PATH_ROW], settings.mapRotation)], top: 0 }
+})
+
 const hits = computed(() =>
-  items.value.buildings
+  [...items.value.buildings, roads.value]
     .map((b) => {
       const slabs = b.cells.map(([a, y]) => ({
         l: px(cellX(a, y) - 20),
@@ -178,7 +188,7 @@ const pin = computed(() => {
 })
 
 const card = computed(() => {
-  const b = items.value.buildings.find((x) => x.id === selected.value)
+  const b = [...items.value.buildings, roads.value].find((x) => x.id === selected.value)
   if (!b) return null
   const goal = goalFor(village, b.id)
   return {
@@ -203,6 +213,20 @@ function pick(id) {
   }
   selected.value = selected.value === id ? null : id
   emit('select', selected.value)
+}
+
+// a tap on the open map that lands on a road picks the roads
+function onWorldClick(e) {
+  if (e.target.closest('button')) return
+  const box = e.currentTarget.getBoundingClientRect()
+  const x = (e.clientX - box.left - ox.value) / u.value - PROJ.ORIGIN_X
+  const y = (e.clientY - box.top - oy.value) / u.value - PROJ.ORIGIN_Y - GROUND_DY
+  // invert cellX / cellY: x = (a - b) * W / 2, y = (a + b) * H / 2
+  const d = x / (PROJ.TILE_W / 2)
+  const s = y / (PROJ.TILE_H / 2)
+  const [a, b] = rotCell([Math.round((s + d) / 2), Math.round((s - d) / 2)], 4 - settings.mapRotation)
+  if (a < 0 || b < 0 || a >= PROJ.GRID || b >= PROJ.GRID) return
+  if (groundAt(a, b)[0].startsWith('grass_path')) pick('roads')
 }
 
 function clear() {
@@ -357,7 +381,7 @@ onUnmounted(() => {
       @pointerup="onUp"
       @pointerleave="onUp"
     >
-      <div class="kid-map-world" :style="{ width: mapW + 'px', height: mapH + 'px' }">
+      <div class="kid-map-world" :style="{ width: mapW + 'px', height: mapH + 'px' }" @click="onWorldClick">
         <div class="kid-map-art" aria-hidden="true">
           <img
             v-for="s in ground"

@@ -32,6 +32,9 @@ export const BUILDINGS = [
   { id: 'library', cost: tiers({ wood: 24, stone: 20, food: 14 }, 9) },
   { id: 'tower', cost: tiers({ wood: 20, stone: 45, food: 15 }, 10) },
   { id: 'bridge', cost: tiers({ wood: 50, stone: 40, food: 20 }, 11) },
+  // No plot and no villager: each tier paves every road and garden path a step
+  // further (dirt, then flagstones, then cobbles - see villageMap.js), so two tiers.
+  { id: 'roads', cost: tiers({ wood: 10, stone: 30 }, 11).slice(0, 2) },
   { id: 'townhall', cost: tiers({ wood: 50, stone: 50, food: 30 }, 12) },
   { id: 'castle', cost: tiers({ wood: 50, stone: 60, food: 40, coins: 20 }, 13) },
 ]
