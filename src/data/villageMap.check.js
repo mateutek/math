@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 import { BUILDINGS } from './buildings.js'
 import SPRITES from './villageSprites.json' with { type: 'json' }
 import {
-  PROJ, SCALE, HALF, LIFT, GROUND_DY, CONNECTS, PLOTS, DECOR, TILES, DOORS, SPURS, PATH_COL, PATH_ROW, doorCell,
+  PROJ, SCALE, HALF, LIFT, GROUND_DY, CONNECTS, PLOTS, DECOR, TILES, DOORS, SPURS, PATH_COL, PATH_ROW, doorCell, LOOPS,
   allSpriteFiles, artBox, cellX, cellY, groundAt, mapItems, rotCell, rotFace, rotOffset,
   spriteX, spriteY,
 } from './villageMap.js'
@@ -215,13 +215,16 @@ for (const [key, meta] of Object.entries(SPRITES)) {
 }
 const missing = allSpriteFiles().filter((f) => !existsSync(join(dir, f)))
 assert.deepEqual(missing, [], 'sprite files present in public/village')
-// the mill's blades: drawn right after the mill, and their files are in that list
-for (let r = 0; r < 4; r++) {
-  for (let t = 1; t <= 3; t++) {
-    const keys = mapItems(r, { mill: t }).objects.map((o) => o.key)
-    assert.equal(keys[keys.indexOf('mill') + 1], 'mill.blades', `blades follow the mill at r${r} t${t}`)
-    const file = `actors/mill_t${t}_blades_spin_${'NESW'[r]}`
-    assert.ok(allSpriteFiles().includes(file + '.webp') && allSpriteFiles().includes(file + '.png'), file)
+// the mill's blades and the flags: drawn right after their building, and their
+// files are in that list
+for (const [id, [part, clip]] of Object.entries(LOOPS)) {
+  for (let r = 0; r < 4; r++) {
+    for (let t = 1; t <= 3; t++) {
+      const keys = mapItems(r, { [id]: t }).objects.map((o) => o.key)
+      assert.equal(keys[keys.indexOf(id) + 1], `${id}.${part}`, `${part} follow the ${id} at r${r} t${t}`)
+      const file = `actors/${id}_t${t}_${part}_${clip}_${'NESW'[r]}`
+      assert.ok(allSpriteFiles().includes(file + '.webp') && allSpriteFiles().includes(file + '.png'), file)
+    }
   }
 }
 // the wood is generated: it must exist, stay on the land and never double up

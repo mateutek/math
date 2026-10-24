@@ -60,12 +60,12 @@ const sprite = (s) => ({
 })
 
 const ground = computed(() => items.value.ground.map((s) => ({ ...s, box: sprite(s) })))
-// reduced motion: the mill's blades stand still, on their first frame
+// reduced motion: the mill's blades and the flags stand still, on their first frame
 const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 const objects = computed(() =>
   items.value.objects.map((s, i) => ({
     ...s,
-    file: s.spin && still ? s.file.replace(/\.webp$/, '.png') : s.file,
+    file: s.loop && still ? s.file.replace(/\.webp$/, '.png') : s.file,
     // walkers slot in between, on the odd z-indexes (see VillageLife)
     box: { ...sprite(s), zIndex: 2 * (i + 1) },
     lit: s.id && s.id === selected.value,

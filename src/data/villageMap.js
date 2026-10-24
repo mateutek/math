@@ -66,8 +66,11 @@ export const spriteFile = (name, facing) => `${name}_${facing}.png`
 // a designer sprite; ground tiles only have tier 1
 export const artFile = (id, tier, facing = 'N') => `buildings/${id}_t${tier}_${facing}.png`
 
-// the mill's spinning blades, an animated WebP; the same name in .png is its first frame
-export const bladeFile = (tier, facing) => `actors/mill_t${tier}_blades_spin_${facing}.webp`
+// Looping parts drawn on top of their building, rendered on their own by the
+// designer: the mill's blades and the castle's and tower's flags. Each is an
+// animated WebP; the same name in .png is its first frame.
+export const LOOPS = { mill: ['blades', 'spin'], castle: ['flags', 'wave'], tower: ['flags', 'wave'] }
+export const loopFile = (id, tier, facing) => `actors/${id}_t${tier}_${LOOPS[id].join('_')}_${facing}.webp`
 
 // where the ground is, below cellY: the centre of a level 0 block's top face
 export const GROUND_DY = PROJ.GROUND * SCALE - HALF
@@ -461,20 +464,21 @@ export function mapItems(rotation, tiers = {}, nextId = null) {
         state: '',
         id: def.id,
       })
-      // The mill's blades are their own looping sprite, drawn right on top of
-      // the bladeless body: same front cell, next in order.
-      if (def.id === 'mill') {
+      // A looping part (blades, flags) is its own sprite, drawn right on top of
+      // the body rendered without it: same front cell, next in order.
+      if (LOOPS[def.id]) {
+        const [part, clip] = LOOPS[def.id]
         objects.push({
-          key: 'mill.blades',
-          file: bladeFile(tier, FACES[r]),
-          ...anchoredBox(ACTORS[`mill_t${tier}_blades`].spin[FACES[r]], anchor[0], anchor[1]),
+          key: `${def.id}.${part}`,
+          file: loopFile(def.id, tier, FACES[r]),
+          ...anchoredBox(ACTORS[`${def.id}_t${tier}_${part}`][clip][FACES[r]], anchor[0], anchor[1]),
           a: front[0],
           b: front[1],
           level: 1,
           i: objects.length,
           state: '',
           id: def.id,
-          spin: true,
+          loop: true,
         })
       }
       // how far the image rises above the label cell, in stack levels
@@ -519,10 +523,11 @@ export function allSpriteFiles() {
   return [...FACES].flatMap((f) => [
     ...[...kit].map((n) => spriteFile(n, f)),
     ...art.map(([id, tier]) => artFile(id, tier, f)),
-    ...BUILDINGS.find((d) => d.id === 'mill').cost.flatMap((_, i) => {
-      const tier = i + 1
-      const webp = bladeFile(tier, f)
-      return [webp, webp.replace(/webp$/, 'png')] // the png is the still, for reduced motion
-    }),
+    ...BUILDINGS.filter((d) => LOOPS[d.id]).flatMap((d) =>
+      d.cost.flatMap((_, i) => {
+        const webp = loopFile(d.id, i + 1, f)
+        return [webp, webp.replace(/webp$/, 'png')] // the png is the still, for reduced motion
+      }),
+    ),
   ])
 }
