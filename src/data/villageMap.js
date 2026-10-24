@@ -126,12 +126,19 @@ export const RIVER_COL = 24
 export const PATH_COL = 12
 export const PATH_ROW = 16
 
-export function groundAt(a, b) {
+// the town's two roads and its river, before any garden path joins them
+function roadAt(a, b) {
   if (a === RIVER_COL) return ['grass_river', 'E']
   if (a === PATH_COL && b === PATH_ROW) return ['grass_pathCrossing', 'N']
   if (a === PATH_COL) return ['grass_path', 'E']
   if (b === PATH_ROW) return ['grass_path', 'N']
   return ['grass_center', 'N']
+}
+
+// what lies on a cell: a garden path (see SPURS), a road, the river or grass
+export function groundAt(a, b) {
+  const dirs = LINKS.get(`${a},${b}`)
+  return dirs ? pathPiece(dirs) : roadAt(a, b)
 }
 
 // Which map directions a ground piece joins, written for facing N. dx/dy are
@@ -142,6 +149,8 @@ export const CONNECTS = {
   grass_river: [[1, 0], [-1, 0]],
   grass_pathCrossing: [[1, 0], [-1, 0], [0, 1], [0, -1]],
   grass_pathBend: [[1, 0], [0, 1]],
+  grass_pathEnd: [[0, 1]],
+  grass_pathSplit: [[1, 0], [-1, 0], [0, 1]],
 }
 
 // The sprite that draws each ground piece, and how many quarter turns to add
@@ -154,6 +163,8 @@ export const TILES = {
   grass_river: ['tile-river', 1],
   grass_pathCrossing: ['tile-crossing', 0],
   grass_pathBend: ['tile-bend', 0],
+  grass_pathEnd: ['tile-end', 0],
+  grass_pathSplit: ['tile-split', 0],
 }
 
 // ---------------------------------------------------------------------------
@@ -218,12 +229,96 @@ export const PLOT_CELLS = BUILDINGS.flatMap((d) =>
 )
 export const nearPlot = (a, b) => PLOT_CELLS.some(([x, y]) => Math.abs(a - x) < 3 && Math.abs(b - y) < 3)
 
+// ---------------------------------------------------------------------------
+// Garden paths: one from each door to the nearest road
+// ---------------------------------------------------------------------------
+// Doors face +b on every tier (measured off the renders); the well, market and
+// farm are open and the bridge is a road, so they have none. Each path is the
+// cheapest walk from the cell before the door to a road, a turn costing half a
+// step, over grass only: never a plot, the river, the crossing or another
+// path. Fixed at load, like the roads, built or not.
+export const DOORS = ['hut', 'bakery', 'school', 'library', 'townhall', 'mill', 'tower', 'castle']
+const STEPS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+const key = (a, b) => `${a},${b}`
+const PLOT_SET = new Set(PLOT_CELLS.map(([a, b]) => key(a, b)))
+
+function spurFrom([a0, b0], taken) {
+  const open = (a, b) => a >= 0 && b >= 0 && a < GRID && b < GRID && a !== RIVER_COL && !PLOT_SET.has(key(a, b)) && !taken.has(key(a, b))
+  const isRoad = (a, b) => roadAt(a, b)[0] === 'grass_path'
+  // ponytail: Dijkstra over a plain array, fine for a 32 x 32 land walked eight times at load
+  const best = new Map([[key(a0, b0) + ':-1', 0]])
+  const queue = [{ a: a0, b: b0, d: -1, cost: 0, trail: [[a0, b0]] }]
+  while (queue.length) {
+    queue.sort((p, q) => p.cost - q.cost)
+    const { a, b, d, cost, trail } = queue.shift()
+    if (isRoad(a, b)) return trail
+    STEPS.forEach(([dx, dy], i) => {
+      const [x, y] = [a + dx, b + dy]
+      if (!isRoad(x, y) && !open(x, y)) return
+      const c = cost + 1 + (d >= 0 && d !== i ? 0.5 : 0)
+      const k = `${key(x, y)}:${i}`
+      if (best.has(k) && best.get(k) <= c) return
+      best.set(k, c)
+      queue.push({ a: x, b: y, d: i, cost: c, trail: [...trail, [x, y]] })
+    })
+  }
+  throw new Error(`no road reachable from the door at ${a0},${b0}`)
+}
+
+// each path runs door cell .. road cell; the road cell is the last one
+export const SPURS = (() => {
+  const taken = new Set()
+  return DOORS.map((id) => {
+    const trail = spurFrom([PLOTS[id][0], PLOTS[id][1] + 1], taken)
+    trail.slice(0, -1).forEach(([a, b]) => taken.add(key(a, b)))
+    return { id, cells: trail }
+  })
+})()
+
+// 'a,b' -> the directions a path piece there joins: path cells, and the road
+// cells they meet, which keep their own road directions too
+const LINKS = (() => {
+  const out = new Map()
+  const add = ([a, b], d) => {
+    if (!out.has(key(a, b))) {
+      const [name, facing] = roadAt(a, b)
+      out.set(key(a, b), (CONNECTS[name] ?? []).map((e) => rotOffset(e, FACES.indexOf(facing))))
+    }
+    out.get(key(a, b)).push(d)
+  }
+  for (const { cells } of SPURS) {
+    for (let i = 1; i < cells.length; i++) {
+      const [p, q] = [cells[i - 1], cells[i]]
+      add(p, [q[0] - p[0], q[1] - p[1]])
+      add(q, [p[0] - q[0], p[1] - q[1]])
+    }
+  }
+  return out
+})()
+
+// the path piece and facing that join exactly these directions
+const PATH_PIECES = ['grass_pathEnd', 'grass_path', 'grass_pathBend', 'grass_pathSplit', 'grass_pathCrossing']
+const same = (p, q) => p.length === q.length && p.every(([x, y]) => q.some(([u, v]) => u === x && v === y))
+function pathPiece(dirs) {
+  for (const name of PATH_PIECES) {
+    for (let k = 0; k < 4; k++) {
+      if (same(CONNECTS[name].map((d) => rotOffset(d, k)), dirs)) return [name, FACES[k]]
+    }
+  }
+  throw new Error(`no path piece joins ${JSON.stringify(dirs)}`)
+}
+
+// path cells and their neighbours: no tree grows there
+const NEAR_PATH = new Set(
+  SPURS.flatMap(({ cells }) => cells.flatMap(([a, b]) => [[0, 0], ...STEPS].map(([dx, dy]) => key(a + dx, b + dy)))),
+)
+
 export const DECOR = (() => {
   const out = []
   for (let a = 0; a < GRID; a++) {
     for (let b = 0; b < GRID; b++) {
       if ([RIVER_COL, PATH_COL].some((c) => Math.abs(a - c) < 2) || Math.abs(b - PATH_ROW) < 2) continue
-      if (nearPlot(a, b)) continue
+      if (nearPlot(a, b) || NEAR_PATH.has(key(a, b))) continue
       const rim = Math.min(a, b, GRID - 1 - a, GRID - 1 - b)
       const h = hash(a, b)
       if (h % 100 >= (rim < 2 ? 60 : rim < 5 ? 25 : 7)) continue

@@ -63,7 +63,7 @@ export function canStand(walker, a, b, tiers) {
   }
   const [name] = groundAt(a, b)
   if (ground === 'road') {
-    return name === 'grass_path' || name === 'grass_pathCrossing' || (a === RIVER_COL && b === PATH_ROW && tiers.bridge >= 1)
+    return name.startsWith('grass_path') || (a === RIVER_COL && b === PATH_ROW && tiers.bridge >= 1)
   }
   // wood: the rim, clear of trees, plots, roads and the river
   return (

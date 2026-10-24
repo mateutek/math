@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 import { BUILDINGS } from './buildings.js'
 import SPRITES from './villageSprites.json' with { type: 'json' }
 import {
-  PROJ, SCALE, HALF, LIFT, GROUND_DY, CONNECTS, PLOTS, DECOR, TILES,
+  PROJ, SCALE, HALF, LIFT, GROUND_DY, CONNECTS, PLOTS, DECOR, TILES, DOORS, SPURS, PATH_COL, PATH_ROW,
   allSpriteFiles, artBox, cellX, cellY, groundAt, mapItems, rotCell, rotFace, rotOffset,
   spriteX, spriteY,
 } from './villageMap.js'
@@ -27,19 +27,32 @@ const landed = new Set(cells.map((c) => rotCell(c, 1).join(',')))
 assert.equal(landed.size, cells.length)
 
 // 2. the ground plan: a full river column, a full road column, one crossing,
-//    and a road row broken where it meets the river
+//    and a road row broken where it meets the river. Garden paths are left out
+//    here and checked on their own below.
+const onPath = new Set(SPURS.flatMap((s) => s.cells.map((c) => c.join(','))))
+const joins = [...new Set(SPURS.map((s) => s.cells.at(-1).join(',')))].map((k) => k.split(',').map(Number))
 const counts = {}
 for (const [a, b] of cells) {
+  if (onPath.has(`${a},${b}`)) continue
   const key = groundAt(a, b).join('_')
   counts[key] = (counts[key] ?? 0) + 1
 }
 assert.deepEqual(counts, {
-  grass_center_N: N * N - (3 * N - 2),
+  grass_center_N: N * N - (3 * N - 2) - (onPath.size - joins.length),
   grass_river_E: N,
-  grass_path_E: N - 1,
-  grass_path_N: N - 2,
+  grass_path_E: N - 1 - joins.filter(([a]) => a === PATH_COL).length,
+  grass_path_N: N - 2 - joins.filter(([, b]) => b === PATH_ROW).length,
   grass_pathCrossing_N: 1,
 })
+// every door has a path: from the cell before it, over grass, to a road
+assert.deepEqual(SPURS.map((s) => s.id), DOORS)
+for (const { id, cells: trail } of SPURS) {
+  assert.deepEqual(trail[0], [PLOTS[id][0], PLOTS[id][1] + 1], `${id} path starts at its door`)
+  const [ja, jb] = trail.at(-1)
+  assert.ok((ja === PATH_COL) !== (jb === PATH_ROW), `${id} path meets a road, not the crossing`)
+  assert.equal(groundAt(...trail[0])[0], 'grass_pathEnd', `${id} path ends at the door`)
+  for (const c of trail) assert.ok(groundAt(...c)[0].startsWith('grass_path'), `${id} path at ${c}`)
+}
 
 // 3. rotating the map keeps every road and river joint connected. Two
 //    neighbouring tiles are joined when each one's piece points at the other.
@@ -71,7 +84,8 @@ const joints = (r) => {
 const base = joints(0)
 // N-1 along the river, N-1 down the road column, N-3 across the road row: the
 // row loses two because the road is broken at the river, where the bridge is
-assert.equal(base.size, 3 * N - 5, 'connected road and river joints')
+// plus one per garden path step
+assert.equal(base.size, 3 * N - 5 + SPURS.reduce((n, s) => n + s.cells.length - 1, 0), 'connected road and river joints')
 for (let r = 1; r < 4; r++) {
   const turned = joints(r)
   assert.equal(turned.size, base.size, `joint count at rotation ${r}`)
