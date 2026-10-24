@@ -100,4 +100,27 @@ const s = spawn(w, noBridge, seeded(3))
 tick(s, w, full, 600, seeded(4))
 assert.ok(canStand(w, s.a, s.b, full))
 
+// villagers go into built buildings, never stay in longer than the longest
+// wait, and never go into one that is not built
+{
+  const tiers = { ...full, library: 0 }
+  const rand = seeded(7)
+  let visits = 0
+  for (const w of cast(tiers).filter((x) => x.ground === 'road')) {
+    const s = spawn(w, tiers, rand)
+    let inside = 0
+    for (let i = 0; i < 6000; i++) {
+      tick(s, w, tiers, 0.1, rand)
+      if (!s.door) { inside = 0; continue }
+      if (inside === 0) {
+        visits++
+        assert.notDeepEqual([s.a, s.b], [PLOTS.library[0], PLOTS.library[1] + 1], `${w.id} went into the unbuilt library`)
+      }
+      inside += 0.1
+      assert.ok(inside <= 12.2, `${w.id} stuck inside at ${s.a},${s.b}`)
+    }
+  }
+  assert.ok(visits > 10, `villagers visit buildings (${visits})`)
+}
+
 console.log('villageLife ok')

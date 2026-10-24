@@ -586,7 +586,7 @@
   25%, 70% { opacity: 1; }
   100% { stroke-dashoffset: -1; opacity: 0; }
 }
-.kid-map-art img.walker { will-change: transform; left: 0; top: 0; }
+.kid-map-art img.walker { will-change: transform; left: 0; top: 0; transition: opacity .6s ease; }
 .kid-map-art img.walker.born { animation: kid-walker-in .8s ease-out; }
 @keyframes kid-walker-in { from { opacity: 0; } }
 .kid-map-art img.plan { opacity: .5; }
@@ -792,6 +792,7 @@
 @media (prefers-reduced-motion: reduce) {
   .kid-map-art img.next, .kid-map-sky .star.tw, .kid-map-sky .moon, .kid-map-sky .sun { animation: none; }
   .kid-map-art img.walker.born { animation: none; }
+  .kid-map-art img.walker { transition: none; }
   .kid-wind, .kid-map-ripple { display: none; }
   .kid-tab-pill { transition: none; }
   .kid-bar .fill, .kid-picker .cls { transition: none; }

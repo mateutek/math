@@ -3,7 +3,7 @@
 // state.from -> state.to by state.t (0..1).
 import { BUILDINGS } from './buildings.js'
 import {
-  PROJ, PATH_COL, PATH_ROW, RIVER_COL, PLOTS, PLOT_CELLS, DECOR_CELLS, cellsOf, groundAt, nearPlot,
+  PROJ, PATH_COL, PATH_ROW, RIVER_COL, PLOTS, PLOT_CELLS, DECOR_CELLS, SPURS, cellsOf, groundAt, nearPlot,
 } from './villageMap.js'
 
 const N = PROJ.GRID
@@ -75,6 +75,11 @@ export function canStand(walker, a, b, tiers) {
 
 const STEPS = [[0, 1], [-1, 0], [0, -1], [1, 0]]
 
+// Garden paths: the cells off the road, and each door cell -> its building and the step inside
+const GARDEN = new Set(SPURS.flatMap(({ cells }) => cells.slice(0, -1).map(([a, b]) => `${a},${b}`)))
+const DOOR_AT = new Map(SPURS.map(({ id, cells, in: dir }) => [cells[0].join(','), { id, dir }]))
+export const ENTER = 0.8 // how often a villager at a built door goes in
+
 export const moves = (walker, [a, b], tiers) =>
   STEPS.map(([dx, dy]) => [a + dx, b + dy]).filter(([x, y]) => canStand(walker, x, y, tiers))
 
@@ -89,7 +94,9 @@ function choose(walker, [a, b], face, tiers, rand) {
   const [fx, fy] = STEPS[FACES.indexOf(face)]
   const fwd = opts.filter(([x, y]) => x - a === fx && y - b === fy)
   const side = opts.filter(([x, y]) => x - a !== -fx && y - b !== -fy && !fwd.some(([p, q]) => p === x && q === y))
-  const pool = side.length || fwd.length ? [...fwd, ...fwd, ...fwd, ...side] : opts
+  // a garden path off the road weighs as much as going straight on, so doors get visits
+  const garden = walker.ground === 'road' && !GARDEN.has(`${a},${b}`) ? side.filter(([x, y]) => GARDEN.has(`${x},${y}`)) : []
+  const pool = side.length || fwd.length ? [...fwd, ...fwd, ...fwd, ...side, ...garden, ...garden] : opts
   return pool[Math.floor(rand() * pool.length)]
 }
 
@@ -135,6 +142,15 @@ function pick(state, walker, tiers, rand) {
 }
 
 function step(state, walker, tiers, dt, rand) {
+  // inside a building: unseen until the wait is over, then out on the path again
+  if (state.door) {
+    state.door.wait -= dt
+    if (state.door.wait > 0) return
+    state.face = faceOf(state.door.dir.map((v) => -v))
+    state.door = null
+    pick(state, walker, tiers, rand)
+    return
+  }
   if (state.wait > 0) {
     state.wait = Math.max(0, state.wait - dt)
     state.clip = walker.rest
@@ -154,6 +170,13 @@ function step(state, walker, tiers, dt, rand) {
   state.b = state.to[1]
   state.from = [state.a, state.b]
   state.t = 0
+  const door = walker.ground === 'road' && DOOR_AT.get(`${state.a},${state.b}`)
+  if (door && tiers[door.id] >= 1 && rand() < ENTER) {
+    state.to = null
+    state.clip = walker.rest
+    state.door = { dir: door.dir, wait: 4 + rand() * 8 }
+    return
+  }
   if (rand() < (PETS.some((p) => p.id === walker.id) ? 0.3 : 0.05)) {
     state.to = null
     state.wait = 1 + rand() * 3

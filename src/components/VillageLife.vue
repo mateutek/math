@@ -79,6 +79,7 @@ function draw(w, s) {
   st.width = `${(vw * SCALE * props.u).toFixed(2)}px`
   st.height = `${(vh * SCALE * props.u).toFixed(2)}px`
   st.zIndex = zOf(Math.round(ra + rb))
+  st.opacity = s.door ? '0' : '' // inside a building: the walker fades out (see kid.css)
   const src = props.url(`actors/${w.actor}_${clip}_${F}.${still ? 'png' : 'webp'}`)
   if (img.getAttribute('src') !== src) img.setAttribute('src', src)
 }
