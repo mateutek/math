@@ -594,6 +594,17 @@
 .kid-map-art img.lit { filter: var(--k-map-glow); }
 @keyframes kid-map-pulse { 50% { opacity: .5; } }
 .kid-map-diamond { position: absolute; overflow: visible; pointer-events: none; }
+/* river ripples: in cell units (see VillageMap), so the drift is a fraction of a cell */
+.kid-map-ripple { position: absolute; overflow: visible; pointer-events: none; }
+.kid-map-ripple path {
+  fill: none; stroke: #fff; stroke-width: 1.4px; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  opacity: 0; animation: kid-ripple 3s linear infinite;
+}
+@keyframes kid-ripple {
+  0% { transform: translateX(-.3px); opacity: 0; }
+  30%, 70% { opacity: .55; }
+  100% { transform: translateX(.3px); opacity: 0; }
+}
 .kid-map-diamond .fill {
   fill: var(--k-brand-line); fill-opacity: .28;
   stroke: #fff; stroke-width: 2.2; stroke-linejoin: round;
@@ -781,7 +792,7 @@
 @media (prefers-reduced-motion: reduce) {
   .kid-map-art img.next, .kid-map-sky .star.tw, .kid-map-sky .moon, .kid-map-sky .sun { animation: none; }
   .kid-map-art img.walker.born { animation: none; }
-  .kid-wind { display: none; }
+  .kid-wind, .kid-map-ripple { display: none; }
   .kid-tab-pill { transition: none; }
   .kid-bar .fill, .kid-picker .cls { transition: none; }
 }

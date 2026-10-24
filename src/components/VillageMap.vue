@@ -4,7 +4,7 @@ import { Maximize, Minimize, Minus, Plus, RotateCw, X } from 'lucide-vue-next'
 import village, { build, next } from '@/store/village'
 import { goalFor, canAfford } from '@/store/villageLogic'
 import settings from '@/store/settings'
-import { PROJ, LIFT, PATH_COL, PATH_ROW, cellX, cellY, mapItems, rotCell } from '@/data/villageMap'
+import { PROJ, LIFT, PATH_COL, PATH_ROW, RIVER_COL, cellX, cellY, mapItems, rotCell, rotOffset, tileAt } from '@/data/villageMap'
 import { t } from '@/i18n'
 import VillageLife from './VillageLife.vue'
 import VillageWind from './VillageWind.vue'
@@ -80,6 +80,35 @@ const diamonds = computed(() =>
     height: `${(PROJ.TILE_H * u.value).toFixed(2)}px`,
   })),
 )
+
+// River ripples: two short strokes per river cell drifting downstream (+b), CSS only.
+// The shapes are drawn in cell units (u along the flow, v across it, both -0.5..0.5)
+// and one matrix projects them onto the cell's diamond, so they follow every rotation.
+const ripples = computed(() => {
+  const r = settings.mapRotation
+  const [fa, fb] = rotOffset([0, 1], r)
+  // +v always points down the screen: the water sits a little below the cell's centre,
+  // whichever way the map is turned
+  let [aa, ab] = rotOffset([1, 0], r)
+  if (aa + ab < 0) [aa, ab] = [-aa, -ab]
+  const W = PROJ.TILE_W / 2, H = PROJ.TILE_H / 2
+  const matrix = `matrix(${W * (fa - fb)} ${H * (fa + fb)} ${W * (aa - ab)} ${H * (aa + ab)} ${W} ${H})`
+  return Array.from({ length: PROJ.GRID }, (_, b) => {
+    const [a, y] = rotCell([RIVER_COL, b], r)
+    // a lily cell has a rock in the stream; ripples would draw over it
+    if (tileAt(RIVER_COL, b)[0] !== 'tile-river') return null
+    return {
+      key: b,
+      matrix,
+      // staggered so the river never pulses in step
+      delay: [`${-((b * 0.7) % 3).toFixed(2)}s`, `${-((b * 0.7 + 1.5) % 3).toFixed(2)}s`],
+      left: `${px(cellX(a, y) - W).toFixed(2)}px`,
+      top: `${py(cellY(a, y)).toFixed(2)}px`,
+      width: `${(PROJ.TILE_W * u.value).toFixed(2)}px`,
+      height: `${(PROJ.TILE_H * u.value).toFixed(2)}px`,
+    }
+  }).filter(Boolean)
+})
 
 const statusKey = { built: 'stBuilt', next: 'stNext', plan: 'stPlan' }
 
@@ -339,6 +368,18 @@ onUnmounted(() => {
             decoding="async"
             :style="s.box"
           />
+          <svg
+            v-for="w in ripples"
+            :key="'w' + w.key"
+            class="kid-map-ripple"
+            viewBox="0 0 48 24"
+            :style="{ left: w.left, top: w.top, width: w.width, height: w.height }"
+          >
+            <g :transform="w.matrix">
+              <path d="M-0.3 0 q0.06 -0.05 0.12 0 t0.12 0" :style="{ animationDelay: w.delay[0] }" />
+              <path d="M0 0.12 q0.06 -0.05 0.12 0 t0.12 0" :style="{ animationDelay: w.delay[1] }" />
+            </g>
+          </svg>
           <svg
             v-for="d in diamonds"
             :key="d.key"
