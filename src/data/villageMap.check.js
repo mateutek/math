@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 import { BUILDINGS } from './buildings.js'
 import SPRITES from './villageSprites.json' with { type: 'json' }
 import {
-  PROJ, SCALE, HALF, LIFT, GROUND_DY, CONNECTS, PLOTS, DECOR, TILES, DOORS, SPURS, PATH_COL, PATH_ROW,
+  PROJ, SCALE, HALF, LIFT, GROUND_DY, CONNECTS, PLOTS, DECOR, TILES, DOORS, SPURS, PATH_COL, PATH_ROW, doorCell,
   allSpriteFiles, artBox, cellX, cellY, groundAt, mapItems, rotCell, rotFace, rotOffset,
   spriteX, spriteY,
 } from './villageMap.js'
@@ -47,10 +47,14 @@ assert.deepEqual(counts, {
 // every door has a path: from the cell before it, over grass, to a road
 assert.deepEqual(SPURS.map((s) => s.id), DOORS)
 for (const { id, cells: trail } of SPURS) {
-  assert.deepEqual(trail[0], [PLOTS[id][0], PLOTS[id][1] + 1], `${id} path starts at its door`)
+  assert.deepEqual(trail[0], doorCell(id), `${id} path starts at its door`)
   const [ja, jb] = trail.at(-1)
   assert.ok((ja === PATH_COL) !== (jb === PATH_ROW), `${id} path meets a road, not the crossing`)
-  assert.equal(groundAt(...trail[0])[0], 'grass_pathEnd', `${id} path ends at the door`)
+  // the door cell's piece opens into the building
+  const [da, db] = trail[0]
+  const [name, facing] = groundAt(da, db)
+  const inward = SPURS.find((s) => s.id === id).in
+  assert.ok(CONNECTS[name].some((d) => rotOffset(d, 'NESW'.indexOf(facing)).join() === inward.join()), `${id} path reaches the door`)
   for (const c of trail) assert.ok(groundAt(...c)[0].startsWith('grass_path'), `${id} path at ${c}`)
 }
 

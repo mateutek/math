@@ -232,12 +232,18 @@ export const nearPlot = (a, b) => PLOT_CELLS.some(([x, y]) => Math.abs(a - x) < 
 // ---------------------------------------------------------------------------
 // Garden paths: one from each door to the nearest road
 // ---------------------------------------------------------------------------
-// Doors face +b on every tier (measured off the renders); the well, market and
-// farm are open and the bridge is a road, so they have none. Each path is the
+// Doors face +b on every tier (measured off the renders), but the tower's faces
+// +a; the well, market and farm are open and the bridge is a road, so they
+// have none. Each path is the
 // cheapest walk from the cell before the door to a road, a turn costing half a
 // step, over grass only: never a plot, the river, the crossing or another
 // path. Fixed at load, like the roads, built or not.
 export const DOORS = ['hut', 'bakery', 'school', 'library', 'townhall', 'mill', 'tower', 'castle']
+const DOOR_SIDE = { tower: [1, 0] }
+export const doorCell = (id) => {
+  const [dx, dy] = DOOR_SIDE[id] ?? [0, 1]
+  return [PLOTS[id][0] + dx, PLOTS[id][1] + dy]
+}
 const STEPS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 const key = (a, b) => `${a},${b}`
 const PLOT_SET = new Set(PLOT_CELLS.map(([a, b]) => key(a, b)))
@@ -265,13 +271,15 @@ function spurFrom([a0, b0], taken) {
   throw new Error(`no road reachable from the door at ${a0},${b0}`)
 }
 
-// each path runs door cell .. road cell; the road cell is the last one
+// each path runs door cell .. road cell; the road cell is the last one.
+// in: the step from the door cell into the building, so the dirt runs up to the door.
 export const SPURS = (() => {
   const taken = new Set()
   return DOORS.map((id) => {
-    const trail = spurFrom([PLOTS[id][0], PLOTS[id][1] + 1], taken)
+    const trail = spurFrom(doorCell(id), taken)
     trail.slice(0, -1).forEach(([a, b]) => taken.add(key(a, b)))
-    return { id, cells: trail }
+    const [dx, dy] = DOOR_SIDE[id] ?? [0, 1]
+    return { id, cells: trail, in: [-dx, -dy] }
   })
 })()
 
@@ -286,7 +294,8 @@ const LINKS = (() => {
     }
     out.get(key(a, b)).push(d)
   }
-  for (const { cells } of SPURS) {
+  for (const { cells, in: door } of SPURS) {
+    add(cells[0], door)
     for (let i = 1; i < cells.length; i++) {
       const [p, q] = [cells[i - 1], cells[i]]
       add(p, [q[0] - p[0], q[1] - p[1]])
