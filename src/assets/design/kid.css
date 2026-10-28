@@ -97,13 +97,16 @@
 
 /* While the on-screen keyboard is up GameCard pins the card to what is left of
    the screen (it sets top and height), above the header and the tab bar, and
-   everything packs tighter so the field and both buttons stay in sight. */
+   everything packs tighter so the question, the field and both buttons fit.
+   A long word problem may still not: the card scrolls rather than cut it. */
 .kid-card.kb {
   position: fixed; left: 0; right: 0; z-index: 30; flex: none;
   padding: 10px 14px; gap: 8px; border-radius: 0; box-shadow: none;
+  overflow-y: auto; overscroll-behavior: contain;
 }
 .kid-card.kb .kid-eq, .kid-card.kb .kid-eq.sm { font-size: clamp(24px, 8vw, 40px); }
-.kid-card.kb .kid-prompt { display: none; }
+.kid-card.kb .kid-prompt { font-size: 13px; }
+.kid-card.kb .kid-story { flex: none; font-size: 16px; line-height: 1.35; }
 .kid-card.kb .kid-field-label { margin-bottom: 2px; }
 .kid-card.kb .kid-input, .kid-card.kb .kid-btn { height: 46px; }
 

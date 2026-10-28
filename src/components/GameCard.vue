@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { X, RefreshCw } from 'lucide-vue-next'
 import StarRow from '@/components/StarRow.vue'
@@ -26,12 +26,28 @@ defineProps({
 // part of the screen that is left (and kid.css packs it tighter), so the field
 // and both buttons stay in sight.
 const kb = ref(null)
+const card = ref(null)
 const vv = window.visualViewport
 
 function onViewport() {
   // a keyboard takes a good third of a phone; a pinch-zoom (scale != 1) is not one
   const open = vv.scale === 1 && window.innerHeight - vv.height > 150
+  const opening = open && !kb.value
   kb.value = open ? { top: `${vv.offsetTop}px`, height: `${vv.height}px` } : null
+  if (opening) nextTick(showField)
+}
+
+// Once pinned, the card starts at its top so the question is read first. Only
+// if the field would then sit under the keyboard does the card scroll, and
+// just far enough to bring it up. Not scrollIntoView: that scrolls the page too.
+function showField() {
+  const el = card.value
+  if (!el) return
+  el.scrollTop = 0
+  const field = el.contains(document.activeElement) ? document.activeElement : null
+  if (!field) return
+  const below = field.getBoundingClientRect().bottom - el.getBoundingClientRect().bottom + 12
+  if (below > 0) el.scrollTop = below
 }
 
 onMounted(() => {
@@ -46,6 +62,7 @@ onUnmounted(() => {
 
 <template>
   <div
+    ref="card"
     class="kid-card"
     :class="{ correct: round.flash === 'green', wrong: round.flash === 'red', kb }"
     :style="{ borderColor: color, borderWidth: '2px', '--k-display-op': color, '--k-ink': ink || color, ...kb }"
